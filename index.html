@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SILENT PAWN - 組織運営＆資金管理システム vLayoff</title>
+    <style>
+        :root {
+            --bg-color: #0a0a0a; --panel-bg: #111; --border-color: #333;
+            --text-main: #d0d0d0; --text-muted: #888;
+            --green: #4CAF50; --red: #f44336; --yellow: #ffeb3b;
+            --blue: #2196F3; --purple: #9c27b0; --gold: #ffd700;
+        }
+        
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Courier New', Courier, monospace; margin: 0; padding: 10px; font-size: 14px; }
+        h1 { color: #ffffff; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1.2rem; margin-top: 5px; text-align: center; }
+        
+        #start-screen { text-align: center; margin-top: 10vh; }
+        #start-screen input { padding: 10px; font-size: 1.2rem; background: #222; color: #fff; border: 1px solid var(--green); text-align: right; }
+        
+        .dashboard { display: flex; flex-wrap: wrap; gap: 10px; background: var(--panel-bg); padding: 15px; border: 1px solid var(--border-color); margin-bottom: 15px; }
+        .stat-box { flex: 1 1 45%; font-size: 0.9rem; }
+        .stat-value { display: block; font-size: 1.2rem; font-weight: bold; margin-top: 3px; }
+        .text-green { color: var(--green); } .text-red { color: var(--red); } .text-yellow { color: var(--yellow); } .text-blue { color: var(--blue); } .text-gold { color: var(--gold); text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); } .text-purple { color: var(--purple); }
+
+        .tab-menu { display: flex; gap: 5px; margin-bottom: 0; }
+        .tab-btn { flex: 1; padding: 12px 5px; background: #1a1a1a; color: #666; border: 1px solid var(--border-color); border-bottom: none; cursor: pointer; font-size: 0.95rem; font-weight: bold; border-radius: 4px 4px 0 0; transition: all 0.2s;}
+        .tab-btn.active { background: #222; color: var(--gold); border-top: 2px solid var(--gold); }
+        .tab-content { display: none; background: #222; border: 1px solid var(--border-color); padding: 15px; border-radius: 0 0 4px 4px; margin-bottom: 15px; min-height: 400px; }
+        .tab-content.active { display: block; }
+
+        .box { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 10px; margin-bottom: 15px; }
+        .box h2 { margin-top: 0; font-size: 1rem; color: var(--text-muted); border-bottom: 1px dashed var(--border-color); padding-bottom: 5px; }
+
+        details.accordion summary { cursor: pointer; list-style: none; outline: none; }
+        details.accordion summary::-webkit-details-marker { display: none; }
+        .summary-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; margin-bottom: 10px; }
+        .summary-header .title-text { font-size: 1rem; color: var(--text-muted); font-weight: bold; }
+        .summary-header .status-text { font-size: 0.85rem; color: #888; }
+        .accordion-icon { display: inline-block; margin-left: 5px; font-size: 0.7rem; transition: transform 0.3s; }
+        details[open].accordion .accordion-icon { transform: rotate(180deg); }
+
+        .btn { background-color: #333; color: #ddd; border: 1px solid #555; padding: 12px; cursor: pointer; font-family: inherit; font-size: 1rem; width: 100%; transition: all 0.2s; border-radius: 4px; box-sizing: border-box; }
+        .btn:hover:not(:disabled) { background-color: #555; color: #fff; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-action { margin-top: 10px; font-size: 0.9rem; padding: 10px; text-align: left; }
+        .btn-main { background-color: #1a3a1a; border-color: var(--green); color: var(--green); font-weight: bold; font-size: 1.1rem; text-align: center;}
+        .btn-buy { background-color: #3a2a1a; border-color: var(--gold); color: var(--gold); font-weight: bold; text-align: center;}
+        
+        .table-wrapper { max-height: 350px; overflow-y: auto; overflow-x: auto; border-bottom: 1px solid #222;}
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; white-space: nowrap; }
+        th, td { border: 1px solid #222; padding: 8px; text-align: right; }
+        th { background-color: #111; color: var(--text-muted); text-align: center; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.4);}
+        td:first-child { text-align: left; }
+
+        .log-area { height: 250px; overflow-y: auto; background: #050505; padding: 10px; border: 1px inset #222; font-size: 0.85rem; color: #999; }
+        .log-entry { margin-bottom: 5px; border-bottom: 1px dashed #111; padding-bottom: 3px; }
+
+        #request-area { display: none; background: #2a1111; border: 1px solid var(--red); animation: pulse 2s infinite; margin-bottom: 15px;}
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); } 70% { box-shadow: 0 0 10px 5px rgba(244, 67, 54, 0); } 100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); } }
+        .flex-buttons { display: flex; gap: 10px; margin-top: 15px; } .flex-buttons .btn { text-align: center; }
+
+        .staff-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #333; padding: 10px 0; }
+        .staff-info { flex: 2; }
+        .staff-act { flex: 1; text-align: right; display: flex; gap: 5px; justify-content: flex-end; }
+        .accent-text { font-size: 0.8rem; color: var(--yellow); }
+
+        .save-slot { display: flex; flex-direction: column; background: #111; padding: 10px; margin-bottom: 10px; border: 1px solid #333; border-radius: 4px;}
+        .save-slot span { font-size: 0.85rem; margin-bottom: 5px; color: #bbb;}
+        .slot-actions { display: flex; gap: 10px; }
+        .slot-actions button { flex: 1; padding: 8px; background: #222; border: 1px solid #555; color: #ddd; cursor: pointer; font-size: 0.8rem; border-radius: 4px;}
+        .slot-actions button:hover:not(:disabled) { background: #444; }
+    </style>
+</head>
+<body>
+
+    <!-- スタート画面 -->
+    <div id="start-screen">
+        <h1 style="font-size: 2rem; letter-spacing: 5px; border:none; margin-bottom:0;">SILENT PAWN</h1>
+        <p style="color: #888; margin-bottom: 30px;">資金洗浄・物理ストレージ管理システム</p>
+        
+        <div style="background: var(--panel-bg); border: 1px solid var(--border-color); padding: 30px; display: inline-block; border-radius: 8px;">
+            <p style="font-size: 1.1rem; margin-top: 0;">新規ゲーム開始</p>
+            
+            <div style="display:flex; justify-content:center; gap:10px; margin-bottom: 20px;">
+                <div><input type="number" id="init-year" value="2026" style="width: 80px;"> 年</div>
+                <div><input type="number" id="init-month" value="4" min="1" max="12" style="width: 60px;"> 月</div>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <input type="number" id="init-money" value="100000" step="1000" style="width: 150px;"> 万円
+            </div>
+            
+            <button class="btn btn-main" style="width: 250px; font-size: 1.1rem; padding: 15px;" onclick="startGame()">システム起動</button>
+            
+            <div style="margin-top: 30px; border-top: 1px dashed var(--border-color); padding-top: 20px;">
+                <p style="margin-top:0; color:#aaa;">セーブデータから再開</p>
+                <button id="start-load-btn-1" class="btn" style="margin-bottom:10px;" onclick="loadGame(1)">NO DATA</button>
+                <button id="start-load-btn-2" class="btn" style="margin-bottom:10px;" onclick="loadGame(2)">NO DATA</button>
+                <button id="start-load-btn-3" class="btn" onclick="loadGame(3)">NO DATA</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- メイン画面 -->
+    <div id="game-screen" style="display: none;">
+        <h1>[SYS] SILENT PAWN - 組織管理コンソール</h1>
+
+        <!-- ダッシュボード -->
+        <div class="dashboard">
+            <div class="stat-box" style="flex: 1 1 100%; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; margin-bottom: 5px;">
+                <span id="display-date" class="text-yellow" style="font-size: 1.3rem;"></span>
+                <span style="font-size: 0.9rem; color: #888; margin-left:10px;">(稼働: <span id="display-elapsed"></span>ヶ月)</span>
+                <span style="float:right; font-size: 0.9rem;">闇の知名度: <span id="display-rep-dash" class="text-purple">0</span>%</span>
+            </div>
+
+            <!-- 事業資産 -->
+            <div class="stat-box" style="flex: 1 1 100%; margin-bottom: 5px;">
+                事業総資産 (表金 + 裏金 + 保管物価値): <span class="text-main" id="display-total-assets" style="font-size: 1.2rem; font-weight:bold;">0 円</span>
+            </div>
+
+            <!-- 資金3分割表示 -->
+            <div class="stat-box" style="background:#132013; border:1px solid var(--green); padding:10px; border-radius:4px;">
+                <span style="font-size:0.8rem; color:#aaa;">[表金] 事業クリーン資金</span>
+                <span class="stat-value text-green" id="display-clean-money">0 円</span>
+                <span id="display-clean-diff" style="font-size:0.8rem;"></span>
+            </div>
+            <div class="stat-box" style="background:#201010; border:1px solid var(--red); padding:10px; border-radius:4px;">
+                <span style="font-size:0.8rem; color:#aaa;">[裏金] 事業ヤバい資金</span>
+                <span class="stat-value text-red" id="display-dirty-money">0 円</span>
+                <span id="display-dirty-diff" style="font-size:0.8rem;"></span>
+            </div>
+            <div class="stat-box" style="flex: 1 1 100%; background:#2a2010; border:1px solid var(--gold); padding:10px; border-radius:4px; margin-top:5px;">
+                <span style="font-size:0.8rem; color:#aaa;">👑 個人資産 (クリアスコア / 懐に入れた金)</span>
+                <span class="stat-value text-gold" id="display-personal-money" style="font-size:1.5rem;">0 円</span>
+            </div>
+            
+            <!-- 収入・支出 -->
+            <div class="stat-box" style="flex: 1 1 100%; margin-top:5px; border-top: 1px dashed #333; padding-top: 10px;">
+                月次総収入 (表・裏 合計)
+                <span class="stat-value text-green" id="display-income">0 円</span>
+                <span style="font-size:0.85rem; color:#aaa;">(表金: <span id="display-income-clean">0 円</span> / 裏金: <span id="display-income-dirty">0 円</span>)</span><br>
+                <span style="font-size:0.85rem; color:var(--red);">人件費・報酬合計: <span id="display-personnel-cost">0</span> 円</span>
+            </div>
+            
+            <!-- 稼働枠 -->
+            <div class="stat-box" style="flex: 1 1 100%;">
+                預かり稼働状況 <span style="font-size:0.8rem; color:#888;">(使用中 / 有効枠)</span>
+                <div style="font-size:0.9rem; margin-top:5px; background:#1a1a1a; padding:5px; border-radius:4px; line-height: 1.6;">
+                    🇯🇵 <b>国内:</b> [一般] <span id="dash-dom-norm-used" class="text-main">0</span> / <span id="dash-dom-norm-cap" class="text-yellow">0</span> 箱 <span style="font-size:0.75rem; color:#666;">(物理上限:<span id="dash-dom-cap">0</span>)</span> <span id="dash-dom-ad"></span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[違法] <span id="dash-dom-ill-used" class="text-red">0</span> / <span id="dash-dom-ill-cap" class="text-yellow">0</span> 箱 <span style="font-size:0.75rem; color:#666;">(運搬管理枠)</span><br>
+                    🇨🇭 <b>海外:</b> [一般] <span id="dash-ovs-norm-used" class="text-main">0</span> / <span id="dash-ovs-norm-cap" class="text-yellow">0</span> 箱 <span style="font-size:0.75rem; color:#666;">(物理上限:<span id="dash-ovs-cap">0</span>)</span> <span id="dash-ovs-ad"></span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[違法] <span id="dash-ovs-ill-used" class="text-red">0</span> / <span id="dash-ovs-ill-cap" class="text-yellow">0</span> 箱 <span style="font-size:0.75rem; color:#666;">(運搬管理枠)</span>
+                </div>
+            </div>
+            <button class="btn btn-main" id="btn-next-month" onclick="nextMonth()">[ENTER] 次の月へ進む</button>
+        </div>
+
+        <!-- 違法依頼ポップアップ -->
+        <div class="box" id="request-area">
+            <h2 style="color: var(--red);" id="request-title">[WARNING] 違法動産の持ち込み依頼</h2>
+            <div id="request-details" style="font-size: 0.95rem; line-height: 1.6; color: #ddd;"></div>
+            <div class="flex-buttons">
+                <button class="btn" style="background: #331111; border-color: var(--red); color: #fff;" onclick="acceptRequest()">受理 (現金を貸付)</button>
+                <button class="btn" style="border-color: #555;" onclick="rejectRequest()">拒否して追い返す</button>
+            </div>
+        </div>
+
+        <!-- タブメニュー -->
+        <div class="tab-menu">
+            <button class="tab-btn active" id="btn-tab-storage" onclick="switchTab('tab-storage')">📦 物理ストレージ</button>
+            <button class="tab-btn" id="btn-tab-hr" onclick="switchTab('tab-hr')">👥 人事・戦略</button>
+            <button class="tab-btn" id="btn-tab-sys" onclick="switchTab('tab-sys')">💻 資金・システム</button>
+        </div>
+
+        <!-- ================= タブ1: 物理ストレージ ================= -->
+        <div id="tab-storage" class="tab-content active">
+            <h2 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:5px; color:#fff;">📦 預かり品リスト</h2>
+            
+            <div id="req-staff-warning" style="display:none; color:var(--yellow); font-weight:bold; margin-bottom:10px; padding:10px; background:#332200; border:1px solid var(--yellow);">
+                ⚠️ 警告: 作業員が不足しています！雇用しないと新しい荷物を受け入れられません。
+            </div>
+            <div id="req-broker-warning" style="display:none; color:#bbb; margin-bottom:10px; padding:10px; background:#111; border:1px solid #555;">
+                💡 ヒント: 「専属ブローカー」を雇うと、客が失踪し所有権が移った違法動産をいつでも手動で高値売却できるようになります。
+            </div>
+
+            <details class="box accordion" open id="domestic-accordion" style="border-color: #555;">
+                <summary>
+                    <div class="summary-header">
+                        <span class="title-text">🇯🇵 物理ストレージ (国内拠点)</span>
+                        <span class="status-text">稼働: [一般] <span id="list-dom-norm-info">0/0</span> [違法] <span id="list-dom-ill-info">0/0</span> <span class="accordion-icon">▼</span></span>
+                    </div>
+                </summary>
+                <div class="table-wrapper">
+                    <table id="dom-inventory-table">
+                        <thead><tr><th>品名</th><th>査定額 / 貸付金(80%)</th><th>現在価値</th><th>月額保管料</th><th>操作</th></tr></thead>
+                        <tbody id="dom-inventory-body"></tbody>
+                    </table>
+                </div>
+            </details>
+            
+            <details class="box accordion" open id="overseas-accordion" style="display: none; border-color: var(--blue);">
+                <summary>
+                    <div class="summary-header" style="border-color: var(--blue);">
+                        <span class="title-text" style="color:var(--blue);">🇨🇭 スイス VIP倉庫 (海外拠点)</span>
+                        <span class="status-text">稼働: [一般] <span id="list-ovs-norm-info">0/0</span> [違法] <span id="list-ovs-ill-info">0/0</span> <span class="accordion-icon">▼</span></span>
+                    </div>
+                </summary>
+                <div class="table-wrapper">
+                    <table id="ovs-inventory-table">
+                        <thead><tr><th>品名</th><th>査定額 / 貸付金(80%)</th><th>現在価値</th><th>月額保管料</th><th>操作</th></tr></thead>
+                        <tbody id="ovs-inventory-body"></tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+
+        <!-- ================= タブ2: 人事・戦略コマンド ================= -->
+        <div id="tab-hr" class="tab-content">
+            <h2 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:5px; color:#fff;">👥 組織管理・コマンド</h2>
+            
+            <div class="box" id="hr-panel">
+                <h3 style="margin-top:0; color:var(--gold);">👑 役員 (経営陣)</h3>
+                <div class="staff-row" style="background:#221a00; border:1px solid var(--gold); padding:10px; border-radius:4px; margin-bottom:15px;">
+                    <div class="staff-info">
+                        <strong style="font-size:1.1rem; color:var(--gold);">CEO (あなた)</strong><br>
+                        <span style="font-size:0.8rem; color:#aaa;">能力なし。事業の【表金】から、毎月自動で個人の懐へ報酬を振り込む。</span>
+                    </div>
+                    <div class="staff-act" style="text-align:right; display:block;">
+                        月給: <input type="number" id="input-ceo-salary" value="0" step="10" style="width:70px; padding:5px; background:#111; color:#fff; border:1px solid #555; text-align:right;"> 万円<br>
+                        <button class="btn" style="padding:4px 8px; margin-top:5px; font-size:0.8rem; border-color:var(--gold); color:var(--gold);" onclick="setCeoSalary()">報酬を設定</button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:0; color:var(--gold);">🌐 共通裏スタッフ (必須要員)</h3>
+                <div class="staff-row" style="border-bottom:none; background:#1a1a1a; padding:10px; border-radius:4px; margin-bottom:15px; border:1px dashed var(--gold);">
+                    <div class="staff-info">
+                        <strong style="font-size:1.1rem; color:var(--yellow);">🧽 洗屋 (マネーロンダラー)</strong> <span class="accent-text">(現在: <span id="ui-staff-launderer">0</span>人)</span><br>
+                        <span style="font-size:0.8rem; color:#aaa;">給与: 200万円/月(裏金)。毎月最大「1億円/人」の裏金を、手数料5%を引いて表金に洗浄。</span>
+                    </div>
+                    <div class="staff-act">
+                        <button class="btn" style="padding:6px; border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('launderer')">契約(200万)</button>
+                        <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('launderer')">解雇</button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:15px; border-top:1px dashed #555; padding-top:15px; color:var(--green);">🇯🇵 国内スタッフ (固定費発生)</h3>
+                <div class="staff-row">
+                    <div class="staff-info">
+                        <strong>👷 国内作業員</strong> <span class="accent-text">(現在: <span id="ui-dom-work">0</span>人)</span><br>
+                        <span style="font-size:0.8rem; color:#888;">30万円/月(表)。国内一般枠を 50箱/人 管理。</span>
+                    </div>
+                    <div class="staff-act">
+                        <button class="btn" style="padding:6px;" onclick="hireStaff('domWork')">採用(30万)</button>
+                        <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('domWork')">解雇</button>
+                    </div>
+                </div>
+                <div class="staff-row">
+                    <div class="staff-info">
+                        <strong style="color:var(--red);">🚛 国内運搬作業員</strong> <span class="accent-text">(現在: <span id="ui-dom-trans">0</span>人)</span><br>
+                        <span style="font-size:0.8rem; color:#888;">50万円/月(裏)。国内違法枠を 10箱/人 管理(必須)。</span>
+                    </div>
+                    <div class="staff-act">
+                        <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="hireStaff('domTrans')">採用(50万)</button>
+                        <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('domTrans')">解雇</button>
+                    </div>
+                </div>
+                <div class="staff-row">
+                    <div class="staff-info">
+                        <strong style="color:var(--purple);">🕴️ 国内エージェント</strong> <span class="accent-text">(現在: <span id="ui-dom-agent">0</span>人)</span><br>
+                        <span style="font-size:0.8rem; color:#888;">200万円/月(裏)。国内の違法依頼を引っ張ってくる。</span>
+                    </div>
+                    <div class="staff-act">
+                        <button class="btn" style="padding:6px; border-color:var(--purple); color:var(--purple);" onclick="hireStaff('domAgent')">契約(200万)</button>
+                        <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('domAgent')">解雇</button>
+                    </div>
+                </div>
+                <div class="staff-row" style="border-bottom:none;">
+                    <div class="staff-info">
+                        <strong style="color:#ff9800;">💼 国内ブローカー</strong> <span class="accent-text">(現在: <span id="ui-dom-broker">0</span>人)</span><br>
+                        <span style="font-size:0.8rem; color:#888;">150万円/月(裏)。国内の所有権が移った違法品を手動売却。</span>
+                    </div>
+                    <div class="staff-act">
+                        <button class="btn" style="padding:6px; border-color:#ff9800; color:#ff9800;" onclick="hireStaff('domBroker')">契約(150万)</button>
+                        <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('domBroker')">解雇</button>
+                    </div>
+                </div>
+
+                <div id="hr-ovs-section" style="display:none;">
+                    <h3 style="margin-top:15px; border-top:1px dashed #555; padding-top:15px; color:var(--blue);">🇨🇭 海外スタッフ (固定費発生)</h3>
+                    <div class="staff-row">
+                        <div class="staff-info">
+                            <strong>👨‍💻 海外作業員</strong> <span class="accent-text">(現在: <span id="ui-ovs-work">0</span>人)</span><br>
+                            <span style="font-size:0.8rem; color:#888;">100万円/月(表)。海外一般枠を 50箱/人 管理。</span>
+                        </div>
+                        <div class="staff-act">
+                            <button class="btn" style="padding:6px; border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsWork')">採用(100万)</button>
+                            <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsWork')">解雇</button>
+                        </div>
+                    </div>
+                    <div class="staff-row">
+                        <div class="staff-info">
+                            <strong style="color:var(--red);">✈️ 海外運搬作業員</strong> <span class="accent-text">(現在: <span id="ui-ovs-trans">0</span>人)</span><br>
+                            <span style="font-size:0.8rem; color:#888;">150万円/月(裏)。海外違法枠を 10箱/人 管理(必須)。</span>
+                        </div>
+                        <div class="staff-act">
+                            <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="hireStaff('ovsTrans')">採用(150万)</button>
+                            <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsTrans')">解雇</button>
+                        </div>
+                    </div>
+                    <div class="staff-row">
+                        <div class="staff-info">
+                            <strong style="color:var(--purple);">🕵️ 海外エージェント</strong> <span class="accent-text">(現在: <span id="ui-ovs-agent">0</span>人)</span><br>
+                            <span style="font-size:0.8rem; color:#888;">300万円/月(裏)。海外の違法依頼を引っ張ってくる。</span>
+                        </div>
+                        <div class="staff-act">
+                            <button class="btn" style="padding:6px; border-color:var(--purple); color:var(--purple);" onclick="hireStaff('ovsAgent')">契約(300万)</button>
+                            <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsAgent')">解雇</button>
+                        </div>
+                    </div>
+                    <div class="staff-row" style="border-bottom:none;">
+                        <div class="staff-info">
+                            <strong style="color:#ff9800;">🤝 海外ブローカー</strong> <span class="accent-text">(現在: <span id="ui-ovs-broker">0</span>人)</span><br>
+                            <span style="font-size:0.8rem; color:#888;">250万円/月(裏)。海外の所有権移転品を手動売却。</span>
+                        </div>
+                        <div class="staff-act">
+                            <button class="btn" style="padding:6px; border-color:#ff9800; color:#ff9800;" onclick="hireStaff('ovsBroker')">契約(250万)</button>
+                            <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsBroker')">解雇</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3 style="margin-top:0;">設備投資 (物理枠の拡張) <span style="font-size:0.8rem; color:var(--green);">※表金のみ</span></h3>
+                <div id="cmd-buy-first">
+                    <button class="btn btn-buy" onclick="buyFirstWarehouse()">[物件取得] 最初の倉庫を購入 (表金 5,000万円)<br><span style="font-size:0.75rem;">※物理枠+100箱。ビジネス開始</span></button>
+                </div>
+                
+                <div id="cmd-dom" style="display: none;">
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-action" id="btn-dom-ad" onclick="runDomAd()">[表の広告] 国内宣伝 (表 300万)<br><span style="font-size:0.75rem;color:#888;">6ヶ月間、一般客が流入</span></button>
+                        <button class="btn btn-action" id="btn-dom-expand" onclick="expandDomWarehouse()">[国内拡張] 倉庫増床 (表 3,000万)<br><span style="font-size:0.75rem;color:#888;">国内の物理上限 +50箱</span></button>
+                    </div>
+                    <button class="btn btn-action" id="btn-rep-ad" onclick="runRepAd()" style="border-color: #777;">[裏工作] 闇ブローカー買収 (裏優先 1,000万円)<br><span style="font-size:0.75rem;color:#888;">違法依頼の発生ベース率UP</span></button>
+                    <button class="btn btn-action" id="btn-buy-ovs" onclick="buyOverseasWarehouse()" style="border-color: var(--blue); color: var(--blue); margin-top:10px;">[買収] 海外VIP倉庫 (表金 3億円)<br><span style="font-size:0.75rem;">海外拠点のアンロック (条件: 国内エージェント1人以上)</span></button>
+                </div>
+
+                <div id="cmd-ovs" style="display: none; margin-top: 15px; border-top: 1px dashed var(--blue); padding-top: 10px;">
+                    <h3 style="margin:0 0 5px 0; font-size:0.95rem; color:var(--blue);">海外拠点コマンド</h3>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-action" id="btn-ovs-ad" onclick="runOvsAd()" style="border-color:var(--blue); color:var(--blue);">[海外広告] VIP宣伝 (表 300万)<br><span style="font-size:0.75rem;color:#888;">6ヶ月間、富裕層が流入</span></button>
+                        <button class="btn btn-action" id="btn-ovs-expand" onclick="expandOvsWarehouse()" style="border-color:var(--blue); color:var(--blue);">[海外拡張] 倉庫増床 (表 3,000万)<br><span style="font-size:0.75rem;color:#888;">海外の物理上限 +50箱</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= タブ3: 資金・システム ================= -->
+        <div id="tab-sys" class="tab-content">
+            <h2 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:5px; color:#fff;">💻 資金管理・システムログ</h2>
+            
+            <div class="box" style="border-color:var(--green);">
+                <h3 style="margin-top:0; color:var(--green);">事業への追加投入 / 強制引き出し <span style="font-size:0.8rem; color:#aaa;">(表金のみ可能)</span></h3>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="number" id="fund-amount" placeholder="万円単位で入力" step="100" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid var(--green); text-align:right;">
+                    <span style="white-space: nowrap;">万円</span>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="btn" style="border-color:var(--green); color:var(--green); padding:8px;" onclick="addFunds()">[+] 事業(表金)へ追加投入</button>
+                    <button class="btn" style="border-color:var(--gold); color:var(--gold); padding:8px;" onclick="withdrawFunds()">[-] 個人口座へ強制引出</button>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3 style="margin-top:0;">システムログ (直近6ヶ月)</h3>
+                <div class="log-area" id="system-log"></div>
+            </div>
+
+            <div class="box">
+                <h3 style="margin-top:0;">セーブ / ロード</h3>
+                <div class="save-slot">
+                    <span id="slot-info-1">Slot 1: NO DATA</span>
+                    <div class="slot-actions">
+                        <button onclick="saveGame(1)">上書きセーブ</button>
+                        <button id="game-load-btn-1" onclick="loadGame(1)">ロード</button>
+                    </div>
+                </div>
+                <div class="save-slot">
+                    <span id="slot-info-2">Slot 2: NO DATA</span>
+                    <div class="slot-actions">
+                        <button onclick="saveGame(2)">上書きセーブ</button>
+                        <button id="game-load-btn-2" onclick="loadGame(2)">ロード</button>
+                    </div>
+                </div>
+                <div class="save-slot">
+                    <span id="slot-info-3">Slot 3: NO DATA</span>
+                    <div class="slot-actions">
+                        <button onclick="saveGame(3)">上書きセーブ</button>
+                        <button id="game-load-btn-3" onclick="loadGame(3)">ロード</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let nextItemId = 1;
+
+        // 資金管理
+        let cleanMoney = 0; 
+        let dirtyMoney = 0;
+        let personalMoney = 0; 
+        let ceoSalary = 0;     
+
+        let lastMonthCleanCash = 0; 
+        let lastMonthDirtyCash = 0; 
+        
+        let startYear = 2026; let startMonth = 4;
+        let currentYear = 2026; let currentMonth = 4; let elapsedMonths = 0;
+
+        let reputation = 0; 
+        let hasWarehouse = false; let hasOverseas = false;
+        let currentRequests = []; 
+        
+        // 人事
+        let staffLaunderer = 0;
+        let staffDomWork = 0;   
+        let staffDomTrans = 0;  
+        let staffDomAgent = 0;  
+        let staffDomBroker = 0; 
+
+        let staffOvsWork = 0;   
+        let staffOvsTrans = 0;  
+        let staffOvsAgent = 0;  
+        let staffOvsBroker = 0; 
+
+        // 拠点
+        let domNormalInv = []; let domIllegalInv = []; let domCap = 0; let domAdMonths = 0; 
+        let ovsNormalInv = []; let ovsIllegalInv = []; let ovsCap = 0; let ovsAdMonths = 0;
+
+        const domNormalNames = ["【一般】古いアルバム", "【一般】元恋人の手紙", "【一般】遺品の腕時計", "【一般】アンティークカメラ", "【一般】誰かの日記帳", "【一般】大量の同人誌", "【一般】曰く付き日本人形", "【一般】未発表の小説原稿", "【一般】離婚前の指輪", "【一般】絶縁した親の形見"];
+        const domIllegalNames = ["【非合法】暗殺事件の凶器", "【非合法】政治家の裏帳簿", "【非合法】出処不明の金塊", "【非合法】機密データUSB", "【非合法】盗難美術品"];
+        const ovsNormalNames = ["【VIP】スイス銀行の匿名鍵", "【VIP】亡命者の隠し財産", "【VIP】美術品のコンテナ", "【VIP】租税回避地の法人書類", "【VIP】高級ヴィンテージワイン", "【VIP】クラシックカー権利書"];
+        const ovsIllegalNames = ["【国際手配】マフィアの裏資金", "【国際手配】テロ組織の武器", "【国際手配】盗難された国宝", "【国際手配】某国独裁者の金塊"];
+
+        function formatMoney(num) { return num.toLocaleString() + " 円"; }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.add('active');
+        }
+
+        function setCeoSalary() {
+            let val = parseInt(document.getElementById("input-ceo-salary").value);
+            if (isNaN(val) || val < 0) return alert("正しい金額を入力してください");
+            ceoSalary = val * 10000;
+            addLog(`【役員報酬】CEO(あなた)の月給を ${formatMoney(ceoSalary)} に設定しました。毎月「表金」から引き落とされます。`, "gold");
+        }
+
+        function payClean(amount) {
+            if (cleanMoney >= amount) { cleanMoney -= amount; return true; }
+            return false;
+        }
+
+        function payDirtyPreferred(amount) {
+            if (dirtyMoney >= amount) {
+                dirtyMoney -= amount; return true;
+            } else {
+                let rem = amount - dirtyMoney;
+                if (cleanMoney >= rem) {
+                    dirtyMoney = 0; cleanMoney -= rem; return true;
+                }
+                return false;
+            }
+        }
+
+        // --- セーブ＆ロード ---
+        function getSaveKey(slot) { return 'silentPawn_save_v8_' + slot; }
+
+        function saveGame(slot) {
+            let state = {
+                nextItemId, cleanMoney, dirtyMoney, personalMoney, ceoSalary, lastMonthCleanCash, lastMonthDirtyCash, startYear, startMonth, currentYear, currentMonth, elapsedMonths,
+                reputation, hasWarehouse, hasOverseas, currentRequests,
+                staffLaunderer, staffDomWork, staffDomTrans, staffDomAgent, staffDomBroker,
+                staffOvsWork, staffOvsTrans, staffOvsAgent, staffOvsBroker,
+                domNormalInv, domIllegalInv, domCap, domAdMonths,
+                ovsNormalInv, ovsIllegalInv, ovsCap, ovsAdMonths
+            };
+            localStorage.setItem(getSaveKey(slot), JSON.stringify(state));
+            addLog(`[SYSTEM] スロット${slot} に進行状況をセーブしました。`, "sys");
+            updateSaveSlots();
+        }
+
+        function loadGame(slot) {
+            let dataStr = localStorage.getItem(getSaveKey(slot));
+            if(!dataStr) return;
+            let state = JSON.parse(dataStr);
+            
+            nextItemId = state.nextItemId; 
+            cleanMoney = state.cleanMoney !== undefined ? state.cleanMoney : state.money; 
+            dirtyMoney = state.dirtyMoney || 0;
+            personalMoney = state.personalMoney || 0;
+            ceoSalary = state.ceoSalary || 0;
+            lastMonthCleanCash = state.lastMonthCleanCash || state.lastMonthCash || cleanMoney;
+            lastMonthDirtyCash = state.lastMonthDirtyCash || 0;
+            
+            startYear = state.startYear; startMonth = state.startMonth; currentYear = state.currentYear; currentMonth = state.currentMonth; elapsedMonths = state.elapsedMonths;
+            reputation = state.reputation || 0; hasWarehouse = state.hasWarehouse; hasOverseas = state.hasOverseas; currentRequests = state.currentRequests || [];
+            
+            staffLaunderer = state.staffLaunderer || 0;
+            staffDomWork = state.staffDomWork || 0; staffDomTrans = state.staffDomTrans || 0; staffDomAgent = state.staffDomAgent || 0; staffDomBroker = state.staffDomBroker || 0;
+            staffOvsWork = state.staffOvsWork || 0; staffOvsTrans = state.staffOvsTrans || 0; staffOvsAgent = state.staffOvsAgent || 0; staffOvsBroker = state.staffOvsBroker || 0;
+
+            domNormalInv = state.domNormalInv; domIllegalInv = state.domIllegalInv || []; domCap = state.domCap; domAdMonths = state.domAdMonths;
+            ovsNormalInv = state.ovsNormalInv; ovsIllegalInv = state.ovsIllegalInv || []; ovsCap = state.ovsCap; ovsAdMonths = state.ovsAdMonths;
+            
+            document.getElementById("start-screen").style.display = "none"; document.getElementById("game-screen").style.display = "block";
+            
+            document.getElementById("cmd-buy-first").style.display = hasWarehouse ? "none" : "block";
+            document.getElementById("cmd-dom").style.display = hasWarehouse ? "block" : "none";
+            document.getElementById("hr-panel").style.display = hasWarehouse ? "block" : "none";
+            
+            document.getElementById("overseas-accordion").style.display = hasOverseas ? "block" : "none";
+            document.getElementById("cmd-ovs").style.display = hasOverseas ? "block" : "none";
+            document.getElementById("hr-ovs-section").style.display = hasOverseas ? "block" : "none";
+            document.getElementById("btn-buy-ovs").style.display = (hasWarehouse && !hasOverseas) ? "block" : "none";
+            
+            document.getElementById("input-ceo-salary").value = ceoSalary / 10000;
+
+            addLog(`[SYSTEM] スロット${slot} のデータをロードしました。`);
+            
+            if (currentRequests && currentRequests.length > 0) showNextRequest();
+            else { document.getElementById("request-area").style.display = "none"; toggleMainButton(false); }
+            updateUI();
+        }
+
+        function updateSaveSlots() {
+            for(let i=1; i<=3; i++){
+                let data = localStorage.getItem(getSaveKey(i));
+                let txt = "NO DATA"; let btnDis = "disabled";
+                if(data){
+                    let state = JSON.parse(data);
+                    let pAsset = state.personalMoney || 0;
+                    txt = `${state.currentYear}年${state.currentMonth}月 / 個: ${formatMoney(pAsset)}`; btnDis = "";
+                }
+                let startBtn = document.getElementById(`start-load-btn-${i}`);
+                if(startBtn) { startBtn.innerText = `ロード (Slot ${i}): ${txt}`; startBtn.disabled = btnDis === "disabled"; }
+                let infoSpan = document.getElementById(`slot-info-${i}`);
+                let loadBtn = document.getElementById(`game-load-btn-${i}`);
+                if(infoSpan) infoSpan.innerText = `Slot ${i}: ${txt}`;
+                if(loadBtn) loadBtn.disabled = btnDis === "disabled";
+            }
+        }
+
+        function startGame() {
+            let inputMoneyMan = parseInt(document.getElementById("init-money").value);
+            let inputYear = parseInt(document.getElementById("init-year").value);
+            let inputMonth = parseInt(document.getElementById("init-month").value);
+            
+            if (isNaN(inputMoneyMan) || inputMoneyMan < 0 || isNaN(inputYear) || isNaN(inputMonth) || inputMonth < 1 || inputMonth > 12) {
+                alert("正しい数値を入力してください"); return;
+            }
+            
+            cleanMoney = inputMoneyMan * 10000; dirtyMoney = 0; personalMoney = 0; ceoSalary = 0;
+            lastMonthCleanCash = cleanMoney; lastMonthDirtyCash = dirtyMoney;
+            currentYear = inputYear; currentMonth = inputMonth; elapsedMonths = 0;
+            
+            document.getElementById("input-ceo-salary").value = "0";
+
+            document.getElementById("start-screen").style.display = "none"; document.getElementById("game-screen").style.display = "block";
+            addLog(`システム起動。初期資金 ${formatMoney(cleanMoney)} (表金) を確認。まずは「人事・戦略」タブから倉庫を購入してください。`);
+            updateUI();
+        }
+
+        function addFunds() {
+            let amtMan = parseInt(document.getElementById("fund-amount").value);
+            if(isNaN(amtMan) || amtMan <= 0) return alert("正しい金額を入力してください");
+            let amt = amtMan * 10000; cleanMoney += amt;
+            addLog(`【資金投入】外部口座から ${formatMoney(amt)} を表金として追加投入しました。`, "sys");
+            document.getElementById("fund-amount").value = ""; updateUI();
+        }
+
+        function withdrawFunds() {
+            let amtMan = parseInt(document.getElementById("fund-amount").value);
+            if(isNaN(amtMan) || amtMan <= 0) return alert("正しい金額を入力してください");
+            let amt = amtMan * 10000;
+            if(cleanMoney < amt) return alert("事業内の【表金】が不足しています。裏金は直接引き出せません（洗浄が必要です）。");
+            cleanMoney -= amt;
+            personalMoney += amt; 
+            addLog(`【資金引出】事業内から ${formatMoney(amt)} を個人の懐(クリアスコア)へ移動させました！`, "gold");
+            document.getElementById("fund-amount").value = ""; updateUI();
+        }
+
+        // --- 人事採用・解雇 ---
+        function hireStaff(type) {
+            if (type === 'launderer') {
+                if (payDirtyPreferred(2000000)) { staffLaunderer++; addLog(`【契約】洗屋を1名雇いました。`, "sys"); updateUI(); } else alert("資金が足りません。");
+            } else if (type === 'domWork') {
+                if (payClean(300000)) { staffDomWork++; addLog(`【採用】国内作業員を1名採用。`, "sys"); updateUI(); } else alert("【表金】が足りません。");
+            } else if (type === 'domTrans') {
+                if (payDirtyPreferred(500000)) { staffDomTrans++; addLog(`【採用】国内運搬作業員を1名採用。`, "red"); updateUI(); } else alert("資金が足りません。");
+            } else if (type === 'domAgent') {
+                if (payDirtyPreferred(2000000)) { staffDomAgent++; addLog(`【契約】国内エージェントを1名迎え入れました。`, "purple"); updateUI(); } else alert("資金が足りません。");
+            } else if (type === 'domBroker') {
+                if (payDirtyPreferred(1500000)) { staffDomBroker++; addLog(`【契約】国内ブローカーを1名雇いました。`, "gold"); updateUI(); } else alert("資金が足りません。");
+            } else if (type === 'ovsWork') {
+                if (payClean(1000000)) { staffOvsWork++; addLog(`【採用】海外作業員を1名採用。`, "sys"); updateUI(); } else alert("【表金】が足りません。");
+            } else if (type === 'ovsTrans') {
+                if (payDirtyPreferred(1500000)) { staffOvsTrans++; addLog(`【採用】海外運搬作業員を1名採用。`, "red"); updateUI(); } else alert("資金が足りません。");
+            } else if (type === 'ovsAgent') {
+                if (payDirtyPreferred(3000000)) { staffOvsAgent++; addLog(`【契約】海外エージェントを1名迎え入れました。`, "purple"); updateUI(); } else alert("資金が足りません。");
+            } else if (type === 'ovsBroker') {
+                if (payDirtyPreferred(2500000)) { staffOvsBroker++; addLog(`【契約】海外ブローカーを1名雇いました。`, "gold"); updateUI(); } else alert("資金が足りません。");
+            }
+        }
+
+        function fireStaff(type) {
+            let names = { launderer: "洗屋", domWork: "国内作業員", domTrans: "国内運搬作業員", domAgent: "国内エージェント", domBroker: "国内ブローカー", ovsWork: "海外作業員", ovsTrans: "海外運搬作業員", ovsAgent: "海外エージェント", ovsBroker: "海外ブローカー" };
+            
+            if (type === 'launderer' && staffLaunderer > 0) { staffLaunderer--; }
+            else if (type === 'domWork' && staffDomWork > 0) { staffDomWork--; }
+            else if (type === 'domTrans' && staffDomTrans > 0) { staffDomTrans--; }
+            else if (type === 'domAgent' && staffDomAgent > 0) { staffDomAgent--; }
+            else if (type === 'domBroker' && staffDomBroker > 0) { staffDomBroker--; }
+            else if (type === 'ovsWork' && staffOvsWork > 0) { staffOvsWork--; }
+            else if (type === 'ovsTrans' && staffOvsTrans > 0) { staffOvsTrans--; }
+            else if (type === 'ovsAgent' && staffOvsAgent > 0) { staffOvsAgent--; }
+            else if (type === 'ovsBroker' && staffOvsBroker > 0) { staffOvsBroker--; }
+            else {
+                return alert("解雇できるスタッフがいません。");
+            }
+            
+            addLog(`【解雇】${names[type]}を1名解雇しました。`, "alert");
+            updateUI();
+        }
+
+        function manualSellItem(id, region) {
+            let targetListIllegal = region === 'dom' ? domIllegalInv : ovsIllegalInv;
+            if (region === 'dom' && staffDomBroker <= 0) return alert("国内のブローカーがいません。");
+            if (region === 'ovs' && staffOvsBroker <= 0) return alert("海外のブローカーがいません。");
+
+            let idx = targetListIllegal.findIndex(i => i.id === id);
+            if (idx >= 0) {
+                let item = targetListIllegal[idx];
+                if (!item.abandoned) return alert("この品物はまだ持ち主との契約が切れていません。");
+                targetListIllegal.splice(idx, 1);
+                dirtyMoney += item.currentValue; 
+                addLog(`【強制売却】ブローカーを通じ、所有権の移った「${item.name}」を裏ルートで ${formatMoney(item.currentValue)} の【裏金】に変えました。`, "gold");
+                updateUI();
+            }
+        }
+
+        function addLog(message, type = "normal") {
+            const logArea = document.getElementById("system-log");
+            const div = document.createElement("div"); div.className = "log-entry"; div.dataset.elapsed = elapsedMonths; 
+            let timeStr = `[${currentYear}/${currentMonth.toString().padStart(2, '0')}] `;
+            if (type === "gain") div.innerHTML = timeStr + `<span class="text-green">${message}</span>`;
+            else if (type === "loss") div.innerHTML = timeStr + `<span class="text-red">${message}</span>`;
+            else if (type === "alert") div.innerHTML = timeStr + `<span class="text-yellow">${message}</span>`;
+            else if (type === "purple") div.innerHTML = timeStr + `<span style="color:var(--purple); font-weight:bold;">${message}</span>`;
+            else if (type === "blue") div.innerHTML = timeStr + `<span style="color:var(--blue); font-weight:bold;">${message}</span>`;
+            else if (type === "gold") div.innerHTML = timeStr + `<span style="color:var(--gold); font-weight:bold;">${message}</span>`;
+            else if (type === "sys") div.innerHTML = timeStr + `<span style="color:#aaa;">${message}</span>`;
+            else if (type === "red") div.innerHTML = timeStr + `<span style="color:var(--red); font-weight:bold;">${message}</span>`;
+            else div.innerText = timeStr + message;
+            logArea.prepend(div);
+        }
+        function cleanupLogs() {
+            const logArea = document.getElementById("system-log"); const entries = logArea.getElementsByClassName("log-entry");
+            for (let i = entries.length - 1; i >= 0; i--) { if (elapsedMonths - parseInt(entries[i].dataset.elapsed) >= 6) entries[i].remove(); }
+        }
+
+        function getUsableDomNormCap() { return Math.min(domCap, staffDomWork * 50); }
+        function getUsableDomIllCap() { return staffDomTrans * 10; }
+        function getUsableOvsNormCap() { return Math.min(ovsCap, staffOvsWork * 50); }
+        function getUsableOvsIllCap() { return staffOvsTrans * 10; }
+
+        function genDomNormal() {
+            let baseV = Math.floor((Math.floor(Math.random() * 101) * 10000 + 1000000) * 1.25); 
+            let fee = Math.floor((baseV * 0.02) / 1000) * 1000; let loan = Math.floor(baseV * 0.8);
+            return { id: nextItemId++, name: domNormalNames[Math.floor(Math.random()*domNormalNames.length)], baseValue: baseV, loanAmount: loan, currentValue: baseV, fee: fee, type: "normal", region: "dom" };
+        }
+        function genOvsNormal() {
+            let baseV = Math.floor((Math.floor(Math.random() * 101) * 10000 + 1000000) * 1.25 * 1.1); 
+            let fee = Math.floor((baseV * 0.02) / 1000) * 1000; let loan = Math.floor(baseV * 0.8);
+            return { id: nextItemId++, name: ovsNormalNames[Math.floor(Math.random()*ovsNormalNames.length)], baseValue: baseV, loanAmount: loan, currentValue: baseV, fee: fee, type: "normal", region: "ovs" };
+        }
+        function genIllegalRequest(isOvs) {
+            let agentCount = isOvs ? staffOvsAgent : staffDomAgent;
+            let jackpotChance = (1 / 15) + (agentCount * 0.02);
+            let isJackpot = (Math.random() < jackpotChance);
+            let baseV = isJackpot ? Math.floor(Math.random() * 400) * 1000000 + 100000000 : Math.floor(Math.random() * 250) * 100000 + 5000000; 
+            baseV = Math.floor(baseV * 1.25); 
+            if (isOvs) baseV = Math.floor(baseV * 1.1);
+            
+            let feePercent = (Math.random() * 0.10) + 0.10; 
+            let fee = Math.floor((baseV * feePercent) / 10000) * 10000;
+            let loan = Math.floor(baseV * 0.8);
+            
+            let names = isOvs ? ovsIllegalNames : domIllegalNames;
+            let finalName = names[Math.floor(Math.random() * names.length)];
+            if(isJackpot) finalName = "🚨超高額・" + finalName;
+            
+            return { id: nextItemId++, name: finalName, baseValue: baseV, loanAmount: loan, currentValue: baseV, fee: fee, type: "illegal", region: isOvs ? "ovs" : "dom", abandoned: false };
+        }
+
+        function toggleMainButton(disabled) { 
+            let btn = document.getElementById("btn-next-month"); btn.disabled = disabled; 
+            if (disabled) {
+                let countTxt = currentRequests.length > 0 ? `未処理の依頼があります` : `依頼に対応してください`;
+                btn.innerHTML = `[WAIT] ${countTxt}`; btn.style.backgroundColor = "#331111"; btn.style.color = "var(--red)"; btn.style.borderColor = "var(--red)";
+            } else {
+                btn.innerHTML = "[ENTER] 次の月へ進む"; btn.style.backgroundColor = "#1a3a1a"; btn.style.color = "var(--green)"; btn.style.borderColor = "var(--green)";
+            }
+        }
+
+        function processRegion(normalInv, illegalInv, usableNormCap, adMonths, genFunc, isOvs, workStaffCount) {
+            let normIncome = 0; let illIncome = 0;
+            
+            normalInv.forEach(i => normIncome += i.fee);
+            illegalInv.forEach(i => { if(!i.abandoned) illIncome += i.fee; });
+            
+            cleanMoney += normIncome; dirtyMoney += illIncome;
+            
+            let pfx = isOvs ? "🇨🇭海外" : "🇯🇵国内";
+
+            let normRem = [];
+            normalInv.forEach(item => {
+                item.currentValue = Math.floor(item.currentValue * (1 + ((Math.random() * 0.15) - 0.05))); 
+                let rand = Math.random();
+                if (rand < 0.03) { 
+                    cleanMoney += item.currentValue; 
+                    addLog(`【${pfx} 一般客の失踪】「${item.name}」を売却し、売上 ${formatMoney(item.currentValue)} を【表金】として没収。`, "gain");
+                    normRem.push(item.id);
+                } else if (rand < 0.11) { 
+                    cleanMoney += item.loanAmount; normRem.push(item.id); 
+                } 
+            });
+            normalInv = normalInv.filter(i => !normRem.includes(i.id));
+
+            let illRem = [];
+            illegalInv.forEach(item => {
+                item.currentValue = Math.floor(item.currentValue * (1 + ((Math.random() * 0.50) - 0.10))); 
+                if (!item.abandoned) {
+                    if (Math.random() < 0.12) { 
+                        item.abandoned = true; item.fee = 0;
+                        addLog(`【${pfx} 客の失踪】「${item.name}」の所有権がこちらに移りました。`, isOvs ? "blue" : "purple");
+                    } else if (item.currentValue > item.baseValue && Math.random() < ((item.currentValue / item.baseValue) - 0.5)) { 
+                        dirtyMoney += item.loanAmount; 
+                        addLog(`【${pfx} 売却行使】客が「${item.name}」を売却。貸付原資 ${formatMoney(item.loanAmount)} を【裏金】で回収。`, "alert");
+                        illRem.push(item.id);
+                    }
+                }
+            });
+            illegalInv = illegalInv.filter(i => !illRem.includes(i.id));
+
+            if (normalInv.length >= usableNormCap) return { newNorm: normalInv, newIll: illegalInv, normIncome, illIncome, adRemaining: Math.max(0, adMonths - 1) };
+
+            let incoming = Math.floor(Math.random() * 8) + 5 + (workStaffCount * 3); 
+            if (adMonths > 0) incoming += Math.floor(Math.random() * 10) + 20; 
+
+            let added = 0; let costLent = 0;
+            for (let i = 0; i < incoming; i++) {
+                if (normalInv.length < usableNormCap) {
+                    let newItem = genFunc();
+                    if (payClean(newItem.loanAmount)) {
+                        costLent += newItem.loanAmount;
+                        normalInv.push(newItem); added++;
+                    } else { break; } 
+                }
+            }
+            if (added > 0) addLog(`[${pfx}] 新規一般客 ${added} 名を受理。計 ${formatMoney(costLent)} を【表金】から貸付。`, "sys");
+            
+            return { newNorm: normalInv, newIll: illegalInv, normIncome, illIncome, adRemaining: Math.max(0, adMonths - 1) };
+        }
+
+        function nextMonth() {
+            toggleMainButton(true);
+            lastMonthCleanCash = cleanMoney; lastMonthDirtyCash = dirtyMoney;
+            
+            let domNormInc = 0; let domIllInc = 0; let ovsNormInc = 0; let ovsIllInc = 0;
+
+            if (hasWarehouse) {
+                let domRes = processRegion(domNormalInv, domIllegalInv, getUsableDomNormCap(), domAdMonths, genDomNormal, false, staffDomWork);
+                domNormalInv = domRes.newNorm; domIllegalInv = domRes.newIll; domNormInc = domRes.normIncome; domIllInc = domRes.illIncome; domAdMonths = domRes.adRemaining;
+            }
+            if (hasOverseas) {
+                let ovsRes = processRegion(ovsNormalInv, ovsIllegalInv, getUsableOvsNormCap(), ovsAdMonths, genOvsNormal, true, staffOvsWork);
+                ovsNormalInv = ovsRes.newNorm; ovsIllegalInv = ovsRes.newIll; ovsNormInc = ovsRes.normIncome; ovsIllInc = ovsRes.illIncome; ovsAdMonths = ovsRes.adRemaining;
+            }
+
+            let totalCleanInc = domNormInc + ovsNormInc;
+            let totalDirtyInc = domIllInc + ovsIllInc;
+            let totalInc = totalCleanInc + totalDirtyInc;
+
+            if(totalInc > 0) {
+                addLog(`月次総収入 合計 ${formatMoney(totalInc)} (表:${formatMoney(totalCleanInc)} / 裏:${formatMoney(totalDirtyInc)}) を徴収しました。`, "gain");
+            }
+            
+            if (staffLaunderer > 0 && dirtyMoney > 0) {
+                let maxWash = staffLaunderer * 100000000; 
+                let washAmount = Math.min(dirtyMoney, maxWash);
+                dirtyMoney -= washAmount;
+                let washedClean = Math.floor(washAmount * 0.95);
+                cleanMoney += washedClean;
+                addLog(`【資金洗浄】洗屋が ${formatMoney(washAmount)} の裏金を洗浄し、${formatMoney(washedClean)} の【表金】に変換しました。`, "gold");
+            } else if (dirtyMoney > 0) {
+                addLog(`※洗屋が不足しているため、裏金が洗浄されずに金庫に眠っています。`, "sys");
+            }
+
+            let domBribe = Math.floor((domNormInc + domIllInc) * 0.05);
+            if (domBribe > 0) {
+                payDirtyPreferred(domBribe);
+                addLog(`【みかじめ料】国内収入の5%（${formatMoney(domBribe)}）を警察へ支払いました。`, "loss");
+            }
+            let ovsBribe = Math.floor((ovsNormInc + ovsIllInc) * 0.05);
+            if (ovsBribe > 0) {
+                payDirtyPreferred(ovsBribe);
+                addLog(`【みかじめ料】海外収入の5%（${formatMoney(ovsBribe)}）をスイス当局へ支払いました。`, "loss");
+            }
+
+            // CEO給与引き落とし
+            if (ceoSalary > 0) {
+                if (payClean(ceoSalary)) {
+                    personalMoney += ceoSalary;
+                    addLog(`【役員報酬】CEO(あなた)の個人口座へ ${formatMoney(ceoSalary)} を振り込みました。`, "gold");
+                } else {
+                    addLog(`[WARNING] 表金不足！ 今月のCEO役員報酬は支払えませんでした。`, "red");
+                }
+            }
+
+            let legalSalary = (staffDomWork * 300000) + (staffOvsWork * 1000000);
+            let illegalSalary = (staffLaunderer * 2000000) + (staffDomTrans * 500000) + (staffDomAgent * 2000000) + (staffDomBroker * 1500000) 
+                              + (staffOvsTrans * 1500000) + (staffOvsAgent * 3000000) + (staffOvsBroker * 2500000);
+            
+            if (legalSalary > 0) {
+                if (!payClean(legalSalary)) {
+                    addLog(`[WARNING] 表金ショート！ 給与未払いにより一般作業員が離職しました。`, "red");
+                    staffDomWork = Math.floor(staffDomWork / 2); staffOvsWork = Math.floor(staffOvsWork / 2);
+                    cleanMoney = 0;
+                } else addLog(`【表・人件費】一般従業員の給与 ${formatMoney(legalSalary)} を表金から支払いました。`, "loss");
+            }
+            
+            if (illegalSalary > 0) {
+                if (!payDirtyPreferred(illegalSalary)) {
+                    addLog(`[WARNING] 資金ショート！ 報酬未払いにより裏スタッフが離職しました。`, "red");
+                    staffLaunderer = Math.floor(staffLaunderer/2);
+                    staffDomTrans = Math.floor(staffDomTrans / 2); staffDomAgent = Math.floor(staffDomAgent / 2); staffDomBroker = Math.floor(staffDomBroker / 2);
+                    staffOvsTrans = Math.floor(staffOvsTrans / 2); staffOvsAgent = Math.floor(staffOvsAgent / 2); staffOvsBroker = Math.floor(staffOvsBroker / 2);
+                    dirtyMoney = 0; 
+                } else addLog(`【裏・人件費】裏スタッフの報酬 ${formatMoney(illegalSalary)} を支払いました。`, "loss");
+            }
+
+            elapsedMonths++; currentMonth++;
+            if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+            addLog(`----- ${currentYear}年${currentMonth}月 (稼働${elapsedMonths}ヶ月目) -----`);
+            cleanupLogs();
+            
+            currentRequests = [];
+            if (staffDomAgent > 0 && hasWarehouse) {
+                for (let i=0; i < staffDomAgent; i++) { if (Math.random() < 0.5) currentRequests.push(genIllegalRequest(false)); }
+            }
+            if (staffOvsAgent > 0 && hasOverseas) {
+                for (let i=0; i < staffOvsAgent; i++) { if (Math.random() < 0.5) currentRequests.push(genIllegalRequest(true)); }
+            }
+
+            if (currentRequests.length > 0) showNextRequest();
+            else { toggleMainButton(false); }
+            updateUI();
+        }
+
+        function showNextRequest() {
+            if (currentRequests.length > 0) {
+                let req = currentRequests[0];
+                let reqArea = document.getElementById("request-area");
+                reqArea.style.display = "block";
+                reqArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                let titlePrefix = req.region === "ovs" ? "🇨🇭海外案件" : "🇯🇵国内案件";
+                let queueInfo = currentRequests.length > 1 ? ` (残り ${currentRequests.length - 1}件)` : "";
+                document.getElementById("request-title").innerText = `[WARNING] 違法動産依頼 - ${titlePrefix}${queueInfo}`;
+                document.getElementById("request-details").innerHTML = `
+                    <strong style="color:#fff;">${req.name}</strong><br><br>
+                    査定額(価値): ${formatMoney(req.baseValue)}<br>
+                    貸付金(80%支払): <span class="text-red">-${formatMoney(req.loanAmount)}</span> <span style="font-size:0.8rem;color:#888;">(裏金優先)</span><br>
+                    月額保管料(裏金): <span class="text-green">+${formatMoney(req.fee)}</span>
+                `;
+            } else {
+                document.getElementById("request-area").style.display = "none";
+                toggleMainButton(false); updateUI();
+            }
+        }
+
+        function acceptRequest() {
+            let req = currentRequests[0];
+            
+            if ((cleanMoney + dirtyMoney) < req.loanAmount) {
+                return alert("事業内の資金（裏・表合計）が不足しています。");
+            }
+            
+            if (req.region === "ovs") {
+                if (ovsIllegalInv.length >= getUsableOvsIllCap()) return alert("海外の違法枠（運搬作業員）が不足しています。受理できません。");
+                payDirtyPreferred(req.loanAmount);
+                ovsIllegalInv.push(req);
+            } else {
+                if (domIllegalInv.length >= getUsableDomIllCap()) return alert("国内の違法枠（運搬作業員）が不足しています。受理できません。");
+                payDirtyPreferred(req.loanAmount);
+                domIllegalInv.push(req);
+            }
+            
+            addLog(`「${req.name}」を受理。即金貸付 ${formatMoney(req.loanAmount)} を完了。`);
+            currentRequests.shift(); showNextRequest(); updateUI();
+        }
+
+        function rejectRequest() { 
+            addLog(`依頼を拒否しました。`); currentRequests.shift(); showNextRequest(); updateUI(); 
+        }
+
+        function buyFirstWarehouse() {
+            if (cleanMoney < 50000000) return alert("【表金】が足りません。");
+            
+            if (payClean(50000000)) { 
+                hasWarehouse = true; domCap = 100; staffDomWork = 1; 
+                for(let i=0; i<10; i++){ 
+                    let itm = genDomNormal(); 
+                    if(payClean(itm.loanAmount)){ domNormalInv.push(itm); } 
+                }
+                document.getElementById("cmd-buy-first").style.display = "none";
+                document.getElementById("cmd-dom").style.display = "block"; document.getElementById("hr-panel").style.display = "block";
+                addLog(`【国内拠点取得】表金から5,000万円を投資し、倉庫を購入しました！`, "purple");
+                switchTab('tab-storage'); updateUI();
+            }
+        }
+
+        function runDomAd() {
+            if (domNormalInv.length >= getUsableDomNormCap()) return alert("有効稼働枠が満杯です。作業員を雇うか、倉庫を拡張してください。");
+            if (payClean(3000000)) { domAdMonths += 6; addLog(`[国内] 表向きの広告を出稿。`, "sys"); updateUI(); } else alert("【表金】が足りません。");
+        }
+        function expandDomWarehouse() {
+            if (payClean(30000000)) { domCap += 50; addLog(`[国内] 倉庫増床。物理上限が ${domCap}箱 になりました。`, "sys"); updateUI(); } else alert("【表金】が足りません。");
+        }
+        
+        function runRepAd() {
+            if ((cleanMoney + dirtyMoney) >= 10000000 && reputation < 150) {
+                payDirtyPreferred(10000000);
+                reputation = Math.min(150, reputation + Math.floor(Math.random()*15)+10);
+                addLog(`[裏工作] 闇の知名度が ${reputation}% に上昇。`, "sys"); updateUI();
+            } else alert("資金が足りないか、知名度が最大(150%)です。");
+        }
+        
+        function buyOverseasWarehouse() {
+            if (staffDomAgent < 1) return alert("国内エージェントが1人もいません。");
+            if (cleanMoney < 300000000) return alert("【表金】が足りません。洗浄が必要です。");
+
+            if (payClean(300000000)) { 
+                hasOverseas = true; ovsCap = 100; staffOvsWork = 1; 
+                for(let i=0; i<10; i++){ 
+                    let itm = genOvsNormal(); 
+                    if(payClean(itm.loanAmount)){ ovsNormalInv.push(itm); } 
+                }
+                document.getElementById("overseas-accordion").style.display = "block"; document.getElementById("cmd-ovs").style.display = "block"; document.getElementById("hr-ovs-section").style.display = "block"; document.getElementById("btn-buy-ovs").style.display = "none";
+                addLog(`【海外進出】表金から3億円を投資し、スイスVIP倉庫を買収しました！`, "blue"); updateUI();
+            }
+        }
+        function runOvsAd() {
+            if (ovsNormalInv.length >= getUsableOvsNormCap()) return alert("有効稼働枠が満杯です。");
+            if (payClean(3000000)) { ovsAdMonths += 6; addLog(`[海外] VIP向け広告を出稿。`, "sys"); updateUI(); } else alert("【表金】が足りません。");
+        }
+        function expandOvsWarehouse() {
+            if (payClean(30000000)) { ovsCap += 50; addLog(`[海外] 倉庫増床。物理上限が ${ovsCap}箱 になりました。`, "sys"); updateUI(); } else alert("【表金】が足りません。");
+        }
+
+        function generateTableHTML(normInv, illInv, region) {
+            let all = [...illInv, ...normInv];
+            all.sort((a,b) => { if(a.type !== b.type) return a.type==="illegal" ? -1 : 1; return b.currentValue - a.currentValue; });
+            if (all.length === 0) return `<tr><td colspan="5" style="text-align:center; color:#555;">現在、保管庫は空です</td></tr>`;
+            let html = "";
+            all.forEach(itm => {
+                let vCol = itm.currentValue > itm.baseValue ? "var(--green)" : (itm.currentValue < itm.baseValue ? "var(--red)" : "var(--text-main)");
+                let nSty = itm.type === "illegal" ? "color: var(--red); font-weight: bold;" : "color: #bbb;";
+                
+                let displayName = itm.name;
+                if (itm.type === "illegal" && itm.abandoned) { displayName += ` <span style="color:var(--red); font-size:0.75rem;">[所有権獲得]</span>`; vCol = "var(--gold)"; } 
+                else if (itm.name.includes("🚨超高額")) { nSty = "color: var(--gold); font-weight: bold; text-shadow: 0 0 3px rgba(255,215,0,0.5);"; }
+                
+                let actBtn = `<span style="color:#555; font-size:0.7rem;">不可</span>`;
+                if (itm.type === "illegal" && itm.abandoned) {
+                    let hasBroker = (region === 'dom') ? (staffDomBroker > 0) : (staffOvsBroker > 0);
+                    if (hasBroker) actBtn = `<button class="btn" style="padding:4px 8px; font-size:0.75rem; border-color:var(--gold); color:var(--gold);" onclick="manualSellItem(${itm.id}, '${region}')">売却</button>`;
+                    else actBtn = `<span style="color:#555; font-size:0.7rem;">ブローカー必須</span>`;
+                }
+
+                html += `<tr><td style="${nSty}">${displayName}</td><td>${formatMoney(itm.baseValue)}<br><span style="font-size:0.75rem;color:#888;">(貸: ${formatMoney(itm.loanAmount)})</span></td><td style="color:${vCol}">${formatMoney(itm.currentValue)}</td><td class="text-green">${formatMoney(itm.fee)}</td><td style="text-align:center;">${actBtn}</td></tr>`;
+            });
+            return html;
+        }
+
+        function updateUI() {
+            document.getElementById("display-date").innerText = `${currentYear}年${currentMonth}月`;
+            document.getElementById("display-elapsed").innerText = elapsedMonths;
+
+            let domV = domNormalInv.reduce((s,i)=>s+i.currentValue,0) + domIllegalInv.reduce((s,i)=>s+i.currentValue,0);
+            let ovsV = ovsNormalInv.reduce((s,i)=>s+i.currentValue,0) + ovsIllegalInv.reduce((s,i)=>s+i.currentValue,0);
+            
+            document.getElementById("display-total-assets").innerText = formatMoney(cleanMoney + dirtyMoney + domV + ovsV);
+            
+            let cDiff = cleanMoney - lastMonthCleanCash; let dDiff = dirtyMoney - lastMonthDirtyCash;
+            document.getElementById("display-clean-money").innerHTML = formatMoney(cleanMoney);
+            document.getElementById("display-clean-diff").innerHTML = cDiff > 0 ? `<span class="text-green">(+${formatMoney(cDiff)})</span>` : (cDiff < 0 ? `<span class="text-red">(${formatMoney(cDiff)})</span>` : `<span style="color:#888;">(±0 円)</span>`);
+            document.getElementById("display-dirty-money").innerHTML = formatMoney(dirtyMoney);
+            document.getElementById("display-dirty-diff").innerHTML = dDiff > 0 ? `<span class="text-green">(+${formatMoney(dDiff)})</span>` : (dDiff < 0 ? `<span class="text-red">(${formatMoney(dDiff)})</span>` : `<span style="color:#888;">(±0 円)</span>`);
+            
+            document.getElementById("display-personal-money").innerText = formatMoney(personalMoney);
+
+            let cleanInc = domNormalInv.reduce((s,i)=>s+i.fee,0) + ovsNormalInv.reduce((s,i)=>s+i.fee,0);
+            let dirtyInc = domIllegalInv.reduce((s,i)=>s+i.fee,0) + ovsIllegalInv.reduce((s,i)=>s+i.fee,0);
+            document.getElementById("display-income").innerText = formatMoney(cleanInc + dirtyInc);
+            document.getElementById("display-income-clean").innerText = formatMoney(cleanInc) + " 円";
+            document.getElementById("display-income-dirty").innerText = formatMoney(dirtyInc) + " 円";
+
+            document.getElementById("ui-staff-launderer").innerText = staffLaunderer;
+            document.getElementById("ui-dom-work").innerText = staffDomWork; document.getElementById("ui-dom-trans").innerText = staffDomTrans; document.getElementById("ui-dom-agent").innerText = staffDomAgent; document.getElementById("ui-dom-broker").innerText = staffDomBroker;
+            document.getElementById("ui-ovs-work").innerText = staffOvsWork; document.getElementById("ui-ovs-trans").innerText = staffOvsTrans; document.getElementById("ui-ovs-agent").innerText = staffOvsAgent; document.getElementById("ui-ovs-broker").innerText = staffOvsBroker;
+            
+            let pCost = (staffDomWork * 300000) + (staffOvsWork * 1000000) + (staffLaunderer * 2000000) + (staffDomTrans * 500000) + (staffDomAgent * 2000000) + (staffDomBroker * 1500000) 
+                      + (staffOvsTrans * 1500000) + (staffOvsAgent * 3000000) + (staffOvsBroker * 2500000);
+            document.getElementById("display-personnel-cost").innerText = formatMoney(pCost);
+
+            let usableDomN = getUsableDomNormCap(); let usableDomI = getUsableDomIllCap(); let usableOvsN = getUsableOvsNormCap(); let usableOvsI = getUsableOvsIllCap();
+
+            document.getElementById("dash-dom-norm-used").innerText = domNormalInv.length; document.getElementById("dash-dom-norm-cap").innerText = usableDomN;
+            document.getElementById("dash-dom-ill-used").innerText = domIllegalInv.length; document.getElementById("dash-dom-ill-cap").innerText = usableDomI;
+            document.getElementById("dash-dom-cap").innerText = domCap;
+            document.getElementById("dash-dom-ad").innerHTML = domAdMonths > 0 ? `<span style="color:var(--green)">[広告:${domAdMonths}月]</span>` : "";
+            
+            document.getElementById("dash-ovs-norm-used").innerText = ovsNormalInv.length; document.getElementById("dash-ovs-norm-cap").innerText = usableOvsN;
+            document.getElementById("dash-ovs-ill-used").innerText = ovsIllegalInv.length; document.getElementById("dash-ovs-ill-cap").innerText = usableOvsI;
+            document.getElementById("dash-ovs-cap").innerText = ovsCap;
+            document.getElementById("dash-ovs-ad").innerHTML = ovsAdMonths > 0 ? `<span style="color:var(--green)">[広告:${ovsAdMonths}月]</span>` : "";
+
+            document.getElementById("list-dom-norm-info").innerText = `${domNormalInv.length}/${usableDomN}`;
+            document.getElementById("list-dom-ill-info").innerText = `${domIllegalInv.length}/${usableDomI}`;
+            document.getElementById("dom-inventory-body").innerHTML = generateTableHTML(domNormalInv, domIllegalInv, 'dom');
+
+            if(hasOverseas){
+                document.getElementById("list-ovs-norm-info").innerText = `${ovsNormalInv.length}/${usableOvsN}`;
+                document.getElementById("list-ovs-ill-info").innerText = `${ovsIllegalInv.length}/${usableOvsI}`;
+                document.getElementById("ovs-inventory-body").innerHTML = generateTableHTML(ovsNormalInv, ovsIllegalInv, 'ovs');
+            }
+
+            if (hasWarehouse && (usableDomN < domCap || (hasOverseas && usableOvsN < ovsCap))) document.getElementById("req-staff-warning").style.display = "block";
+            else document.getElementById("req-staff-warning").style.display = "none";
+            if (hasWarehouse && staffDomBroker === 0) document.getElementById("req-broker-warning").style.display = "block";
+            else document.getElementById("req-broker-warning").style.display = "none";
+
+            if (hasWarehouse) {
+                document.getElementById("display-rep-dash").innerText = reputation;
+                document.getElementById("btn-dom-ad").disabled = (cleanMoney < 3000000 || domNormalInv.length >= usableDomN);
+                document.getElementById("btn-dom-expand").disabled = (cleanMoney < 30000000);
+                document.getElementById("btn-rep-ad").disabled = ((cleanMoney+dirtyMoney) < 10000000 || reputation >= 150); 
+                
+                if(!hasOverseas) document.getElementById("btn-buy-ovs").disabled = (cleanMoney < 300000000 || staffDomAgent < 1);
+            }
+            if (hasOverseas) {
+                document.getElementById("btn-ovs-ad").disabled = (cleanMoney < 3000000 || ovsNormalInv.length >= usableOvsN); 
+                document.getElementById("btn-ovs-expand").disabled = (cleanMoney < 30000000); 
+            }
+        }
+        
+        updateSaveSlots();
+
+    </script>
+</body>
+</html>
