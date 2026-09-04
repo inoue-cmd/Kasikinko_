@@ -3,102 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SILENT PAWN - 法人設立＆固定費管理システム vCompanyFix2</title>
+    <title>SILENT PAWN - モバイル特化・裏社会経営 vMobileUX</title>
     <style>
         :root {
-            --bg-color: #0a0a0a; --panel-bg: #111; --border-color: #333;
-            --text-main: #d0d0d0; --text-muted: #888;
+            --bg-color: #050505; --panel-bg: #111; --border-color: #2a2a2a;
+            --text-main: #e0e0e0; --text-muted: #888;
             --green: #4CAF50; --red: #f44336; --yellow: #ffeb3b;
-            --blue: #2196F3; --purple: #9c27b0; --gold: #ffd700; --mexico: #006847;
+            --blue: #2196F3; --purple: #9c27b0; --gold: #ffd700; --mexico: #00b377;
         }
         
-        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Courier New', Courier, monospace; margin: 0; padding: 10px; font-size: 14px; }
-        h1 { color: #ffffff; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1.2rem; margin-top: 5px; text-align: center; }
+        * { box-sizing: border-box; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0 0 80px 0; font-size: 15px; -webkit-tap-highlight-color: transparent;}
+        h1 { color: #fff; border-bottom: 1px solid #222; padding: 15px 10px 10px; font-size: 1.1rem; margin: 0 0 10px 0; text-align: center; background: #000; position: sticky; top: 0; z-index: 100;}
         
         input[type="number"], button { font-size: 16px !important; touch-action: manipulation; }
         
-        #start-screen { text-align: center; margin-top: 10vh; }
-        #start-screen input { padding: 10px; background: #222; color: #fff; border: 1px solid var(--green); text-align: right; }
+        #start-screen { text-align: center; margin-top: 10vh; padding: 0 20px; }
+        #start-screen input { padding: 12px; background: #1a1a1a; color: #fff; border: 1px solid var(--green); text-align: right; width: 100%; border-radius: 6px; margin-bottom: 10px;}
         
-        .dashboard { display: flex; flex-wrap: wrap; gap: 10px; background: var(--panel-bg); padding: 15px; border: 1px solid var(--border-color); margin-bottom: 15px; border-radius: 4px;}
-        .stat-box { flex: 1 1 100%; font-size: 0.9rem; }
-        .stat-value { display: block; font-size: 1.2rem; font-weight: bold; margin-top: 3px; }
-        .text-green { color: var(--green); } .text-red { color: var(--red); } .text-yellow { color: var(--yellow); } .text-blue { color: var(--blue); } .text-gold { color: var(--gold); text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); } .text-purple { color: var(--purple); } .text-main { color: var(--text-main); }
-
-        .tab-menu { display: flex; gap: 5px; margin-bottom: 0; }
-        .tab-btn { flex: 1; padding: 12px 5px; background: #1a1a1a; color: #666; border: 1px solid var(--border-color); border-bottom: none; cursor: pointer; font-weight: bold; border-radius: 4px 4px 0 0; transition: all 0.2s;}
-        .tab-btn.active { background: #222; color: var(--gold); border-top: 2px solid var(--gold); }
-        .tab-content { display: none; background: #222; border: 1px solid var(--border-color); padding: 15px; border-radius: 0 0 4px 4px; margin-bottom: 15px; min-height: 400px; }
+        /* ボトムナビゲーション (アプリ風タブ) */
+        .tab-menu { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(10,10,10,0.95); backdrop-filter: blur(5px); border-top: 1px solid #333; display: flex; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+        .tab-btn { flex: 1; padding: 15px 0; background: transparent; color: #666; border: none; cursor: pointer; font-weight: bold; font-size: 0.9rem; border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); background: #1a1a1a; }
+        .tab-content { display: none; padding: 0 10px; animation: fadeIn 0.2s ease-in-out; }
         .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .box { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 10px; margin-bottom: 15px; border-radius: 4px;}
-        .box h2 { margin-top: 0; font-size: 1rem; color: var(--text-muted); border-bottom: 1px dashed var(--border-color); padding-bottom: 5px; }
-        .box h3 { margin-top: 0; font-size: 0.95rem; }
+        /* フローティングアクションボタン (次へ進む) */
+        .fab-next { position: fixed; bottom: 85px; right: 15px; background: #1a3a1a; border: 2px solid var(--green); color: var(--green); border-radius: 30px; padding: 12px 20px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.8); z-index: 999; cursor: pointer; transition: all 0.2s; }
+        .fab-next:disabled { background: #2a1111; border-color: var(--red); color: var(--red); opacity: 0.9; box-shadow: none; cursor: not-allowed; }
 
-        details.accordion summary { cursor: pointer; list-style: none; outline: none; }
-        details.accordion summary::-webkit-details-marker { display: none; }
-        .summary-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; margin-bottom: 10px; }
-        .summary-header .title-text { font-size: 1rem; color: var(--text-muted); font-weight: bold; }
-        .summary-header .status-text { font-size: 0.85rem; color: #888; }
-        .accordion-icon { display: inline-block; margin-left: 5px; font-size: 0.7rem; transition: transform 0.3s; }
-        details[open].accordion > summary .accordion-icon { transform: rotate(180deg); }
+        /* 汎用ボックス・カード */
+        .box { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 12px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
+        .box h2 { margin-top: 0; font-size: 1.05rem; color: #eee; border-bottom: 1px solid #222; padding-bottom: 8px; margin-bottom: 12px;}
+        .box h3 { margin-top: 0; font-size: 0.95rem; color: var(--text-muted);}
 
-        .btn { background-color: #333; color: #ddd; border: 1px solid #555; padding: 12px; cursor: pointer; font-family: inherit; width: 100%; transition: all 0.2s; border-radius: 4px; box-sizing: border-box; }
-        .btn:hover:not(:disabled) { background-color: #555; color: #fff; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-action { margin-top: 10px; padding: 10px; text-align: left; }
-        .btn-main { background-color: #1a3a1a; border-color: var(--green); color: var(--green); font-weight: bold; font-size: 1.1rem; text-align: center;}
-        .btn-buy { background-color: #3a2a1a; border-color: var(--gold); color: var(--gold); font-weight: bold; text-align: center;}
+        /* ダッシュボード整理 */
+        .stat-block { background: #151515; border: 1px solid #222; border-radius: 6px; padding: 10px; text-align: center; margin-bottom: 10px; }
+        .stat-label { font-size: 0.75rem; color: #888; margin-bottom: 3px; display: block; }
+        .stat-val { font-size: 1.4rem; font-weight: bold; }
+        .flex-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .flex-row .stat-block { flex: 1; margin-bottom: 0; }
+        .text-green { color: var(--green); } .text-red { color: var(--red); } .text-yellow { color: var(--yellow); } .text-blue { color: var(--blue); } .text-gold { color: var(--gold); } .text-purple { color: var(--purple); } .text-main { color: var(--text-main); }
+
+        /* スタッフカード (縦積みを解消) */
+        .staff-card { background: #181818; border: 1px solid #333; border-radius: 6px; padding: 12px; margin-bottom: 10px; }
+        .staff-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 1.05rem; font-weight: bold; }
+        .staff-card-desc { font-size: 0.8rem; color: #888; line-height: 1.4; margin-bottom: 12px; }
+        .staff-card-actions { display: flex; gap: 8px; }
         
-        .item-card { background: #151515; border: 1px solid #333; padding: 10px; margin-bottom: 8px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .item-title-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-        .item-name { line-height: 1.4; font-size: 0.95rem; }
-        .item-val { font-weight: bold; white-space: nowrap; margin-left: 10px; font-size: 1.05rem; }
-        .item-details { display: flex; justify-content: space-between; font-size: 0.8rem; color: #888; }
-        .list-section-title { font-size: 0.9rem; margin: 15px 0 5px 0; padding-bottom: 3px; border-bottom: 1px solid #333; }
+        /* 共通ボタン */
+        .btn { background-color: #252525; color: #ddd; border: 1px solid #444; padding: 12px; cursor: pointer; border-radius: 6px; width: 100%; font-weight: bold; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-main { background-color: #1a3a1a; border-color: var(--green); color: var(--green); }
+        
+        /* アコーディオン・リスト系 */
+        details.accordion { margin-bottom: 12px; border-radius: 8px; border: 1px solid #333; background: var(--panel-bg); overflow: hidden; }
+        details.accordion > summary { padding: 15px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; background: #151515; font-weight: bold; }
+        details.accordion > summary::-webkit-details-marker { display: none; }
+        details.accordion[open] > summary { border-bottom: 1px solid #333; }
+        .accordion-content { padding: 10px; }
+        
+        /* ネスト(入れ子)アコーディオンの装飾解除 */
+        details.sub-accordion { border: none; border-bottom: 1px solid #222; border-radius: 0; margin-bottom: 0; background: transparent; }
+        details.sub-accordion:last-child { border-bottom: none; }
+        details.sub-accordion > summary { background: transparent; padding: 12px 5px; font-weight: normal; }
+        details.sub-accordion[open] > summary { border-bottom: 1px dashed #333; }
 
-        .log-area { height: 250px; overflow-y: auto; background: #050505; padding: 10px; border: 1px inset #222; font-size: 0.85rem; color: #999; border-radius: 4px;}
-        .log-entry { margin-bottom: 5px; border-bottom: 1px dashed #111; padding-bottom: 3px; }
+        /* アイテムカード */
+        .item-card { background: #151515; border: 1px solid #2a2a2a; padding: 12px; margin-bottom: 8px; border-radius: 6px; }
+        .item-head { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: flex-start; }
+        .item-name { font-size: 0.95rem; line-height: 1.3; }
+        .item-val { font-size: 1.1rem; font-weight: bold; text-align: right; }
+        .item-foot { display: flex; justify-content: space-between; font-size: 0.8rem; color: #777; }
 
-        #request-area { display: none; background: #2a1111; border: 1px solid var(--red); animation: pulse 2s infinite; margin-bottom: 15px;}
+        .log-area { height: 200px; overflow-y: auto; background: #000; padding: 10px; border-radius: 6px; font-size: 0.85rem; color: #aaa; border: 1px solid #222;}
+        .log-entry { margin-bottom: 8px; border-bottom: 1px dashed #1a1a1a; padding-bottom: 6px; line-height: 1.4; }
+
+        #request-area { display: none; background: #2a1111; border: 1px solid var(--red); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); } 70% { box-shadow: 0 0 10px 5px rgba(244, 67, 54, 0); } 100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); } }
-        .flex-buttons { display: flex; gap: 10px; margin-top: 15px; } .flex-buttons .btn { text-align: center; }
 
-        .staff-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #333; padding: 10px 0; }
-        .staff-info { flex: 2; }
-        .staff-act { flex: 1; text-align: right; display: flex; gap: 5px; justify-content: flex-end; }
-        .accent-text { font-size: 0.8rem; color: var(--yellow); }
+        .save-slot { background: #151515; padding: 12px; margin-bottom: 10px; border: 1px solid #333; border-radius: 6px;}
+        .slot-actions { display: flex; gap: 8px; margin-top: 8px; }
 
-        .save-slot { display: flex; flex-direction: column; background: #111; padding: 10px; margin-bottom: 10px; border: 1px solid #333; border-radius: 4px;}
-        .save-slot span { font-size: 0.85rem; margin-bottom: 5px; color: #bbb;}
-        .slot-actions { display: flex; gap: 10px; }
-        .slot-actions button { flex: 1; padding: 8px; background: #222; border: 1px solid #555; color: #ddd; cursor: pointer; border-radius: 4px;}
-
-        .processing-blur { opacity: 0.6; filter: blur(1.5px); pointer-events: none; transition: all 0.1s ease-in-out; }
+        .processing-blur { opacity: 0.4; filter: blur(2px); pointer-events: none; transition: all 0.1s ease-in-out; }
     </style>
 </head>
 <body>
 
+    <!-- スタート画面 -->
     <div id="start-screen">
-        <h1 style="font-size: 2rem; letter-spacing: 5px; border:none; margin-bottom:0;">SILENT PAWN</h1>
+        <h1 style="background:transparent; border:none; margin-top:20px; font-size:2rem; letter-spacing:3px;">SILENT PAWN</h1>
         <p style="color: #888; margin-bottom: 30px;">多国籍・裏社会経営システム</p>
         
-        <div style="background: var(--panel-bg); border: 1px solid var(--border-color); padding: 30px; display: inline-block; border-radius: 8px;">
-            <p style="font-size: 1.1rem; margin-top: 0;">新規ゲーム開始</p>
-            
-            <div style="display:flex; justify-content:center; gap:10px; margin-bottom: 20px;">
-                <div><input type="number" id="init-year" value="2026" style="width: 80px;"> 年</div>
-                <div><input type="number" id="init-month" value="4" min="1" max="12" style="width: 60px;"> 月</div>
+        <div class="box">
+            <p style="font-size: 1.1rem; margin-top: 0; font-weight:bold;">新規ゲーム開始</p>
+            <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                <div style="flex:1;"><span class="stat-label">開始年</span><input type="number" id="init-year" value="2026"></div>
+                <div style="flex:1;"><span class="stat-label">開始月</span><input type="number" id="init-month" value="4" min="1" max="12"></div>
             </div>
-            
-            <div style="margin-bottom: 25px;">
-                <input type="number" id="init-money" value="100000" step="1000" style="width: 150px;"> 万円
+            <div style="margin-bottom: 20px;">
+                <span class="stat-label">初期資金 (万円)</span>
+                <input type="number" id="init-money" value="100000" step="1000">
             </div>
+            <button class="btn btn-main" style="padding: 15px;" onclick="startGame()">システム起動</button>
             
-            <button class="btn btn-main" style="width: 250px; padding: 15px;" onclick="startGame()">システム起動</button>
-            
-            <div style="margin-top: 30px; border-top: 1px dashed var(--border-color); padding-top: 20px;">
-                <p style="margin-top:0; color:#aaa;">セーブデータから再開</p>
+            <div style="margin-top: 30px; border-top: 1px dashed #333; padding-top: 20px;">
+                <p style="margin-top:0; color:#aaa; font-size:0.9rem;">セーブデータから再開</p>
                 <button id="start-load-btn-1" class="btn" style="margin-bottom:10px;" onclick="loadGame(1)">NO DATA</button>
                 <button id="start-load-btn-2" class="btn" style="margin-bottom:10px;" onclick="loadGame(2)">NO DATA</button>
                 <button id="start-load-btn-3" class="btn" onclick="loadGame(3)">NO DATA</button>
@@ -106,160 +117,107 @@
         </div>
     </div>
 
+    <!-- メイン画面 -->
     <div id="game-screen" style="display: none;">
-        <h1>[SYS] SILENT PAWN - 組織管理コンソール</h1>
+        <h1>SILENT PAWN <span style="font-size:0.8rem; color:#888; float:right; margin-top:4px;" id="display-date"></span></h1>
 
-        <!-- ダッシュボード -->
-        <div class="dashboard">
-            <div class="stat-box" style="border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; margin-bottom: 5px;">
-                <span id="display-date" class="text-yellow" style="font-size: 1.3rem;"></span>
-                <span style="font-size: 0.9rem; color: #888; margin-left:10px;">(稼働: <span id="display-elapsed"></span>ヶ月)</span>
-            </div>
+        <!-- フローティングアクションボタン (次へ) -->
+        <button class="fab-next" id="btn-next-month" onclick="nextMonth()">⏭️ 次の月へ</button>
 
-            <div class="stat-box" style="margin-bottom: 5px;">
-                <span style="color:#aaa; font-size:0.85rem;">事業総資産</span><br>
-                <span class="text-main" id="display-total-assets" style="font-size: 1.3rem; font-weight:bold;">0 円</span><br>
-                <span style="font-size: 0.75rem; color: #888;" id="display-assets-breakdown">(表金: 0 / 裏金: 0 / 物品価値: 0)</span>
-            </div>
-
-            <div style="display:flex; width:100%; gap:10px;">
-                <div class="stat-box" style="flex:1; background:#132013; border:1px solid var(--green); padding:10px; border-radius:4px;">
-                    <span style="font-size:0.8rem; color:#aaa;">[表金] クリーン資金</span>
-                    <span class="stat-value text-green" id="display-clean-money">0 円</span>
-                </div>
-                <div class="stat-box" style="flex:1; background:#201010; border:1px solid var(--red); padding:10px; border-radius:4px;">
-                    <span style="font-size:0.8rem; color:#aaa;">[裏金] ヤバい資金</span>
-                    <span class="stat-value text-red" id="display-dirty-money">0 円</span>
-                </div>
-            </div>
-
-            <div class="stat-box" style="background:#2a2010; border:1px solid var(--gold); padding:10px; border-radius:4px; margin-top:5px;">
-                <span style="font-size:0.8rem; color:#aaa;">👑 個人資産 (クリアスコア / 懐に入れた金)</span>
-                <span class="stat-value text-gold" id="display-personal-money" style="font-size:1.5rem;">0 円</span>
-            </div>
-            
-            <div class="stat-box" style="margin-top:5px; border-top: 1px dashed #333; padding-top: 10px;">
-                月次総収入 (保管料)
-                <span class="stat-value text-green" id="display-income">0 円</span>
-                <span style="font-size:0.85rem; color:#aaa;">(表金: <span id="display-income-clean">0</span> / 裏金: <span id="display-income-dirty">0</span>)</span><br>
-                
-                <div style="margin-top:5px; padding-top:5px; border-top:1px dashed #444;">
-                    月次固定費 (家賃・人件費・役員報酬)
-                    <span class="stat-value text-red" id="display-fixed-cost">0 円</span>
-                    <span style="font-size:0.85rem; color:#aaa;">(表金支出: <span id="display-fixed-clean">0</span> / 裏金支出: <span id="display-fixed-dirty">0</span>)</span>
-                </div>
-            </div>
-            
-            <div class="stat-box">
-                預かり稼働状況 <span style="font-size:0.8rem; color:#888;">(使用中 / 有効枠)</span>
-                <div style="font-size:0.85rem; margin-top:5px; background:#1a1a1a; padding:8px; border-radius:4px; line-height: 1.6;">
-                    🇯🇵 <b>日本:</b> [一]<span id="dash-dom-norm-used" class="text-main">0</span>/<span id="dash-dom-norm-cap">0</span>箱 <span style="color:#666;">(物:<span id="dash-dom-cap">0</span>)</span> [違]<span id="dash-dom-ill-used" class="text-red">0</span>/<span id="dash-dom-ill-cap">0</span>箱 <span style="color:#666;">(隠:<span id="dash-dom-ill-phys">0</span>)</span><br>
-                    <span id="dash-ovs-ui" style="display:none;">🇨🇭 <b>瑞西:</b> [一]<span id="dash-ovs-norm-used" class="text-main">0</span>/<span id="dash-ovs-norm-cap">0</span>箱 <span style="color:#666;">(物:<span id="dash-ovs-cap">0</span>)</span> [違]<span id="dash-ovs-ill-used" class="text-red">0</span>/<span id="dash-ovs-ill-cap">0</span>箱 <span style="color:#666;">(隠:<span id="dash-ovs-ill-phys">0</span>)</span><br></span>
-                    <span id="dash-mex-ui" style="display:none;">🇲🇽 <b>墨国:</b> [一]<span id="dash-mex-norm-used" class="text-main">0</span>/<span id="dash-mex-norm-cap">0</span>箱 <span style="color:#666;">(物:<span id="dash-mex-cap">0</span>)</span> [違]<span id="dash-mex-ill-used" class="text-red">0</span>/<span id="dash-mex-ill-cap">0</span>箱 <span style="color:#666;">(隠:<span id="dash-mex-ill-phys">0</span>)</span></span>
-                </div>
-            </div>
-            <button class="btn btn-main" id="btn-next-month" onclick="nextMonth()">[ENTER] 次の月へ進む</button>
-        </div>
-
+        <!-- 違法依頼ポップアップ -->
         <div class="box" id="request-area">
-            <h2 style="color: var(--red);" id="request-title">[WARNING] 違法動産の依頼</h2>
-            <div id="request-details" style="font-size: 0.95rem; line-height: 1.6; color: #ddd;"></div>
-            <div class="flex-buttons">
+            <h2 style="color: var(--red); border-bottom-color:var(--red);" id="request-title">⚠️ 違法依頼</h2>
+            <div id="request-details" style="font-size: 0.95rem; line-height: 1.6; color: #ddd; margin-bottom:15px;"></div>
+            <div style="display:flex; gap:10px;">
                 <button class="btn" style="background: #331111; border-color: var(--red); color: #fff;" onclick="acceptRequest()">受理 (現金を貸付)</button>
                 <button class="btn" style="border-color: #555;" onclick="rejectRequest()">拒否</button>
             </div>
         </div>
 
-        <div class="tab-menu">
-            <button class="tab-btn active" id="btn-tab-storage" onclick="switchTab('tab-storage')">📦 ストレージ</button>
-            <button class="tab-btn" id="btn-tab-hr" onclick="switchTab('tab-hr')">👥 人事・設備</button>
-            <button class="tab-btn" id="btn-tab-sys" onclick="switchTab('tab-sys')">💻 資金・システム</button>
-        </div>
-
-        <!-- ================= タブ1: 物理ストレージ ================= -->
+        <!-- ================= タブ1: ダッシュボード＆ストレージ ================= -->
         <div id="tab-storage" class="tab-content active">
-            <h2 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:5px; color:#fff;">📦 預かり品リスト</h2>
             
-            <div id="req-start-warning" style="display:block; color:var(--gold); font-weight:bold; margin-bottom:10px; padding:10px; background:#332200; border:1px solid var(--gold); border-radius:4px;">
-                ⚠️ ビジネスを始めるには、「人事・設備」タブから『国内の事務所』と『一般倉庫』を購入してください。
+            <!-- 資産ダッシュボード (カード型整理) -->
+            <div class="stat-block" style="border-color:var(--gold);">
+                <span class="stat-label" style="color:var(--gold);">👑 個人資産 (クリアスコア)</span>
+                <span class="stat-val text-gold" id="display-personal-money" style="font-size:1.6rem;">0 円</span>
+                <div style="font-size:0.8rem; color:#777; margin-top:5px;">事業総資産(表+裏+物品): <span id="display-total-assets" style="color:#aaa;">0 円</span></div>
+            </div>
+
+            <div class="flex-row">
+                <div class="stat-block" style="border-color:var(--green); background:#0a150a;">
+                    <span class="stat-label">表金 (クリーン資金)</span>
+                    <span class="stat-val text-green" id="display-clean-money">0 円</span>
+                </div>
+                <div class="stat-block" style="border-color:var(--red); background:#150a0a;">
+                    <span class="stat-label">裏金 (ヤバい資金)</span>
+                    <span class="stat-val text-red" id="display-dirty-money">0 円</span>
+                </div>
+            </div>
+
+            <div class="box" style="padding:10px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.85rem;">
+                    <span style="color:#aaa;">月次総収入 (保管料)</span>
+                    <span class="text-green" id="display-income" style="font-weight:bold;">0 円</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.85rem; border-top:1px dashed #333; padding-top:5px;">
+                    <span style="color:#aaa;">月次固定費 (家賃/人件費)</span>
+                    <span class="text-red" id="display-fixed-cost" style="font-weight:bold;">0 円</span>
+                </div>
+            </div>
+
+            <!-- 稼働状況サマリー (クリーン化) -->
+            <div class="box" id="dash-regions-container">
+                <h3 style="margin-bottom:8px;">📦 預かり稼働状況</h3>
+                <div id="dash-dom-ui" style="display:flex; justify-content:space-between; font-size:0.85rem; padding:6px 0; border-top:1px dashed #333;"></div>
+                <div id="dash-ovs-ui" style="display:flex; justify-content:space-between; font-size:0.85rem; padding:6px 0; border-top:1px dashed #333;"></div>
+                <div id="dash-mex-ui" style="display:flex; justify-content:space-between; font-size:0.85rem; padding:6px 0; border-top:1px dashed #333;"></div>
+            </div>
+
+            <h2 style="margin:20px 0 10px; font-size:1.1rem; color:#fff;">📦 物理ストレージ管理</h2>
+            
+            <div id="req-start-warning" style="display:block; color:var(--gold); font-weight:bold; margin-bottom:10px; padding:10px; background:#332200; border:1px solid var(--gold); border-radius:6px; font-size:0.9rem;">
+                ⚠️ 「人事・設備」タブから『国内事務所』と『一般倉庫』を購入して開始してください。
             </div>
 
             <div id="storage-container" style="display:none;">
-                <div style="background:#1a1a1a; padding:10px; margin-bottom:10px; border-radius:4px; border:1px solid #444;">
-                    <h4 style="margin:0 0 5px 0; color:#ddd; font-size:0.9rem;">🚛 今月の「運び屋」売却可能枠</h4>
-                    <div style="font-size:0.85rem; color:#aaa; display:flex; gap:10px;">
-                        <div>🇯🇵日本: <span id="ui-dom-trans-left" class="text-gold" style="font-weight:bold;">0</span></div>
-                        <div id="ui-ovs-trans-wrapper" style="display:none;">🇨🇭スイス: <span id="ui-ovs-trans-left" class="text-gold" style="font-weight:bold;">0</span></div>
-                        <div id="ui-mex-trans-wrapper" style="display:none;">🇲🇽メキシコ: <span id="ui-mex-trans-left" class="text-gold" style="font-weight:bold;">0</span></div>
+                <!-- 運び屋枠 -->
+                <div class="box" style="border-color:var(--gold); background:#151000;">
+                    <h3 style="color:var(--gold); margin-bottom:5px;">🚛 今月の運び屋 (強制売却枠)</h3>
+                    <div style="display:flex; justify-content:space-around; font-size:0.9rem;">
+                        <div>🇯🇵 残 <span id="ui-dom-trans-left" style="font-weight:bold; font-size:1.1rem;">0</span></div>
+                        <div id="ui-ovs-trans-wrapper" style="display:none;">🇨🇭 残 <span id="ui-ovs-trans-left" style="font-weight:bold; font-size:1.1rem;">0</span></div>
+                        <div id="ui-mex-trans-wrapper" style="display:none;">🇲🇽 残 <span id="ui-mex-trans-left" style="font-weight:bold; font-size:1.1rem;">0</span></div>
                     </div>
                 </div>
 
-                <details class="box accordion" open id="domestic-accordion" style="border-color: #555; padding:0;">
-                    <summary style="padding:10px;">
-                        <div class="summary-header" style="margin-bottom:0; border-bottom:none;">
-                            <span class="title-text">🇯🇵 日本 (バランス型拠点)</span>
-                            <span class="status-text">[一]<span id="list-dom-norm-info">0/0</span> [違]<span id="list-dom-ill-info">0/0</span> <span class="accordion-icon">▼</span></span>
-                        </div>
-                    </summary>
-                    <div style="border-top: 1px dashed #333;">
-                        <details class="accordion" style="border-bottom:1px solid #222;">
-                            <summary style="padding:10px; background:#151515;"><div class="summary-header" style="margin-bottom:0; border-bottom:none;"><span class="title-text" style="color:#bbb; font-size:0.95rem;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></div></summary>
-                            <div style="padding:10px; background:#111;" id="dom-norm-list"></div>
-                        </details>
-                        <details class="accordion" style="border-bottom:1px solid #222;">
-                            <summary style="padding:10px; background:#151515;"><div class="summary-header" style="margin-bottom:0; border-bottom:none;"><span class="title-text" style="color:var(--red); font-size:0.95rem;">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></div></summary>
-                            <div style="padding:10px; background:#111;" id="dom-ill-list"></div>
-                        </details>
-                        <details class="accordion" open style="border-bottom:none;">
-                            <summary style="padding:10px; background:#151515;"><div class="summary-header" style="margin-bottom:0; border-bottom:none;"><span class="title-text" style="color:var(--gold); font-size:0.95rem;">💰 売却可能物品</span><span class="accordion-icon">▼</span></div></summary>
-                            <div style="padding:10px; background:#111;" id="dom-aban-list"></div>
-                        </details>
+                <!-- 国内ストレージ -->
+                <details class="accordion" open id="domestic-accordion">
+                    <summary><span class="title-text">🇯🇵 日本拠点リスト</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <details class="sub-accordion"><summary><span style="color:#bbb;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="dom-norm-list"></div></details>
+                        <details class="sub-accordion"><summary><span style="color:var(--red);">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="dom-ill-list"></div></details>
+                        <details class="sub-accordion" open><summary><span style="color:var(--gold); font-weight:bold;">💰 売却可能 (所有権獲得)</span><span class="accordion-icon">▼</span></summary><div id="dom-aban-list"></div></details>
                     </div>
                 </details>
                 
-                <details class="box accordion" open id="overseas-accordion" style="display: none; border-color: var(--blue); padding:0;">
-                    <summary style="padding:10px;">
-                        <div class="summary-header" style="margin-bottom:0; border-bottom:none;">
-                            <span class="title-text" style="color:var(--blue);">🇨🇭 スイス (VIP・表金特化)</span>
-                            <span class="status-text">[一]<span id="list-ovs-norm-info">0/0</span> [違]<span id="list-ovs-ill-info">0/0</span> <span class="accordion-icon">▼</span></span>
-                        </div>
-                    </summary>
-                    <div style="border-top: 1px dashed #333;">
-                        <details class="accordion" style="border-bottom:1px solid #222;">
-                            <summary style="padding:10px; background:#151515;"><div class="summary-header" style="margin-bottom:0; border-bottom:none;"><span class="title-text" style="color:#bbb; font-size:0.95rem;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></div></summary>
-                            <div style="padding:10px; background:#111;" id="ovs-norm-list"></div>
-                        </details>
-                        <details class="accordion" style="border-bottom:1px solid #222;">
-                            <summary style="padding:10px; background:#151515;"><div class="summary-header" style="margin-bottom:0; border-bottom:none;"><span class="title-text" style="color:var(--red); font-size:0.95rem;">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></div></summary>
-                            <div style="padding:10px; background:#111;" id="ovs-ill-list"></div>
-                        </details>
-                        <details class="accordion" open style="border-bottom:none;">
-                            <summary style="padding:10px; background:#151515;"><div class="summary-header" style="margin-bottom:0; border-bottom:none;"><span class="title-text" style="color:var(--gold); font-size:0.95rem;">💰 売却可能物品</span><span class="accordion-icon">▼</span></div></summary>
-                            <div style="padding:10px; background:#111;" id="ovs-aban-list"></div>
-                        </details>
+                <!-- スイスストレージ -->
+                <details class="accordion" id="overseas-accordion" style="display:none; border-color:var(--blue);">
+                    <summary><span class="title-text" style="color:var(--blue);">🇨🇭 スイス VIPリスト</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <details class="sub-accordion"><summary><span style="color:#bbb;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="ovs-norm-list"></div></details>
+                        <details class="sub-accordion"><summary><span style="color:var(--red);">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="ovs-ill-list"></div></details>
+                        <details class="sub-accordion" open><summary><span style="color:var(--gold); font-weight:bold;">💰 売却可能 (所有権獲得)</span><span class="accordion-icon">▼</span></summary><div id="ovs-aban-list"></div></details>
                     </div>
                 </details>
 
-                <details class="box accordion" open id="mexico-accordion" style="display: none; border-color: var(--mexico); padding:0;">
-                    <summary style="padding:10px;">
-                        <div class="summary-header" style="margin-bottom:0; border-bottom:none;">
-                            <span class="title-text" style="color:var(--green);">🇲🇽 メキシコ (カルテル・違法特化)</span>
-                            <span class="status-text">[一]<span id="list-mex-norm-info">0/0</span> [違]<span id="list-mex-ill-info">0/0</span> <span class="accordion-icon">▼</span></span>
-                        </div>
-                    </summary>
-                    <div style="border-top: 1px dashed #333;">
-                        <details class="accordion" style="border-bottom:1px solid #222;">
-                            <summary style="padding:10px; background:#151515;"><div class="summary-header" style="margin-bottom:0; border-bottom:none;"><span class="title-text" style="color:#bbb; font-size:0.95rem;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></div></summary>
-                            <div style="padding:10px; background:#111;" id="mex-norm-list"></div>
-                        </details>
-                        <details class="accordion" style="border-bottom:1px solid #222;">
-                            <summary style="padding:10px; background:#151515;"><div class="summary-header" style="margin-bottom:0; border-bottom:none;"><span class="title-text" style="color:var(--red); font-size:0.95rem;">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></div></summary>
-                            <div style="padding:10px; background:#111;" id="mex-ill-list"></div>
-                        </details>
-                        <details class="accordion" open style="border-bottom:none;">
-                            <summary style="padding:10px; background:#151515;"><div class="summary-header" style="margin-bottom:0; border-bottom:none;"><span class="title-text" style="color:var(--gold); font-size:0.95rem;">💰 売却可能物品</span><span class="accordion-icon">▼</span></div></summary>
-                            <div style="padding:10px; background:#111;" id="mex-aban-list"></div>
-                        </details>
+                <!-- メキシコストレージ -->
+                <details class="accordion" id="mexico-accordion" style="display:none; border-color:var(--mexico);">
+                    <summary><span class="title-text" style="color:var(--mexico);">🇲🇽 メキシコ 密輸リスト</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <details class="sub-accordion"><summary><span style="color:#bbb;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="mex-norm-list"></div></details>
+                        <details class="sub-accordion"><summary><span style="color:var(--red);">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="mex-ill-list"></div></details>
+                        <details class="sub-accordion" open><summary><span style="color:var(--gold); font-weight:bold;">💰 売却可能 (所有権獲得)</span><span class="accordion-icon">▼</span></summary><div id="mex-aban-list"></div></details>
                     </div>
                 </details>
             </div>
@@ -267,164 +225,159 @@
 
         <!-- ================= タブ2: 人事・設備コマンド ================= -->
         <div id="tab-hr" class="tab-content">
-            <h2 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:5px; color:#fff;">👥 施設・人事コマンド</h2>
             
-            <!-- 設備投資 -->
-            <details class="box accordion" open style="padding:0; border-color: var(--green);">
-                <summary style="padding:10px;">
-                    <div class="summary-header" style="margin-bottom:0; border-bottom:none;">
-                        <span class="title-text" style="color:#fff;">🏗️ 法人設立・設備投資</span>
-                        <span class="status-text" style="color:var(--green);">※月次維持費あり <span class="accordion-icon">▼</span></span>
+            <!-- 設備投資 (カード型レイアウト) -->
+            <h2 style="font-size:1.1rem; color:#fff; border-bottom:1px solid #444; padding-bottom:5px; margin-bottom:15px;">🏗️ 施設・拡張コマンド</h2>
+            
+            <div id="fac-dom-box" class="box" style="border-color:var(--green);">
+                <h3 style="color:var(--green);">🇯🇵 日本拠点</h3>
+                <div id="cmd-dom-office"><button class="btn btn-buy" onclick="buyDomOffice()">[設立] 国内事務所 (表2000万)</button></div>
+                <div id="cmd-buy-first" style="display:none;"><button class="btn btn-main" onclick="buyFirstWarehouse()">[取得] 初期の一般倉庫 (表3000万)</button></div>
+                
+                <div id="cmd-dom" style="display: none;">
+                    <div class="flex-row">
+                        <button class="btn" onclick="runDomAd()">広告宣伝<br><span style="font-size:0.75rem;font-weight:normal;">表300万</span></button>
+                        <button class="btn" onclick="expandDomWarehouse()">一般拡張<br><span style="font-size:0.75rem;font-weight:normal;">表3000万</span></button>
                     </div>
-                </summary>
-                <div style="padding: 10px; border-top: 1px dashed #333;">
+                    <button class="btn" onclick="expandDomIllVault()" style="border-color:var(--red); color:var(--red); margin-bottom:10px;">[違法] 隠し金庫の増設 (裏5000万)</button>
                     
-                    <h3 style="margin:0 0 5px 0; font-size:0.95rem;">🇯🇵 国内の設備・投資</h3>
-                    <div id="cmd-dom-office" style="display:block; margin-bottom:10px;">
-                        <button id="btn-buy-dom-office" class="btn btn-buy" onclick="buyDomOffice()">[設立] 国内の事務所を構える (表 2,000万円)<br><span style="font-size:0.75rem;">※家賃 100万/月。人事採用が解放</span></button>
-                    </div>
-                    <div id="cmd-buy-first" style="display:none; margin-bottom:10px;">
-                        <button id="btn-buy-first-wh" class="btn btn-main" onclick="buyFirstWarehouse()">[取得] 最初の国内一般倉庫 (表 3,000万円)<br><span style="font-size:0.75rem;">※維持費 100万/月。国内預かりビジネス開始</span></button>
-                    </div>
-                    
-                    <div id="cmd-dom" style="display: none;">
-                        <div style="display:flex; gap:10px;">
-                            <button id="btn-dom-ad" class="btn btn-action" onclick="runDomAd()" style="margin-top:0;">[広告] 国内宣伝 (表 300万)</button>
-                            <button id="btn-dom-expand" class="btn btn-action" onclick="expandDomWarehouse()" style="margin-top:0;">[一般] 倉庫増床 (表 3,000万)</button>
-                        </div>
-                        <button id="btn-dom-ill-expand" class="btn btn-action" onclick="expandDomIllVault()" style="border-color:var(--red); color:var(--red);">[違法] 隠し金庫の購入・増設 (裏 5,000万円)<br><span style="font-size:0.75rem;color:#888;">国内違法枠の上限+50 / 維持費:裏100万/月</span></button>
-                        
-                        <div style="display:flex; gap:10px; margin-top:10px;" id="cmd-overseas-unlock">
-                            <button id="btn-buy-ovs-office" class="btn btn-action" onclick="buyOvsOffice()" style="border-color: var(--blue); color: var(--blue); margin-top:0;">[設立] スイス支社 (表 1億円)<br><span style="font-size:0.7rem;">※家賃 300万/月。国内エージェント必須</span></button>
-                            <button id="btn-buy-mex-office" class="btn btn-action" onclick="buyMexOffice()" style="border-color: var(--green); color: var(--green); margin-top:0;">[設立] メキシコ拠点 (表 2000万円)<br><span style="font-size:0.7rem;">※家賃 50万/月。国内エージェント必須</span></button>
-                        </div>
-                    </div>
-
-                    <!-- スイス設備 -->
-                    <div id="cmd-ovs-wrapper" style="display:none;">
-                        <h3 style="margin:15px 0 5px 0; font-size:0.95rem; color:var(--blue); border-top:1px dashed #555; padding-top:10px;">🇨🇭 スイスの設備・投資</h3>
-                        <div id="cmd-buy-ovs-wh" style="display:block; margin-bottom:10px;">
-                            <button id="btn-buy-ovs-wh-btn" class="btn" style="border-color:var(--blue); color:var(--blue); font-weight:bold;" onclick="buyOvsWarehouse()">[取得] スイスVIP一般倉庫 (表 2億円)<br><span style="font-size:0.75rem;">※維持費 300万/月。スイス事業開始</span></button>
-                        </div>
-                        <div id="cmd-ovs" style="display: none;">
-                            <div style="display:flex; gap:10px;">
-                                <button id="btn-ovs-ad" class="btn btn-action" onclick="runOvsAd()" style="border-color:var(--blue); color:var(--blue); margin-top:0;">[広告] VIP宣伝 (表 1,000万)</button>
-                                <button id="btn-ovs-expand" class="btn btn-action" onclick="expandOvsWarehouse()" style="border-color:var(--blue); color:var(--blue); margin-top:0;">[一般] 倉庫増床 (表 1億円)</button>
-                            </div>
-                            <button id="btn-ovs-ill-expand" class="btn btn-action" onclick="expandOvsIllVault()" style="border-color:var(--red); color:var(--red);">[違法] 隠し金庫の購入・増設 (裏 2億円)<br><span style="font-size:0.75rem;color:#888;">スイス違法枠の上限+50 / 維持費:裏250万/月</span></button>
-                        </div>
-                    </div>
-
-                    <!-- メキシコ設備 -->
-                    <div id="cmd-mex-wrapper" style="display:none;">
-                        <h3 style="margin:15px 0 5px 0; font-size:0.95rem; color:var(--green); border-top:1px dashed #555; padding-top:10px;">🇲🇽 メキシコの設備・投資</h3>
-                        <div id="cmd-buy-mex-wh" style="display:block; margin-bottom:10px;">
-                            <button id="btn-buy-mex-wh-btn" class="btn" style="border-color:var(--green); color:var(--green); font-weight:bold;" onclick="buyMexWarehouse()">[取得] メキシコ密輸一般倉庫 (表 3,000万円)<br><span style="font-size:0.75rem;">※維持費 50万/月。メキシコ事業開始</span></button>
-                        </div>
-                        <div id="cmd-mex" style="display: none;">
-                            <div style="display:flex; gap:10px;">
-                                <button id="btn-mex-ad" class="btn btn-action" onclick="runMexAd()" style="border-color:var(--green); color:var(--green); margin-top:0;">[広告] 現地宣伝 (表 100万)</button>
-                                <button id="btn-mex-expand" class="btn btn-action" onclick="expandMexWarehouse()" style="border-color:var(--green); color:var(--green); margin-top:0;">[一般] 倉庫増床 (表 1,000万)</button>
-                            </div>
-                            <button id="btn-mex-ill-expand" class="btn btn-action" onclick="expandMexIllVault()" style="border-color:var(--red); color:var(--red);">[違法] 隠し金庫の購入・増設 (裏 1,500万円)<br><span style="font-size:0.75rem;color:#888;">メキシコ違法枠の上限+50 / 維持費:裏50万/月</span></button>
-                        </div>
+                    <div class="flex-row" id="cmd-overseas-unlock">
+                        <button id="btn-buy-ovs-office" class="btn" onclick="buyOvsOffice()" style="border-color:var(--blue); color:var(--blue);">🇨🇭 支社設立<br><span style="font-size:0.7rem;font-weight:normal;">表1億円</span></button>
+                        <button id="btn-buy-mex-office" class="btn" onclick="buyMexOffice()" style="border-color:var(--mexico); color:var(--mexico);">🇲🇽 拠点設立<br><span style="font-size:0.7rem;font-weight:normal;">表2000万</span></button>
                     </div>
                 </div>
-            </details>
+            </div>
 
-            <!-- 人事パネル -->
+            <div id="fac-ovs-box" class="box" style="display:none; border-color:var(--blue);">
+                <h3 style="color:var(--blue);">🇨🇭 スイス拠点</h3>
+                <div id="cmd-buy-ovs-wh"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="buyOvsWarehouse()">[取得] VIP一般倉庫 (表2億円)</button></div>
+                <div id="cmd-ovs" style="display: none;">
+                    <div class="flex-row">
+                        <button class="btn" onclick="runOvsAd()">VIP広告<br><span style="font-size:0.75rem;font-weight:normal;">表1000万</span></button>
+                        <button class="btn" onclick="expandOvsWarehouse()">一般拡張<br><span style="font-size:0.75rem;font-weight:normal;">表1億円</span></button>
+                    </div>
+                    <button class="btn" onclick="expandOvsIllVault()" style="border-color:var(--red); color:var(--red);">[違法] 隠し金庫の増設 (裏2億円)</button>
+                </div>
+            </div>
+
+            <div id="fac-mex-box" class="box" style="display:none; border-color:var(--mexico);">
+                <h3 style="color:var(--mexico);">🇲🇽 メキシコ拠点</h3>
+                <div id="cmd-buy-mex-wh"><button class="btn" style="border-color:var(--mexico); color:var(--mexico);" onclick="buyMexWarehouse()">[取得] 密輸一般倉庫 (表3000万円)</button></div>
+                <div id="cmd-mex" style="display: none;">
+                    <div class="flex-row">
+                        <button class="btn" onclick="runMexAd()">現地広告<br><span style="font-size:0.75rem;font-weight:normal;">表100万</span></button>
+                        <button class="btn" onclick="expandMexWarehouse()">一般拡張<br><span style="font-size:0.75rem;font-weight:normal;">表1000万</span></button>
+                    </div>
+                    <button class="btn" onclick="expandMexIllVault()" style="border-color:var(--red); color:var(--red);">[違法] 隠し金庫の増設 (裏1500万)</button>
+                </div>
+            </div>
+
             <div id="hr-panel" style="display:none;">
-                <details class="box accordion" open style="border-color: var(--gold); padding:0;">
-                    <summary style="padding:10px;">
-                        <div class="summary-header" style="margin-bottom:0; border-bottom:none;">
-                            <span class="title-text" style="color:var(--gold);">👑 役員 & 洗屋</span><span class="status-text"><span class="accordion-icon">▼</span></span>
-                        </div>
-                    </summary>
-                    <div style="padding: 0 10px 10px 10px; border-top: 1px dashed #333;">
-                        <div class="staff-row">
-                            <div class="staff-info">
-                                <strong style="font-size:1rem; color:var(--gold);">CEO (あなた)</strong><br>
-                                <span style="font-size:0.8rem; color:#aaa;">事業の【表金】から毎月個人の懐へ報酬を自動送金。</span><br>
-                                <div style="margin-top:5px;">月給: <input type="number" id="input-ceo-salary" value="0" step="10" style="width:70px; padding:3px; background:#111; color:#fff; border:1px solid #555; text-align:right;"> 万円 <button class="btn" style="padding:4px 8px; width:auto; border-color:var(--gold); color:var(--gold);" onclick="setCeoSalary()">設定</button></div>
+                <h2 style="font-size:1.1rem; color:#fff; border-bottom:1px solid #444; padding-bottom:5px; margin:25px 0 15px;">👥 人材・採用管理</h2>
+                
+                <!-- 役員・洗屋カード -->
+                <div class="staff-card" style="border-color:var(--gold);">
+                    <div class="staff-card-head text-gold">👑 CEO (あなた)</div>
+                    <div class="staff-card-desc">毎月「表金」から個人口座(スコア)へ自動引出。</div>
+                    <div class="staff-card-actions" style="align-items:center;">
+                        <input type="number" id="input-ceo-salary" value="0" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid #555; text-align:right;"> <span style="color:#aaa;">万円</span>
+                        <button class="btn" style="flex:1; border-color:var(--gold); color:var(--gold); padding:8px;" onclick="setCeoSalary()">設定</button>
+                    </div>
+                </div>
+
+                <div class="staff-card" style="border-color:var(--yellow);">
+                    <div class="staff-card-head text-yellow">🧽 洗屋 <span style="font-size:0.85rem; font-weight:normal;">(現在: <span id="ui-staff-launderer">0</span>人)</span></div>
+                    <div class="staff-card-desc">月給200万(裏)。毎月最大1億円の裏金を、手数料5%で表金へ資金洗浄する（事業拡大に必須）。</div>
+                    <div class="staff-card-actions">
+                        <button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('launderer')">採用 (初500万)</button>
+                        <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('launderer')">解雇</button>
+                    </div>
+                </div>
+
+                <!-- 国内人事アコーディオン -->
+                <details class="accordion" open id="hr-dom-section">
+                    <summary><span class="title-text">🇯🇵 国内スタッフ</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <!-- 一般作業員 -->
+                        <div class="staff-card">
+                            <div class="staff-card-head">👷 一般作業員 <span class="accent-text">(現在:<span id="ui-dom-work">0</span>人)</span></div>
+                            <div class="staff-card-desc">月給30万(表) / 国内の一般枠 50箱を管理。</div>
+                            <div class="staff-card-actions">
+                                <button class="btn" onclick="hireStaff('domWork')">採用 (初60万)</button>
+                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domWork')">解雇</button>
                             </div>
                         </div>
-                        <div class="staff-row" style="border-bottom:none;">
-                            <div class="staff-info">
-                                <strong style="font-size:1rem; color:var(--yellow);">🧽 洗屋 (マネーロンダラー)</strong> <span class="accent-text">(現在: <span id="ui-staff-launderer">0</span>人)</span><br>
-                                <span style="font-size:0.8rem; color:#aaa;">月給200万(裏)。最大「1億円/人」の裏金を、手数料5%で表金に洗浄。</span>
+                        <!-- 物品管理人 -->
+                        <div class="staff-card">
+                            <div class="staff-card-head text-red">🚛 物品管理人 <span class="accent-text">(現在:<span id="ui-dom-keeper">0</span>人)</span></div>
+                            <div class="staff-card-desc">月給50万(裏) / 国内の違法枠 20箱を管理。</div>
+                            <div class="staff-card-actions">
+                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('domKeeper')">採用 (初100万)</button>
+                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domKeeper')">解雇</button>
                             </div>
-                            <div class="staff-act" style="flex-direction: column;">
-                                <button class="btn" style="padding:6px; border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('launderer')">採用 (初期500万)</button>
-                                <button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('launderer')">クビ</button>
+                        </div>
+                        <!-- エージェント -->
+                        <div class="staff-card">
+                            <div class="staff-card-head text-purple">🕴️ エージェント <span class="accent-text">(現在:<span id="ui-dom-agent">0</span>人)</span></div>
+                            <div class="staff-card-desc">月給200万(裏) / 毎月確実に違法依頼を1件獲得。</div>
+                            <div class="staff-card-actions">
+                                <button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('domAgent')">採用 (初400万)</button>
+                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domAgent')">解雇</button>
+                            </div>
+                        </div>
+                        <!-- ブローカー -->
+                        <div class="staff-card">
+                            <div class="staff-card-head" style="color:var(--gold);">💼 ブローカー <span class="accent-text">(現在:<span id="ui-dom-broker">0</span>人)</span></div>
+                            <div class="staff-card-desc">月給150万(裏) / 売却権限を持つ。売却処理に必須。</div>
+                            <div class="staff-card-actions">
+                                <button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('domBroker')">採用 (初300万)</button>
+                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domBroker')">解雇</button>
+                            </div>
+                        </div>
+                        <!-- 運び屋 -->
+                        <div class="staff-card">
+                            <div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-dom-transporter">0</span>人)</span></div>
+                            <div class="staff-card-desc">月給80万(裏) / 毎月5回まで売却品の運搬が可能。</div>
+                            <div class="staff-card-actions">
+                                <button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('domTransporter')">採用 (初150万)</button>
+                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domTransporter')">解雇</button>
+                            </div>
+                        </div>
+                        <!-- ディーラー -->
+                        <div class="staff-card">
+                            <div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-dom-dealer">0</span>人)</span></div>
+                            <div class="staff-card-desc">月給250万(裏) / 依頼の受理と売却を全自動化する。</div>
+                            <div class="staff-card-actions">
+                                <button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('domDealer')">採用 (初1千万)</button>
+                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domDealer')">解雇</button>
                             </div>
                         </div>
                     </div>
                 </details>
 
-                <!-- ★ バグ修正： display:none を削除し、親の hr-panel の表示状態に連動させる ★ -->
-                <details class="box accordion" open id="hr-dom-section" style="border-color: #aaa; padding:0;">
-                    <summary style="padding:10px;">
-                        <div class="summary-header" style="margin-bottom:0; border-bottom:none;">
-                            <span class="title-text">🇯🇵 国内スタッフ <span style="font-size:0.8rem; font-weight:normal; color:#888;">(バランス型)</span></span><span class="status-text"><span class="accordion-icon">▼</span></span>
-                        </div>
-                    </summary>
-                    <div style="padding: 0 10px 10px 10px; border-top: 1px dashed #333;">
-                        <div class="staff-row">
-                            <div class="staff-info"><strong>👷 一般作業員</strong> <span class="accent-text">(現在:<span id="ui-dom-work">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給30万(表)。一般枠 50箱/人。</span></div>
-                            <div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px;" onclick="hireStaff('domWork')">採用 (初期60万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('domWork')">クビ</button></div>
-                        </div>
-                        <div class="staff-row">
-                            <div class="staff-info"><strong style="color:var(--red);">🚛 物品管理人</strong> <span class="accent-text">(現在:<span id="ui-dom-keeper">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給50万(裏)。違法枠 20箱/人。</span></div>
-                            <div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="hireStaff('domKeeper')">採用 (初期100万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('domKeeper')">クビ</button></div>
-                        </div>
-                        <div class="staff-row">
-                            <div class="staff-info"><strong style="color:var(--purple);">🕴️ エージェント</strong> <span class="accent-text">(現在:<span id="ui-dom-agent">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給200万(裏)。違法依頼を毎月1件。</span></div>
-                            <div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--purple); color:var(--purple);" onclick="hireStaff('domAgent')">採用 (初期400万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('domAgent')">クビ</button></div>
-                        </div>
-                        <div class="staff-row">
-                            <div class="staff-info"><strong style="color:#ff9800;">💼 ブローカー</strong> <span class="accent-text">(現在:<span id="ui-dom-broker">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給150万(裏)。売却権限を持つ。</span></div>
-                            <div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:#ff9800; color:#ff9800;" onclick="hireStaff('domBroker')">採用 (初期300万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('domBroker')">クビ</button></div>
-                        </div>
-                        <div class="staff-row">
-                            <div class="staff-info"><strong style="color:var(--gold);">🏃 運び屋</strong> <span class="accent-text">(現在:<span id="ui-dom-transporter">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給80万(裏)。月5回運搬可能。</span></div>
-                            <div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--gold); color:var(--gold);" onclick="hireStaff('domTransporter')">採用 (初期150万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('domTransporter')">クビ</button></div>
-                        </div>
-                        <div class="staff-row" style="border-bottom:none;">
-                            <div class="staff-info"><strong style="color:var(--blue);">🤖 ディーラー</strong> <span class="accent-text">(現在:<span id="ui-dom-dealer">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給250万(裏)。自動受理＆自動売却。</span></div>
-                            <div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--blue); color:var(--blue);" onclick="hireStaff('domDealer')">採用 (初期1千万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('domDealer')">クビ</button></div>
-                        </div>
+                <!-- スイス人事アコーディオン -->
+                <details class="accordion" id="hr-ovs-section" style="display:none; border-color:var(--blue);">
+                    <summary><span class="title-text" style="color:var(--blue);">🇨🇭 スイススタッフ</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <div class="staff-card"><div class="staff-card-head">👨‍💻 作業員 <span class="accent-text">(現在:<span id="ui-ovs-work">0</span>人)</span></div><div class="staff-card-desc">月給100万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsWork')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsWork')">解雇</button></div></div>
+                        <div class="staff-card"><div class="staff-card-head text-red">✈️ 物品管理人 <span class="accent-text">(現在:<span id="ui-ovs-keeper">0</span>人)</span></div><div class="staff-card-desc">月給150万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('ovsKeeper')">採用(初500万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsKeeper')">解雇</button></div></div>
+                        <div class="staff-card"><div class="staff-card-head text-purple">🕵️ エージェント <span class="accent-text">(現在:<span id="ui-ovs-agent">0</span>人)</span></div><div class="staff-card-desc">月給300万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('ovsAgent')">採用(初800万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsAgent')">解雇</button></div></div>
+                        <div class="staff-card"><div class="staff-card-head text-gold">🤝 ブローカー <span class="accent-text">(現在:<span id="ui-ovs-broker">0</span>人)</span></div><div class="staff-card-desc">月給250万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('ovsBroker')">採用(初600万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsBroker')">解雇</button></div></div>
+                        <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-ovs-transporter">0</span>人)</span></div><div class="staff-card-desc">月給120万(裏) / 月5回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('ovsTransporter')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsTransporter')">解雇</button></div></div>
+                        <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-ovs-dealer">0</span>人)</span></div><div class="staff-card-desc">月給400万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsDealer')">採用(初1.5千万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsDealer')">解雇</button></div></div>
                     </div>
                 </details>
 
-                <details class="box accordion" id="hr-ovs-section" style="display:none; border-color: var(--blue); padding:0;">
-                    <summary style="padding:10px;">
-                        <div class="summary-header" style="margin-bottom:0; border-bottom:none;">
-                            <span class="title-text" style="color:var(--blue);">🇨🇭 スイススタッフ <span style="font-size:0.8rem; font-weight:normal; color:#888;">(表金特化)</span></span><span class="status-text"><span class="accordion-icon">▼</span></span>
-                        </div>
-                    </summary>
-                    <div style="padding: 0 10px 10px 10px; border-top: 1px dashed #333;">
-                        <div class="staff-row"><div class="staff-info"><strong>👨‍💻 作業員</strong> <span class="accent-text">(現在:<span id="ui-ovs-work">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給100万(表)。海外一般枠 50箱/人。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsWork')">採用(初期300万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsWork')">クビ</button></div></div>
-                        <div class="staff-row"><div class="staff-info"><strong style="color:var(--red);">✈️ 物品管理人</strong> <span class="accent-text">(現在:<span id="ui-ovs-keeper">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給150万(裏)。海外違法枠 20箱/人。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="hireStaff('ovsKeeper')">採用(初期500万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsKeeper')">クビ</button></div></div>
-                        <div class="staff-row"><div class="staff-info"><strong style="color:var(--purple);">🕵️ エージェント</strong> <span class="accent-text">(現在:<span id="ui-ovs-agent">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給300万(裏)。依頼を毎月1件取る。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--purple); color:var(--purple);" onclick="hireStaff('ovsAgent')">採用(初期800万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsAgent')">クビ</button></div></div>
-                        <div class="staff-row"><div class="staff-info"><strong style="color:#ff9800;">🤝 ブローカー</strong> <span class="accent-text">(現在:<span id="ui-ovs-broker">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給250万(裏)。売買権限を持つ。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:#ff9800; color:#ff9800;" onclick="hireStaff('ovsBroker')">採用(初期600万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsBroker')">クビ</button></div></div>
-                        <div class="staff-row"><div class="staff-info"><strong style="color:var(--gold);">🏃 運び屋</strong> <span class="accent-text">(現在:<span id="ui-ovs-transporter">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給120万(裏)。月5回運搬可能。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--gold); color:var(--gold);" onclick="hireStaff('ovsTransporter')">採用(初期300万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsTransporter')">クビ</button></div></div>
-                        <div class="staff-row" style="border-bottom:none;"><div class="staff-info"><strong style="color:var(--blue);">🤖 ディーラー</strong> <span class="accent-text">(現在:<span id="ui-ovs-dealer">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給400万(裏)。自動受理＆自動売却。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsDealer')">採用(初期1.5千万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsDealer')">クビ</button></div></div>
-                    </div>
-                </details>
-
-                <details class="box accordion" id="hr-mex-section" style="display:none; border-color: var(--green); padding:0;">
-                    <summary style="padding:10px;">
-                        <div class="summary-header" style="margin-bottom:0; border-bottom:none;">
-                            <span class="title-text" style="color:var(--green);">🇲🇽 メキシコスタッフ <span style="font-size:0.8rem; font-weight:normal; color:#888;">(裏金特化)</span></span><span class="status-text"><span class="accordion-icon">▼</span></span>
-                        </div>
-                    </summary>
-                    <div style="padding: 0 10px 10px 10px; border-top: 1px dashed #333;">
-                        <div class="staff-row"><div class="staff-info"><strong>👷 作業員</strong> <span class="accent-text">(現在:<span id="ui-mex-work">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給10万(表)。メキシコ一般枠 50箱。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--green); color:var(--green);" onclick="hireStaff('mexWork')">採用(初期20万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('mexWork')">クビ</button></div></div>
-                        <div class="staff-row"><div class="staff-info"><strong style="color:var(--red);">🚛 物品管理人</strong> <span class="accent-text">(現在:<span id="ui-mex-keeper">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給20万(裏)。メキシコ違法枠 20箱。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="hireStaff('mexKeeper')">採用(初期40万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('mexKeeper')">クビ</button></div></div>
-                        <div class="staff-row"><div class="staff-info"><strong style="color:var(--purple);">🕴️ エージェント</strong> <span class="accent-text">(現在:<span id="ui-mex-agent">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給80万(裏)。依頼を毎月1件取る。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--purple); color:var(--purple);" onclick="hireStaff('mexAgent')">採用(初期200万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('mexAgent')">クビ</button></div></div>
-                        <div class="staff-row"><div class="staff-info"><strong style="color:#ff9800;">💼 ブローカー</strong> <span class="accent-text">(現在:<span id="ui-mex-broker">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給50万(裏)。売買権限を持つ。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:#ff9800; color:#ff9800;" onclick="hireStaff('mexBroker')">採用(初期100万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('mexBroker')">クビ</button></div></div>
-                        <div class="staff-row"><div class="staff-info"><strong style="color:var(--gold);">🏃 運び屋</strong> <span class="accent-text">(現在:<span id="ui-mex-transporter">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給30万(裏)。月5回運搬可能。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--gold); color:var(--gold);" onclick="hireStaff('mexTransporter')">採用(初期60万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('mexTransporter')">クビ</button></div></div>
-                        <div class="staff-row" style="border-bottom:none;"><div class="staff-info"><strong style="color:var(--blue);">🤖 ディーラー</strong> <span class="accent-text">(現在:<span id="ui-mex-dealer">0</span>人)</span><br><span style="font-size:0.8rem; color:#888;">月給100万(裏)。自動受理＆自動売却。</span></div><div class="staff-act" style="flex-direction: column;"><button class="btn" style="padding:6px; border-color:var(--blue); color:var(--blue);" onclick="hireStaff('mexDealer')">採用(初期300万)</button><button class="btn" style="padding:6px; border-color:var(--red); color:var(--red);" onclick="fireStaff('mexDealer')">クビ</button></div></div>
+                <!-- メキシコ人事アコーディオン -->
+                <details class="accordion" id="hr-mex-section" style="display:none; border-color:var(--mexico);">
+                    <summary><span class="title-text" style="color:var(--mexico);">🇲🇽 メキシコスタッフ</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <div class="staff-card"><div class="staff-card-head">👷 作業員 <span class="accent-text">(現在:<span id="ui-mex-work">0</span>人)</span></div><div class="staff-card-desc">月給10万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireStaff('mexWork')">採用(初20万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexWork')">解雇</button></div></div>
+                        <div class="staff-card"><div class="staff-card-head text-red">🚛 物品管理人 <span class="accent-text">(現在:<span id="ui-mex-keeper">0</span>人)</span></div><div class="staff-card-desc">月給20万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('mexKeeper')">採用(初40万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexKeeper')">解雇</button></div></div>
+                        <div class="staff-card"><div class="staff-card-head text-purple">🕴️ エージェント <span class="accent-text">(現在:<span id="ui-mex-agent">0</span>人)</span></div><div class="staff-card-desc">月給80万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('mexAgent')">採用(初200万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexAgent')">解雇</button></div></div>
+                        <div class="staff-card"><div class="staff-card-head text-gold">💼 ブローカー <span class="accent-text">(現在:<span id="ui-mex-broker">0</span>人)</span></div><div class="staff-card-desc">月給50万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('mexBroker')">採用(初100万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexBroker')">解雇</button></div></div>
+                        <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-mex-transporter">0</span>人)</span></div><div class="staff-card-desc">月給30万(裏) / 月5回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('mexTransporter')">採用(初60万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexTransporter')">解雇</button></div></div>
+                        <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-mex-dealer">0</span>人)</span></div><div class="staff-card-desc">月給100万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('mexDealer')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexDealer')">解雇</button></div></div>
                     </div>
                 </details>
             </div>
@@ -432,49 +385,46 @@
 
         <!-- ================= タブ3: 資金・システム ================= -->
         <div id="tab-sys" class="tab-content">
-            <h2 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:5px; color:#fff;">💻 資金管理・システムログ</h2>
             
             <div class="box" style="border-color:var(--green);">
-                <h3 style="margin-top:0; color:var(--green);">事業への追加投入 / 強制引き出し</h3>
+                <h3 style="margin-top:0; color:var(--green);">💸 事業口座・入出金</h3>
                 <div style="display:flex; gap:10px; align-items:center;">
-                    <input type="number" id="fund-amount" placeholder="万円" step="100" style="width:100%; padding:10px; background:#111; color:#fff; border:1px solid var(--green); text-align:right;">
-                    <span style="white-space: nowrap;">万円</span>
+                    <input type="number" id="fund-amount" placeholder="万円" step="100" style="width:100%; padding:12px; background:#111; color:#fff; border:1px solid var(--green); text-align:right; border-radius:6px;">
+                    <span style="white-space: nowrap; color:#aaa;">万円</span>
                 </div>
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="addFunds()">[+] 事業(表)へ投入</button>
-                    <button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="withdrawFunds()">[-] 個人の懐へ引出</button>
+                <div class="flex-row" style="margin-top:12px;">
+                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="addFunds()">[+] 事業へ入金</button>
+                    <button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="withdrawFunds()">[-] 個人へ引出</button>
                 </div>
             </div>
 
             <div class="box">
-                <h3 style="margin-top:0;">システムログ (直近6ヶ月)</h3>
+                <h3 style="margin-top:0;">📝 システムログ (直近6ヶ月)</h3>
                 <div class="log-area" id="system-log"></div>
             </div>
 
             <div class="box">
-                <h3 style="margin-top:0;">セーブ / ロード</h3>
+                <h3 style="margin-top:0;">💾 セーブ / ロード</h3>
                 <div class="save-slot">
                     <span id="slot-info-1">Slot 1: NO DATA</span>
-                    <div class="slot-actions">
-                        <button onclick="saveGame(1)">セーブ</button>
-                        <button id="game-load-btn-1" onclick="loadGame(1)">ロード</button>
-                    </div>
+                    <div class="slot-actions"><button class="btn" onclick="saveGame(1)">セーブ</button><button id="game-load-btn-1" class="btn" onclick="loadGame(1)">ロード</button></div>
                 </div>
                 <div class="save-slot">
                     <span id="slot-info-2">Slot 2: NO DATA</span>
-                    <div class="slot-actions">
-                        <button onclick="saveGame(2)">セーブ</button>
-                        <button id="game-load-btn-2" onclick="loadGame(2)">ロード</button>
-                    </div>
+                    <div class="slot-actions"><button class="btn" onclick="saveGame(2)">セーブ</button><button id="game-load-btn-2" class="btn" onclick="loadGame(2)">ロード</button></div>
                 </div>
                 <div class="save-slot">
                     <span id="slot-info-3">Slot 3: NO DATA</span>
-                    <div class="slot-actions">
-                        <button onclick="saveGame(3)">セーブ</button>
-                        <button id="game-load-btn-3" onclick="loadGame(3)">ロード</button>
-                    </div>
+                    <div class="slot-actions"><button class="btn" onclick="saveGame(3)">セーブ</button><button id="game-load-btn-3" class="btn" onclick="loadGame(3)">ロード</button></div>
                 </div>
             </div>
+        </div>
+
+        <!-- ボトムタブナビゲーション -->
+        <div class="tab-menu">
+            <button class="tab-btn active" id="btn-tab-storage" onclick="switchTab('tab-storage')">📦<br>倉庫</button>
+            <button class="tab-btn" id="btn-tab-hr" onclick="switchTab('tab-hr')">🏢<br>人事・設備</button>
+            <button class="tab-btn" id="btn-tab-sys" onclick="switchTab('tab-sys')">💻<br>システム</button>
         </div>
     </div>
 
@@ -521,6 +471,7 @@
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             document.getElementById('btn-' + tabId).classList.add('active');
+            window.scrollTo({top:0, behavior:'smooth'});
         }
 
         function setCeoSalary() {
@@ -545,8 +496,8 @@
             }
         }
 
-        const NEW_SAVE_KEY = 'silentPawn_save_v16_';
-        const OLD_SAVE_KEYS = ['silentPawn_save_v15_', 'silentPawn_save_v14_', 'silentPawn_save_v13_', 'silentPawn_save_v12_', 'silentPawn_save_v11_', 'silentPawn_save_v10_', 'silentPawn_save_slot_', 'silentPawn_save_v8_', 'silentPawn_save_v7_', 'silentPawn_save_v6_', 'silentPawn_save_v5_'];
+        const NEW_SAVE_KEY = 'silentPawn_save_v17_mob_';
+        const OLD_SAVE_KEYS = ['silentPawn_save_v16_', 'silentPawn_save_v15_', 'silentPawn_save_v14_', 'silentPawn_save_v13_', 'silentPawn_save_v12_', 'silentPawn_save_v11_', 'silentPawn_save_v10_', 'silentPawn_save_slot_'];
 
         function saveGame(slot) {
             let state = {
@@ -630,7 +581,7 @@
                 if(data){
                     let state = JSON.parse(data);
                     let pAsset = state.personalMoney || 0;
-                    txt = `${state.currentYear}年${state.currentMonth}月 / 個: ${formatMoney(pAsset)}`; btnDis = "";
+                    txt = `${state.currentYear}年${state.currentMonth}月 / 資産 ${formatMoney(pAsset)}`; btnDis = "";
                 }
                 let startBtn = document.getElementById(`start-load-btn-${i}`);
                 if(startBtn) { startBtn.innerText = `ロード (Slot ${i}): ${txt}`; startBtn.disabled = btnDis === "disabled"; }
@@ -936,16 +887,15 @@
             if(!btn) return;
             if (state === "processing") {
                 btn.disabled = true;
-                btn.innerHTML = `<span style="letter-spacing:1px;">[ PROCESSING... ]</span>`;
+                btn.innerHTML = `⏳ 処理中...`;
                 btn.style.backgroundColor = "#222"; btn.style.color = "#888"; btn.style.borderColor = "#555";
             } else if (state === "wait") {
                 btn.disabled = true; 
-                let countTxt = currentRequests.length > 0 ? `未処理の依頼があります` : `依頼に対応してください`;
-                btn.innerHTML = `[WAIT] ${countTxt}`; 
+                btn.innerHTML = `⚠️ 依頼に対応`; 
                 btn.style.backgroundColor = "#331111"; btn.style.color = "var(--red)"; btn.style.borderColor = "var(--red)";
             } else {
                 btn.disabled = false; 
-                btn.innerHTML = "[ENTER] 次の月へ進む"; 
+                btn.innerHTML = `⏭️ 次の月へ`; 
                 btn.style.backgroundColor = "#1a3a1a"; btn.style.color = "var(--green)"; btn.style.borderColor = "var(--green)";
             }
         }
@@ -1081,6 +1031,7 @@
                 addLog(`【資金洗浄】洗屋が ${formatMoney(washAmount)} の裏金を洗浄し、${formatMoney(washedClean)} の【表金】に変換しました。`, "gold");
             }
 
+            // 賄賂
             let domBribe = Math.floor((domNormInc + domIllInc) * 0.05); 
             if (domBribe > 0) {
                 payDirtyPreferred(domBribe);
@@ -1106,6 +1057,7 @@
                 }
             }
 
+            // ★ 固定費（施設維持費 ＋ 人件費）の支払い
             let facCost = calculateFacilitiesCost();
             let perCost = calculatePersonnelCost();
             let totalCleanFixed = facCost.clean + perCost.clean;
@@ -1214,7 +1166,7 @@
                     reqArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
                 
-                let titlePrefix = (req.region === 'ovs') ? "🇨🇭スイス案件" : ((req.region === 'mex') ? "🇲🇽メキシコ案件" : "🇯 তোলে国内案件");
+                let titlePrefix = (req.region === 'ovs') ? "🇨🇭スイス案件" : ((req.region === 'mex') ? "🇲🇽メキシコ案件" : "🇯🇵国内案件");
                 let queueInfo = currentRequests.length > 1 ? ` (残り ${currentRequests.length - 1}件)` : "";
                 
                 let elTitle = document.getElementById("request-title");
@@ -1223,10 +1175,11 @@
                 let elDetails = document.getElementById("request-details");
                 if(elDetails) {
                     elDetails.innerHTML = `
-                        <strong style="color:#fff;">${req.name}</strong><br><br>
-                        査定額(価値): ${formatMoney(req.baseValue)}<br>
-                        貸付金(80%支払): <span class="text-red">-${formatMoney(req.loanAmount)}</span> <span style="font-size:0.8rem;color:#888;">(裏金優先)</span><br>
-                        月額保管料(裏金): <span class="text-green">+${formatMoney(req.fee)}</span>
+                        <strong style="color:#fff; font-size:1.05rem;">${req.name}</strong><br><br>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>査定額(価値):</span> <span>${formatMoney(req.baseValue)}</span></div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span class="text-red">貸付金(80%):</span> <span class="text-red">-${formatMoney(req.loanAmount)}</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span class="text-green">月額保管料:</span> <span class="text-green">+${formatMoney(req.fee)}</span></div>
+                        <div style="font-size:0.8rem; color:#888; margin-top:10px;">※貸付・保管料は裏金が優先されます</div>
                     `;
                 }
                 toggleMainButton("wait");
@@ -1288,11 +1241,11 @@
                     let transLeft = (region === 'dom') ? domTransportLeft : ((region === 'ovs') ? ovsTransportLeft : mexTransportLeft);
 
                     if (!hasBroker || !hasKeeper || !hasTransporter) {
-                        actBtn = `<span style="color:#555; font-size:0.75rem;">人員不足</span>`;
+                        actBtn = `<span style="color:#555; font-size:0.8rem; background:#222; padding:6px 12px; border-radius:4px;">人員不足</span>`;
                     } else if (transLeft <= 0) {
-                        actBtn = `<span style="color:#555; font-size:0.75rem;">運搬枠ゼロ</span>`;
+                        actBtn = `<span style="color:#555; font-size:0.8rem; background:#222; padding:6px 12px; border-radius:4px;">運搬枠ゼロ</span>`;
                     } else {
-                        actBtn = `<button class="btn" style="padding:6px 12px; font-size:0.85rem; border-color:var(--gold); color:var(--gold); width:auto;" onclick="manualSellItem(${itm.id}, '${region}')">手動強制売却</button>`;
+                        actBtn = `<button class="btn" style="padding:8px 15px; font-size:0.9rem; border-color:var(--gold); color:var(--gold); width:auto;" onclick="manualSellItem(${itm.id}, '${region}')">強制売却 (裏金化)</button>`;
                     }
                 }
 
@@ -1304,11 +1257,11 @@
                         <div class="item-name" style="${nameStyle}">${itm.name}</div>
                         <div class="item-val" style="color:${valColor};">${formatMoney(itm.currentValue)}</div>
                     </div>
-                    <div class="item-details">
+                    <div class="item-details" style="flex-direction:column; gap:4px;">
                         <div>貸付: ${formatMoney(itm.loanAmount)}</div>
                         <div>${feeText}</div>
                     </div>
-                    ${type === 'abandoned' ? `<div style="text-align:right; margin-top:8px;">${actBtn}</div>` : ''}
+                    ${type === 'abandoned' ? `<div style="text-align:right; margin-top:10px;">${actBtn}</div>` : ''}
                 </div>
                 `;
             });
@@ -1324,21 +1277,16 @@
             let mexV = mexNormalInv.reduce((s,i)=>s+i.currentValue,0) + mexIllegalInv.reduce((s,i)=>s+i.currentValue,0);
             
             let elTotAsset = document.getElementById("display-total-assets"); if(elTotAsset) elTotAsset.innerText = formatMoney(cleanMoney + dirtyMoney + domV + ovsV + mexV);
-            let elAssetBreak = document.getElementById("display-assets-breakdown"); if(elAssetBreak) elAssetBreak.innerText = `(表金: ${formatMoney(cleanMoney)} / 裏金: ${formatMoney(dirtyMoney)} / 物品価値: ${formatMoney(domV+ovsV+mexV)})`;
             
             let cDiff = cleanMoney - lastMonthCleanCash; let dDiff = dirtyMoney - lastMonthDirtyCash;
             let elCleanMoney = document.getElementById("display-clean-money"); if(elCleanMoney) elCleanMoney.innerHTML = formatMoney(cleanMoney);
-            let elCleanDiff = document.getElementById("display-clean-diff"); if(elCleanDiff) elCleanDiff.innerHTML = cDiff > 0 ? `<span class="text-green">(+${formatMoney(cDiff)})</span>` : (cDiff < 0 ? `<span class="text-red">(${formatMoney(cDiff)})</span>` : `<span style="color:#888;">(±0 円)</span>`);
             let elDirtyMoney = document.getElementById("display-dirty-money"); if(elDirtyMoney) elDirtyMoney.innerHTML = formatMoney(dirtyMoney);
-            let elDirtyDiff = document.getElementById("display-dirty-diff"); if(elDirtyDiff) elDirtyDiff.innerHTML = dDiff > 0 ? `<span class="text-green">(+${formatMoney(dDiff)})</span>` : (dDiff < 0 ? `<span class="text-red">(${formatMoney(dDiff)})</span>` : `<span style="color:#888;">(±0 円)</span>`);
             
             let elPers = document.getElementById("display-personal-money"); if(elPers) elPers.innerText = formatMoney(personalMoney);
 
             let cleanInc = domNormalInv.reduce((s,i)=>s+i.fee,0) + ovsNormalInv.reduce((s,i)=>s+i.fee,0) + mexNormalInv.reduce((s,i)=>s+i.fee,0);
             let dirtyInc = domIllegalInv.reduce((s,i)=>s+i.fee,0) + ovsIllegalInv.reduce((s,i)=>s+i.fee,0) + mexIllegalInv.reduce((s,i)=>s+i.fee,0);
             let elInc = document.getElementById("display-income"); if(elInc) elInc.innerText = formatMoney(cleanInc + dirtyInc);
-            let elIncC = document.getElementById("display-income-clean"); if(elIncC) elIncC.innerText = formatMoney(cleanInc);
-            let elIncD = document.getElementById("display-income-dirty"); if(elIncD) elIncD.innerText = formatMoney(dirtyInc);
 
             let elStL = document.getElementById("ui-staff-launderer"); if(elStL) elStL.innerText = staffLaunderer;
             let elDW = document.getElementById("ui-dom-work"); if(elDW) elDW.innerText = staffDomWork;
@@ -1368,8 +1316,6 @@
             let totalFixedDirty = facCost.dirty + perCost.dirty;
             
             let elFixCost = document.getElementById("display-fixed-cost"); if(elFixCost) elFixCost.innerText = formatMoney(totalFixedClean + totalFixedDirty);
-            let elFixC = document.getElementById("display-fixed-clean"); if(elFixC) elFixC.innerText = formatMoney(totalFixedClean);
-            let elFixD = document.getElementById("display-fixed-dirty"); if(elFixD) elFixD.innerText = formatMoney(totalFixedDirty);
 
             let usableDomN = getUsableDomNormCap(); let usableDomI = getUsableDomIllCap(); 
             let usableOvsN = getUsableOvsNormCap(); let usableOvsI = getUsableOvsIllCap();
@@ -1379,29 +1325,51 @@
             let elOTransL = document.getElementById("ui-ovs-trans-left"); if(elOTransL) elOTransL.innerText = ovsTransportLeft;
             let elMTransL = document.getElementById("ui-mex-trans-left"); if(elMTransL) elMTransL.innerText = mexTransportLeft;
 
-            let elDNU = document.getElementById("dash-dom-norm-used"); if(elDNU) elDNU.innerText = domNormalInv.length;
-            let elDNC = document.getElementById("dash-dom-norm-cap"); if(elDNC) elDNC.innerText = usableDomN;
-            let elDIU = document.getElementById("dash-dom-ill-used"); if(elDIU) elDIU.innerText = domIllegalInv.length;
-            let elDIC = document.getElementById("dash-dom-ill-cap"); if(elDIC) elDIC.innerText = usableDomI;
-            let elDCap = document.getElementById("dash-dom-cap"); if(elDCap) elDCap.innerText = domCap;
-            let elDIP = document.getElementById("dash-dom-ill-phys"); if(elDIP) elDIP.innerText = domIllPhysCap;
-            let elDAd = document.getElementById("dash-dom-ad"); if(elDAd) elDAd.innerHTML = domAdMonths > 0 ? `<span style="color:var(--green)">[広告:${domAdMonths}月]</span>` : "";
-            
-            let elONU = document.getElementById("dash-ovs-norm-used"); if(elONU) elONU.innerText = ovsNormalInv.length;
-            let elONC = document.getElementById("dash-ovs-norm-cap"); if(elONC) elONC.innerText = usableOvsN;
-            let elOIU = document.getElementById("dash-ovs-ill-used"); if(elOIU) elOIU.innerText = ovsIllegalInv.length;
-            let elOIC = document.getElementById("dash-ovs-ill-cap"); if(elOIC) elOIC.innerText = usableOvsI;
-            let elOCap = document.getElementById("dash-ovs-cap"); if(elOCap) elOCap.innerText = ovsCap;
-            let elOIP = document.getElementById("dash-ovs-ill-phys"); if(elOIP) elOIP.innerText = ovsIllPhysCap;
-            let elOAd = document.getElementById("dash-ovs-ad"); if(elOAd) elOAd.innerHTML = ovsAdMonths > 0 ? `<span style="color:var(--green)">[広告:${ovsAdMonths}月]</span>` : "";
+            // --- ダッシュボードの稼働状況UI更新 ---
+            let dashRegions = document.getElementById("dash-regions-container");
+            if (dashRegions) {
+                let domAdHTML = domAdMonths > 0 ? `<span class="text-green" style="font-size:0.75rem;">[広告:${domAdMonths}月]</span>` : "";
+                let ovsAdHTML = ovsAdMonths > 0 ? `<span class="text-blue" style="font-size:0.75rem;">[広告:${ovsAdMonths}月]</span>` : "";
+                let mexAdHTML = mexAdMonths > 0 ? `<span class="text-green" style="font-size:0.75rem;">[広告:${mexAdMonths}月]</span>` : "";
 
-            let elMNU = document.getElementById("dash-mex-norm-used"); if(elMNU) elMNU.innerText = mexNormalInv.length;
-            let elMNC = document.getElementById("dash-mex-norm-cap"); if(elMNC) elMNC.innerText = usableMexN;
-            let elMIU = document.getElementById("dash-mex-ill-used"); if(elMIU) elMIU.innerText = mexIllegalInv.length;
-            let elMIC = document.getElementById("dash-mex-ill-cap"); if(elMIC) elMIC.innerText = usableMexI;
-            let elMCap = document.getElementById("dash-mex-cap"); if(elMCap) elMCap.innerText = mexCap;
-            let elMIP = document.getElementById("dash-mex-ill-phys"); if(elMIP) elMIP.innerText = mexIllPhysCap;
-            
+                let html = `<h3 style="margin:0 0 10px 0; color:#ddd;">📦 預かり稼働状況</h3>`;
+                
+                // 日本
+                html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px dashed #333;">
+                    <div style="font-weight:bold;">🇯🇵 日本 ${domAdHTML}</div>
+                    <div style="text-align:right; font-size:0.85rem; line-height:1.4;">
+                        表: ${domNormalInv.length}/${usableDomN} <span style="color:#666; font-size:0.75rem;">(物:${domCap})</span><br>
+                        <span class="text-red">裏: ${domIllegalInv.length}/${usableDomI} <span style="color:#666; font-size:0.75rem;">(隠:${domIllPhysCap})</span></span>
+                    </div>
+                </div>`;
+                
+                // スイス
+                if (hasOverseas) {
+                    html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px dashed #333;">
+                        <div style="font-weight:bold; color:var(--blue);">🇨🇭 スイス ${ovsAdHTML}</div>
+                        <div style="text-align:right; font-size:0.85rem; line-height:1.4;">
+                            表: ${ovsNormalInv.length}/${usableOvsN} <span style="color:#666; font-size:0.75rem;">(物:${ovsCap})</span><br>
+                            <span class="text-red">裏: ${ovsIllegalInv.length}/${usableOvsI} <span style="color:#666; font-size:0.75rem;">(隠:${ovsIllPhysCap})</span></span>
+                        </div>
+                    </div>`;
+                }
+                
+                // メキシコ
+                if (hasMexico) {
+                    html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px dashed #333;">
+                        <div style="font-weight:bold; color:var(--mexico);">🇲🇽 メキシコ ${mexAdHTML}</div>
+                        <div style="text-align:right; font-size:0.85rem; line-height:1.4;">
+                            表: ${mexNormalInv.length}/${usableMexN} <span style="color:#666; font-size:0.75rem;">(物:${mexCap})</span><br>
+                            <span class="text-red">裏: ${mexIllegalInv.length}/${usableMexI} <span style="color:#666; font-size:0.75rem;">(隠:${mexIllPhysCap})</span></span>
+                        </div>
+                    </div>`;
+                }
+                dashRegions.innerHTML = html;
+            }
+
             let domIllActive = domIllegalInv.filter(i => !i.abandoned); let domIllAban = domIllegalInv.filter(i => i.abandoned);
             let elLNID = document.getElementById("list-dom-norm-info"); if(elLNID) elLNID.innerText = `${domNormalInv.length}/${usableDomN}`;
             let elLIID = document.getElementById("list-dom-ill-info"); if(elLIID) elLIID.innerText = `${domIllegalInv.length}/${usableDomI}`;
@@ -1436,7 +1404,7 @@
             let stWarn = document.getElementById("req-start-warning");
 
             if (hasDomOffice && !hasWarehouse) {
-                if(stWarn) { stWarn.innerText = "⚠️ 国内事務所の設立が完了しました。続けて「最初の一般倉庫（3,000万円）」を購入してください。"; stWarn.style.display = "block"; }
+                if(stWarn) { stWarn.innerText = "⚠️ 国内事務所の設立が完了しました。「人事・設備」から『最初の一般倉庫（3,000万円）』を購入してください。"; stWarn.style.display = "block"; }
                 if(strCont) strCont.style.display = "none";
                 if(cmdDomOffice) cmdDomOffice.style.display = "none";
                 if(cmdBuyFirst) cmdBuyFirst.style.display = "block";
@@ -1461,29 +1429,8 @@
                 if(hrDomSec) hrDomSec.style.display = "none";
             }
 
-            let sWarn = document.getElementById("req-staff-warning");
-            if (sWarn) {
-                if (hasWarehouse && (usableDomN < domCap || (hasOverseas && usableOvsN < ovsCap) || (hasMexico && usableMexN < mexCap))) sWarn.style.display = "block";
-                else sWarn.style.display = "none";
-            }
-
-            let bWarn = document.getElementById("req-broker-warning");
-            if (bWarn) {
-                if (hasWarehouse && staffDomBroker === 0) bWarn.style.display = "block";
-                else bWarn.style.display = "none";
-            }
-
             // 安全なボタン無効化
             if (hasWarehouse) {
-                let btnDomAd = document.getElementById("btn-dom-ad");
-                if (btnDomAd) btnDomAd.disabled = (cleanMoney < 3000000 || domNormalInv.length >= usableDomN);
-                
-                let btnDomExp = document.getElementById("btn-dom-expand");
-                if (btnDomExp) btnDomExp.disabled = (cleanMoney < 30000000);
-                
-                let btnDomIllExp = document.getElementById("btn-dom-ill-expand");
-                if (btnDomIllExp) btnDomIllExp.disabled = ((cleanMoney+dirtyMoney) < 50000000);
-
                 let cmdOvsUnlock = document.getElementById("cmd-overseas-unlock");
                 if (cmdOvsUnlock) cmdOvsUnlock.style.display = (staffDomAgent >= 1) ? "flex" : "none";
                 
@@ -1500,44 +1447,32 @@
                 }
 
                 if (hasOvsOffice) {
-                    let cmdOvsWrp = document.getElementById("cmd-ovs-wrapper"); if(cmdOvsWrp) cmdOvsWrp.style.display = "block";
+                    let facOvsBox = document.getElementById("fac-ovs-box"); if(facOvsBox) facOvsBox.style.display = "block";
                     let hrOvsSec = document.getElementById("hr-ovs-section"); if(hrOvsSec) hrOvsSec.style.display = "block";
                     
                     if (!hasOverseas) {
                         let cmdBuyOvsWh = document.getElementById("cmd-buy-ovs-wh"); if(cmdBuyOvsWh) cmdBuyOvsWh.style.display = "block";
                         let cmdOvs = document.getElementById("cmd-ovs"); if(cmdOvs) cmdOvs.style.display = "none";
-                        let bOvsWhBtn = document.getElementById("btn-buy-ovs-wh-btn"); if(bOvsWhBtn) bOvsWhBtn.disabled = (cleanMoney < 200000000);
                     } else {
                         let cmdBuyOvsWh = document.getElementById("cmd-buy-ovs-wh"); if(cmdBuyOvsWh) cmdBuyOvsWh.style.display = "none";
                         let cmdOvs = document.getElementById("cmd-ovs"); if(cmdOvs) cmdOvs.style.display = "block";
                         let ovsAcc = document.getElementById("overseas-accordion"); if(ovsAcc) ovsAcc.style.display = "block";
-                        let dashOvsUi = document.getElementById("dash-ovs-ui"); if(dashOvsUi) dashOvsUi.style.display = "inline"; 
                         let uiOvsTransWrp = document.getElementById("ui-ovs-trans-wrapper"); if(uiOvsTransWrp) uiOvsTransWrp.style.display = "block";
-                        
-                        let bOAd = document.getElementById("btn-ovs-ad"); if(bOAd) bOAd.disabled = (cleanMoney < 10000000 || ovsNormalInv.length >= usableOvsN);
-                        let bOExp = document.getElementById("btn-ovs-expand"); if(bOExp) bOExp.disabled = (cleanMoney < 100000000);
-                        let bOIllExp = document.getElementById("btn-ovs-ill-expand"); if(bOIllExp) bOIllExp.disabled = ((cleanMoney+dirtyMoney) < 200000000);
                     }
                 }
 
                 if (hasMexOffice) {
-                    let cmdMexWrp = document.getElementById("cmd-mex-wrapper"); if(cmdMexWrp) cmdMexWrp.style.display = "block";
+                    let facMexBox = document.getElementById("fac-mex-box"); if(facMexBox) facMexBox.style.display = "block";
                     let hrMexSec = document.getElementById("hr-mex-section"); if(hrMexSec) hrMexSec.style.display = "block";
                     
                     if (!hasMexico) {
                         let cmdBuyMexWh = document.getElementById("cmd-buy-mex-wh"); if(cmdBuyMexWh) cmdBuyMexWh.style.display = "block";
                         let cmdMex = document.getElementById("cmd-mex"); if(cmdMex) cmdMex.style.display = "none";
-                        let bMexWhBtn = document.getElementById("btn-buy-mex-wh-btn"); if(bMexWhBtn) bMexWhBtn.disabled = (cleanMoney < 30000000);
                     } else {
                         let cmdBuyMexWh = document.getElementById("cmd-buy-mex-wh"); if(cmdBuyMexWh) cmdBuyMexWh.style.display = "none";
                         let cmdMex = document.getElementById("cmd-mex"); if(cmdMex) cmdMex.style.display = "block";
                         let mexAcc = document.getElementById("mexico-accordion"); if(mexAcc) mexAcc.style.display = "block";
-                        let dashMexUi = document.getElementById("dash-mex-ui"); if(dashMexUi) dashMexUi.style.display = "inline"; 
                         let uiMexTransWrp = document.getElementById("ui-mex-trans-wrapper"); if(uiMexTransWrp) uiMexTransWrp.style.display = "block";
-
-                        let bMAd = document.getElementById("btn-mex-ad"); if(bMAd) bMAd.disabled = (cleanMoney < 1000000 || mexNormalInv.length >= usableMexN);
-                        let bMExp = document.getElementById("btn-mex-expand"); if(bMExp) bMExp.disabled = (cleanMoney < 10000000);
-                        let bMIllExp = document.getElementById("btn-mex-ill-expand"); if(bMIllExp) bMIllExp.disabled = ((cleanMoney+dirtyMoney) < 15000000);
                     }
                 }
             }
