@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SILENT PAWN - 役員・各拠点洗屋 実装パッチ v5</title>
+    <title>SILENT PAWN - 役員増員パッチ v6</title>
     <style>
         :root {
             --bg-color: #050505; --panel-bg: #111; --border-color: #2a2a2a;
@@ -244,7 +244,6 @@
                     </div>
                 </div>
 
-                <!-- 国内 -->
                 <details class="accordion" open id="domestic-accordion">
                     <summary><span class="title-text">🇯🇵 日本拠点リスト</span><span class="accordion-icon">▼</span></summary>
                     <div class="accordion-content">
@@ -254,7 +253,6 @@
                     </div>
                 </details>
                 
-                <!-- スイス -->
                 <details class="accordion" id="overseas-accordion" style="display:none; border-color:var(--blue);">
                     <summary><span class="title-text" style="color:var(--blue);">🇨🇭 スイス VIPリスト</span><span class="accordion-icon">▼</span></summary>
                     <div class="accordion-content">
@@ -264,7 +262,6 @@
                     </div>
                 </details>
 
-                <!-- メキシコ -->
                 <details class="accordion" id="mexico-accordion" style="display:none; border-color:var(--mexico);">
                     <summary><span class="title-text" style="color:var(--mexico);">🇲🇽 メキシコ 密輸リスト</span><span class="accordion-icon">▼</span></summary>
                     <div class="accordion-content">
@@ -276,7 +273,7 @@
             </div>
         </div>
 
-        <!-- ================= タブ3: 役員 (NEW) ================= -->
+        <!-- ================= タブ3: 役員 ================= -->
         <div id="tab-exec" class="tab-content">
             <h2 style="font-size:1.1rem; color:#fff; border-bottom:1px solid #444; padding-bottom:5px; margin-bottom:15px;">👔 役員・ボードメンバー</h2>
             
@@ -299,7 +296,7 @@
                     <div class="staff-card-head">🏦 CFO (財務責任者)</div>
                     <div class="staff-card-desc">【表金 1億円で契約】全拠点の資金洗浄手数料を半減〜最大1%まで圧縮。さらにみかじめ料・上納金も常に半額に抑え込む。</div>
                     <input type="text" id="hire-name-cfo" class="name-input" placeholder="人物名を入力 (任意)">
-                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('cfo')">就任契約を結ぶ (表1億円)</button>
+                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('cfo')">就任契約を結ぶ <span class="cost-cfo"></span></button>
                 </div>
                 <div class="staff-card" id="ui-exec-cfo-active" style="display:none; border-color:var(--green);">
                     <div class="staff-card-head text-green">🏦 CFO <span class="exec-name-display" id="active-name-cfo"></span></div>
@@ -315,7 +312,7 @@
                     <div class="staff-card-head">⚙️ COO (執行責任者)</div>
                     <div class="staff-card-desc">【表金 1億円で契約】現場を統括し、全拠点の作業員・物品管理人の管理上限を1人あたり+10箱底上げする。</div>
                     <input type="text" id="hire-name-coo" class="name-input" placeholder="人物名を入力 (任意)">
-                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('coo')">就任契約を結ぶ (表1億円)</button>
+                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('coo')">就任契約を結ぶ <span class="cost-coo"></span></button>
                 </div>
                 <div class="staff-card" id="ui-exec-coo-active" style="display:none; border-color:var(--green);">
                     <div class="staff-card-head text-green">⚙️ COO <span class="exec-name-display" id="active-name-coo"></span></div>
@@ -331,7 +328,7 @@
                     <div class="staff-card-head">⚖️ CLO (法務責任者)</div>
                     <div class="staff-card-desc">【表金 1億円で契約】合法的な没収確率を倍増させ、客の持ち逃げリスクを低減する。</div>
                     <input type="text" id="hire-name-clo" class="name-input" placeholder="人物名を入力 (任意)">
-                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('clo')">就任契約を結ぶ (表1億円)</button>
+                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('clo')">就任契約を結ぶ <span class="cost-clo"></span></button>
                 </div>
                 <div class="staff-card" id="ui-exec-clo-active" style="display:none; border-color:var(--green);">
                     <div class="staff-card-head text-green">⚖️ CLO <span class="exec-name-display" id="active-name-clo"></span></div>
@@ -341,6 +338,55 @@
                         <button class="btn" style="flex:1; border-color:var(--green); color:var(--green); padding:8px;" onclick="setExecSalary('clo')">昇給</button>
                     </div>
                 </div>
+
+                <!-- CHRO -->
+                <div class="staff-card" id="ui-exec-chro-hire">
+                    <div class="staff-card-head">🤝 CHRO (人事責任者)</div>
+                    <div class="staff-card-desc">【表金 1億円で契約】全スタッフと役員の「初期採用費」を半額にし、さらに毎月の現場スタッフ人件費を20%カットする。</div>
+                    <input type="text" id="hire-name-chro" class="name-input" placeholder="人物名を入力 (任意)">
+                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('chro')">就任契約を結ぶ (表1億円)</button>
+                </div>
+                <div class="staff-card" id="ui-exec-chro-active" style="display:none; border-color:var(--green);">
+                    <div class="staff-card-head text-green">🤝 CHRO <span class="exec-name-display" id="active-name-chro"></span></div>
+                    <div class="staff-card-desc">採用費半額・人件費20%カットを発動中。</div>
+                    <div class="staff-card-actions" style="align-items:center;">
+                        <input type="number" id="input-chro-salary" value="200" min="200" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid var(--green); text-align:right;"> <span style="color:#aaa;">万円</span>
+                        <button class="btn" style="flex:1; border-color:var(--green); color:var(--green); padding:8px;" onclick="setExecSalary('chro')">昇給</button>
+                    </div>
+                </div>
+
+                <!-- CTO -->
+                <div class="staff-card" id="ui-exec-cto-hire">
+                    <div class="staff-card-head">💻 CTO (技術責任者)</div>
+                    <div class="staff-card-desc">【表金 1億円で契約】ダークウェブを巡回し、エージェントが超高額な違法依頼(🚨)を引き当てる確率を大幅UP(+15%)させる。</div>
+                    <input type="text" id="hire-name-cto" class="name-input" placeholder="人物名を入力 (任意)">
+                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('cto')">就任契約を結ぶ <span class="cost-cto"></span></button>
+                </div>
+                <div class="staff-card" id="ui-exec-cto-active" style="display:none; border-color:var(--green);">
+                    <div class="staff-card-head text-green">💻 CTO <span class="exec-name-display" id="active-name-cto"></span></div>
+                    <div class="staff-card-desc">違法依頼ジャックポット率UPを発動中。</div>
+                    <div class="staff-card-actions" style="align-items:center;">
+                        <input type="number" id="input-cto-salary" value="200" min="200" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid var(--green); text-align:right;"> <span style="color:#aaa;">万円</span>
+                        <button class="btn" style="flex:1; border-color:var(--green); color:var(--green); padding:8px;" onclick="setExecSalary('cto')">昇給</button>
+                    </div>
+                </div>
+
+                <!-- CSO -->
+                <div class="staff-card" id="ui-exec-cso-hire">
+                    <div class="staff-card-head">🛡️ CSO (セキュリティ責任者)</div>
+                    <div class="staff-card-desc">【表金 1億円で契約】安全な密輸網を構築し、全拠点の運び屋1人あたりの月間運搬回数を「5回」から「8回」に増加させる。</div>
+                    <input type="text" id="hire-name-cso" class="name-input" placeholder="人物名を入力 (任意)">
+                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('cso')">就任契約を結ぶ <span class="cost-cso"></span></button>
+                </div>
+                <div class="staff-card" id="ui-exec-cso-active" style="display:none; border-color:var(--green);">
+                    <div class="staff-card-head text-green">🛡️ CSO <span class="exec-name-display" id="active-name-cso"></span></div>
+                    <div class="staff-card-desc">運び屋の運搬回数増加(月8回)を発動中。</div>
+                    <div class="staff-card-actions" style="align-items:center;">
+                        <input type="number" id="input-cso-salary" value="200" min="200" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid var(--green); text-align:right;"> <span style="color:#aaa;">万円</span>
+                        <button class="btn" style="flex:1; border-color:var(--green); color:var(--green); padding:8px;" onclick="setExecSalary('cso')">昇給</button>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -363,7 +409,7 @@
                             <div class="staff-card-head">🏢 国内支部長</div>
                             <div class="staff-card-desc">【表金 500万円で契約】日本の拠点を統括する。彼がいないと国内での倉庫購入やスタッフ採用ができない。</div>
                             <input type="text" id="hire-name-domManager" class="name-input" placeholder="人物名を入力 (任意)">
-                            <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('domManager')">採用する (表500万)</button>
+                            <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('domManager')">採用する <span class="cost-domManager"></span></button>
                         </div>
                         <div class="staff-card" id="ui-dom-manager-active" style="display:none; border-color:var(--green);">
                             <div class="staff-card-head text-green">🏢 国内支部長 <span class="exec-name-display" id="active-name-domManager"></span></div>
@@ -376,13 +422,13 @@
 
                         <!-- 現場スタッフ -->
                         <div id="ui-dom-staff-wrapper" style="display:none; margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
-                            <div class="staff-card"><div class="staff-card-head text-yellow">🧽 洗屋 <span class="accent-text">(現在:<span id="ui-dom-launderer">0</span>人)</span></div><div class="staff-card-desc">月給200万(裏)。最大1億円の裏金を基本手数料5%で洗浄する。</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('domLaunderer')">採用 (初500万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domLaunderer')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head">👷 一般作業員 <span class="accent-text">(現在:<span id="ui-dom-work">0</span>人)</span></div><div class="staff-card-desc">月給30万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" onclick="hireStaff('domWork')">採用 (初60万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domWork')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-red">🚛 物品管理人 <span class="accent-text">(現在:<span id="ui-dom-keeper">0</span>人)</span></div><div class="staff-card-desc">月給50万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('domKeeper')">採用 (初100万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domKeeper')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-purple">🕴️ エージェント <span class="accent-text">(現在:<span id="ui-dom-agent">0</span>人)</span></div><div class="staff-card-desc">月給200万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('domAgent')">採用 (初400万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domAgent')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head" style="color:var(--gold);">💼 ブローカー <span class="accent-text">(現在:<span id="ui-dom-broker">0</span>人)</span></div><div class="staff-card-desc">月給150万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('domBroker')">採用 (初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domBroker')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-dom-transporter">0</span>人)</span></div><div class="staff-card-desc">月給80万(裏) / 月5回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('domTransporter')">採用 (初150万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domTransporter')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-dom-dealer">0</span>人)</span></div><div class="staff-card-desc">月給250万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('domDealer')">採用 (初1千万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domDealer')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🧽 洗屋 <span class="accent-text">(現在:<span id="ui-dom-launderer">0</span>人)</span></div><div class="staff-card-desc">月給200万(裏)。最大1億円の裏金を基本手数料5%で洗浄する。</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('domLaunderer')">採用 <span class="cost-domLaunderer"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domLaunderer')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head">👷 一般作業員 <span class="accent-text">(現在:<span id="ui-dom-work">0</span>人)</span></div><div class="staff-card-desc">月給30万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" onclick="hireStaff('domWork')">採用 <span class="cost-domWork"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domWork')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-red">🚛 物品管理人 <span class="accent-text">(現在:<span id="ui-dom-keeper">0</span>人)</span></div><div class="staff-card-desc">月給50万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('domKeeper')">採用 <span class="cost-domKeeper"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domKeeper')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-purple">🕴️ エージェント <span class="accent-text">(現在:<span id="ui-dom-agent">0</span>人)</span></div><div class="staff-card-desc">月給200万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('domAgent')">採用 <span class="cost-domAgent"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domAgent')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head" style="color:var(--gold);">💼 ブローカー <span class="accent-text">(現在:<span id="ui-dom-broker">0</span>人)</span></div><div class="staff-card-desc">月給150万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('domBroker')">採用 <span class="cost-domBroker"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domBroker')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-dom-transporter">0</span>人)</span></div><div class="staff-card-desc">月給80万(裏) / 月<span class="text-cap-trans">5</span>回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('domTransporter')">採用 <span class="cost-domTransporter"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domTransporter')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-dom-dealer">0</span>人)</span></div><div class="staff-card-desc">月給250万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('domDealer')">採用 <span class="cost-domDealer"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domDealer')">解雇</button></div></div>
                         </div>
                     </div>
                 </details>
@@ -396,7 +442,7 @@
                             <div class="staff-card-head">🏢 スイス支部長</div>
                             <div class="staff-card-desc">【表金 1000万円で契約】スイス拠点を統括する。彼がいないとスイスでの倉庫購入やスタッフ採用ができない。</div>
                             <input type="text" id="hire-name-ovsManager" class="name-input" placeholder="人物名を入力 (任意)">
-                            <button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireExec('ovsManager')">採用する (表1千万)</button>
+                            <button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireExec('ovsManager')">採用する <span class="cost-ovsManager"></span></button>
                         </div>
                         <div class="staff-card" id="ui-ovs-manager-active" style="display:none; border-color:var(--blue);">
                             <div class="staff-card-head text-blue">🏢 スイス支部長 <span class="exec-name-display" id="active-name-ovsManager"></span></div>
@@ -409,13 +455,13 @@
 
                         <!-- 現場スタッフ -->
                         <div id="ui-ovs-staff-wrapper" style="display:none; margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
-                            <div class="staff-card"><div class="staff-card-head text-yellow">🧽 プライベートバンカー <span class="accent-text">(現在:<span id="ui-ovs-launderer">0</span>人)</span></div><div class="staff-card-desc">月給500万(裏)。スイスの金融網を用い、最大5億円の裏金を基本手数料3%で洗浄する。</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('ovsLaunderer')">採用 (初1500万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsLaunderer')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head">👨‍💻 作業員 <span class="accent-text">(現在:<span id="ui-ovs-work">0</span>人)</span></div><div class="staff-card-desc">月給100万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsWork')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsWork')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-red">✈️ 物品管理人 <span class="accent-text">(現在:<span id="ui-ovs-keeper">0</span>人)</span></div><div class="staff-card-desc">月給150万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('ovsKeeper')">採用(初500万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsKeeper')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-purple">🕵️ エージェント <span class="accent-text">(現在:<span id="ui-ovs-agent">0</span>人)</span></div><div class="staff-card-desc">月給300万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('ovsAgent')">採用(初800万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsAgent')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-gold">🤝 ブローカー <span class="accent-text">(現在:<span id="ui-ovs-broker">0</span>人)</span></div><div class="staff-card-desc">月給250万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('ovsBroker')">採用(初600万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsBroker')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-ovs-transporter">0</span>人)</span></div><div class="staff-card-desc">月給120万(裏) / 月5回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('ovsTransporter')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsTransporter')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-ovs-dealer">0</span>人)</span></div><div class="staff-card-desc">月給400万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsDealer')">採用(初1.5千万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsDealer')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🧽 プライベートバンカー <span class="accent-text">(現在:<span id="ui-ovs-launderer">0</span>人)</span></div><div class="staff-card-desc">月給500万(裏)。スイスの金融網を用い、最大5億円の裏金を基本手数料3%で洗浄する。</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('ovsLaunderer')">採用 <span class="cost-ovsLaunderer"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsLaunderer')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head">👨‍💻 作業員 <span class="accent-text">(現在:<span id="ui-ovs-work">0</span>人)</span></div><div class="staff-card-desc">月給100万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsWork')">採用 <span class="cost-ovsWork"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsWork')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-red">✈️ 物品管理人 <span class="accent-text">(現在:<span id="ui-ovs-keeper">0</span>人)</span></div><div class="staff-card-desc">月給150万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('ovsKeeper')">採用 <span class="cost-ovsKeeper"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsKeeper')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-purple">🕵️ エージェント <span class="accent-text">(現在:<span id="ui-ovs-agent">0</span>人)</span></div><div class="staff-card-desc">月給300万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('ovsAgent')">採用 <span class="cost-ovsAgent"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsAgent')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-gold">🤝 ブローカー <span class="accent-text">(現在:<span id="ui-ovs-broker">0</span>人)</span></div><div class="staff-card-desc">月給250万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('ovsBroker')">採用 <span class="cost-ovsBroker"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsBroker')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-ovs-transporter">0</span>人)</span></div><div class="staff-card-desc">月給120万(裏) / 月<span class="text-cap-trans">5</span>回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('ovsTransporter')">採用 <span class="cost-ovsTransporter"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsTransporter')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-ovs-dealer">0</span>人)</span></div><div class="staff-card-desc">月給400万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsDealer')">採用 <span class="cost-ovsDealer"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsDealer')">解雇</button></div></div>
                         </div>
                     </div>
                 </details>
@@ -429,7 +475,7 @@
                             <div class="staff-card-head">🏢 メキシコ支部長</div>
                             <div class="staff-card-desc">【表金 500万円で契約】メキシコ拠点を統括する。彼がいないとメキシコでの倉庫購入やスタッフ採用ができない。</div>
                             <input type="text" id="hire-name-mexManager" class="name-input" placeholder="人物名を入力 (任意)">
-                            <button class="btn" style="border-color:var(--mexico); color:var(--mexico);" onclick="hireExec('mexManager')">採用する (表500万)</button>
+                            <button class="btn" style="border-color:var(--mexico); color:var(--mexico);" onclick="hireExec('mexManager')">採用する <span class="cost-mexManager"></span></button>
                         </div>
                         <div class="staff-card" id="ui-mex-manager-active" style="display:none; border-color:var(--mexico);">
                             <div class="staff-card-head text-mexico" style="color:var(--mexico);">🏢 メキシコ支部長 <span class="exec-name-display" id="active-name-mexManager"></span></div>
@@ -442,13 +488,13 @@
 
                         <!-- 現場スタッフ -->
                         <div id="ui-mex-staff-wrapper" style="display:none; margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
-                            <div class="staff-card"><div class="staff-card-head text-yellow">🧽 マネーミュール <span class="accent-text">(現在:<span id="ui-mex-launderer">0</span>人)</span></div><div class="staff-card-desc">月給100万(裏)。カルテルのルートを使い、最大5000万の裏金を基本手数料8%で洗浄する。</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('mexLaunderer')">採用 (初200万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexLaunderer')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head">👷 作業員 <span class="accent-text">(現在:<span id="ui-mex-work">0</span>人)</span></div><div class="staff-card-desc">月給10万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireStaff('mexWork')">採用(初20万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexWork')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-red">🚛 物品管理人 <span class="accent-text">(現在:<span id="ui-mex-keeper">0</span>人)</span></div><div class="staff-card-desc">月給20万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('mexKeeper')">採用(初40万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexKeeper')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-purple">🕴️ エージェント <span class="accent-text">(現在:<span id="ui-mex-agent">0</span>人)</span></div><div class="staff-card-desc">月給80万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('mexAgent')">採用(初200万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexAgent')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-gold">💼 ブローカー <span class="accent-text">(現在:<span id="ui-mex-broker">0</span>人)</span></div><div class="staff-card-desc">月給50万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('mexBroker')">採用(初100万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexBroker')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-mex-transporter">0</span>人)</span></div><div class="staff-card-desc">月給30万(裏) / 月5回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('mexTransporter')">採用(初60万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexTransporter')">解雇</button></div></div>
-                            <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-mex-dealer">0</span>人)</span></div><div class="staff-card-desc">月給100万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('mexDealer')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexDealer')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🧽 マネーミュール <span class="accent-text">(現在:<span id="ui-mex-launderer">0</span>人)</span></div><div class="staff-card-desc">月給100万(裏)。カルテルのルートを使い、最大5000万の裏金を基本手数料8%で洗浄する。</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('mexLaunderer')">採用 <span class="cost-mexLaunderer"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexLaunderer')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head">👷 作業員 <span class="accent-text">(現在:<span id="ui-mex-work">0</span>人)</span></div><div class="staff-card-desc">月給10万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireStaff('mexWork')">採用 <span class="cost-mexWork"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexWork')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-red">🚛 物品管理人 <span class="accent-text">(現在:<span id="ui-mex-keeper">0</span>人)</span></div><div class="staff-card-desc">月給20万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('mexKeeper')">採用 <span class="cost-mexKeeper"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexKeeper')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-purple">🕴️ エージェント <span class="accent-text">(現在:<span id="ui-mex-agent">0</span>人)</span></div><div class="staff-card-desc">月給80万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('mexAgent')">採用 <span class="cost-mexAgent"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexAgent')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-gold">💼 ブローカー <span class="accent-text">(現在:<span id="ui-mex-broker">0</span>人)</span></div><div class="staff-card-desc">月給50万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('mexBroker')">採用 <span class="cost-mexBroker"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexBroker')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-mex-transporter">0</span>人)</span></div><div class="staff-card-desc">月給30万(裏) / 月<span class="text-cap-trans">5</span>回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('mexTransporter')">採用 <span class="cost-mexTransporter"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexTransporter')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-mex-dealer">0</span>人)</span></div><div class="staff-card-desc">月給100万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('mexDealer')">採用 <span class="cost-mexDealer"></span></button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexDealer')">解雇</button></div></div>
                         </div>
                     </div>
                 </details>
@@ -546,10 +592,13 @@
         let hasMexOffice = false; let hasMexico = false;
         
         // 役員・支部長ステータス
-        let execNames = { cfo: "", coo: "", clo: "", domManager: "", ovsManager: "", mexManager: "" };
+        let execNames = { cfo: "", coo: "", clo: "", chro: "", cto: "", cso: "", domManager: "", ovsManager: "", mexManager: "" };
         let hasCFO = false; let cfoSalary = 2000000;
         let hasCOO = false; let cooSalary = 2000000;
         let hasCLO = false; let cloSalary = 2000000;
+        let hasCHRO = false; let chroSalary = 2000000;
+        let hasCTO = false; let ctoSalary = 2000000;
+        let hasCSO = false; let csoSalary = 2000000;
         let hasDomManager = false; let domManagerSalary = 1000000;
         let hasOvsManager = false; let ovsManagerSalary = 2000000;
         let hasMexManager = false; let mexManagerSalary = 1000000;
@@ -594,8 +643,8 @@
             if (isNaN(val) || val < 0) return alert("正しい金額を入力してください");
             
             let valYen = val * 10000;
-            let mins = { cfo: 2000000, coo: 2000000, clo: 2000000, domManager: 1000000, ovsManager: 2000000, mexManager: 1000000 };
-            let names = { ceo: "CEO(あなた)", cfo: "CFO", coo: "COO", clo: "CLO", domManager: "国内支部長", ovsManager: "スイス支部長", mexManager: "メキシコ支部長" };
+            let mins = { cfo: 2000000, coo: 2000000, clo: 2000000, chro: 2000000, cto: 2000000, cso: 2000000, domManager: 1000000, ovsManager: 2000000, mexManager: 1000000 };
+            let names = { ceo: "CEO(あなた)", cfo: "CFO", coo: "COO", clo: "CLO", chro: "CHRO", cto: "CTO", cso: "CSO", domManager: "国内支部長", ovsManager: "スイス支部長", mexManager: "メキシコ支部長" };
             
             if (type !== 'ceo' && valYen < mins[type]) return alert(`${names[type]}の最低月収は ${formatMoney(mins[type])} です。`);
 
@@ -603,6 +652,9 @@
             else if (type === 'cfo') cfoSalary = valYen;
             else if (type === 'coo') cooSalary = valYen;
             else if (type === 'clo') cloSalary = valYen;
+            else if (type === 'chro') chroSalary = valYen;
+            else if (type === 'cto') ctoSalary = valYen;
+            else if (type === 'cso') csoSalary = valYen;
             else if (type === 'domManager') domManagerSalary = valYen;
             else if (type === 'ovsManager') ovsManagerSalary = valYen;
             else if (type === 'mexManager') mexManagerSalary = valYen;
@@ -612,10 +664,16 @@
         }
 
         function hireExec(type) {
-            let costs = { cfo: 10000000, coo: 10000000, clo: 10000000, domManager: 5000000, ovsManager: 10000000, mexManager: 5000000 };
-            let names = { cfo: "CFO", coo: "COO", clo: "CLO", domManager: "国内支部長", ovsManager: "スイス支部長", mexManager: "メキシコ支部長" };
+            let costs = { cfo: 10000000, coo: 10000000, clo: 10000000, chro: 10000000, cto: 10000000, cso: 10000000, domManager: 5000000, ovsManager: 10000000, mexManager: 5000000 };
+            let names = { cfo: "CFO", coo: "COO", clo: "CLO", chro: "CHRO", cto: "CTO", cso: "CSO", domManager: "国内支部長", ovsManager: "スイス支部長", mexManager: "メキシコ支部長" };
             
-            if (!payClean(costs[type])) return alert(`【表金】が足りません。契約金は ${formatMoney(costs[type])} です。`);
+            let cost = costs[type];
+            // CHROの採用費半額バフ
+            if (hasCHRO && type !== 'chro') {
+                cost = Math.floor(cost / 2);
+            }
+
+            if (!payClean(cost)) return alert(`【表金】が足りません。契約金は ${formatMoney(cost)} です。`);
 
             let nameInput = document.getElementById(`hire-name-${type}`);
             let personName = nameInput ? nameInput.value.trim() : "";
@@ -624,6 +682,9 @@
             if (type === 'cfo') hasCFO = true;
             else if (type === 'coo') hasCOO = true;
             else if (type === 'clo') hasCLO = true;
+            else if (type === 'chro') hasCHRO = true;
+            else if (type === 'cto') hasCTO = true;
+            else if (type === 'cso') hasCSO = true;
             else if (type === 'domManager') hasDomManager = true;
             else if (type === 'ovsManager') hasOvsManager = true;
             else if (type === 'mexManager') hasMexManager = true;
@@ -649,14 +710,14 @@
             }
         }
 
-        const NEW_SAVE_KEY = 'silentPawn_save_v23_';
-        const OLD_SAVE_KEYS = ['silentPawn_save_v22_', 'silentPawn_save_v21_', 'silentPawn_save_v20_', 'silentPawn_save_v19_', 'silentPawn_save_v18_mob_'];
+        const NEW_SAVE_KEY = 'silentPawn_save_v24_';
+        const OLD_SAVE_KEYS = ['silentPawn_save_v23_', 'silentPawn_save_v22_', 'silentPawn_save_v21_', 'silentPawn_save_v20_', 'silentPawn_save_v19_'];
 
         function saveGame(slot) {
             let state = {
                 companyName, nextItemId, cleanMoney, dirtyMoney, personalMoney, ceoSalary, lastMonthCleanCash, lastMonthDirtyCash, startYear, startMonth, currentYear, currentMonth, elapsedMonths,
                 hasDomOffice, hasWarehouse, hasOvsOffice, hasOverseas, hasMexOffice, hasMexico, currentRequests,
-                execNames, hasCFO, cfoSalary, hasCOO, cooSalary, hasCLO, cloSalary,
+                execNames, hasCFO, cfoSalary, hasCOO, cooSalary, hasCLO, cloSalary, hasCHRO, chroSalary, hasCTO, ctoSalary, hasCSO, csoSalary,
                 hasDomManager, domManagerSalary, hasOvsManager, ovsManagerSalary, hasMexManager, mexManagerSalary,
                 staffDomLaunderer, staffDomWork, staffDomKeeper, staffDomTransporter, staffDomAgent, staffDomBroker, staffDomDealer,
                 staffOvsLaunderer, staffOvsWork, staffOvsKeeper, staffOvsTransporter, staffOvsAgent, staffOvsBroker, staffOvsDealer,
@@ -695,19 +756,20 @@
             hasOvsOffice = state.hasOvsOffice !== undefined ? state.hasOvsOffice : hasOverseas;
             hasMexOffice = state.hasMexOffice !== undefined ? state.hasMexOffice : hasMexico;
             
-            execNames = state.execNames || { cfo: "", coo: "", clo: "", domManager: "", ovsManager: "", mexManager: "" };
+            execNames = state.execNames || { cfo: "", coo: "", clo: "", chro: "", cto: "", cso: "", domManager: "", ovsManager: "", mexManager: "" };
             hasCFO = state.hasCFO || false; cfoSalary = state.cfoSalary || 2000000;
             hasCOO = state.hasCOO || false; cooSalary = state.cooSalary || 2000000;
             hasCLO = state.hasCLO || false; cloSalary = state.cloSalary || 2000000;
+            hasCHRO = state.hasCHRO || false; chroSalary = state.chroSalary || 2000000;
+            hasCTO = state.hasCTO || false; ctoSalary = state.ctoSalary || 2000000;
+            hasCSO = state.hasCSO || false; csoSalary = state.csoSalary || 2000000;
             hasDomManager = state.hasDomManager || false; domManagerSalary = state.domManagerSalary || 1000000;
             hasOvsManager = state.hasOvsManager || false; ovsManagerSalary = state.ovsManagerSalary || 2000000;
             hasMexManager = state.hasMexManager || false; mexManagerSalary = state.mexManagerSalary || 1000000;
 
             currentRequests = state.currentRequests || [];
             
-            // 旧バージョンの洗屋互換処理
             staffDomLaunderer = state.staffDomLaunderer || state.staffLaunderer || 0;
-            
             staffDomWork = state.staffDomWork || 0; staffDomKeeper = state.staffDomKeeper || 0; staffDomTransporter = state.staffDomTransporter || 0; staffDomAgent = state.staffDomAgent || 0; staffDomBroker = state.staffDomBroker || 0; staffDomDealer = state.staffDomDealer || 0;
             staffOvsLaunderer = state.staffOvsLaunderer || 0; staffOvsWork = state.staffOvsWork || 0; staffOvsKeeper = state.staffOvsKeeper || 0; staffOvsTransporter = state.staffOvsTransporter || 0; staffOvsAgent = state.staffOvsAgent || 0; staffOvsBroker = state.staffOvsBroker || 0; staffOvsDealer = state.staffOvsDealer || 0;
             staffMexLaunderer = state.staffMexLaunderer || 0; staffMexWork = state.staffMexWork || 0; staffMexKeeper = state.staffMexKeeper || 0; staffMexTransporter = state.staffMexTransporter || 0; staffMexAgent = state.staffMexAgent || 0; staffMexBroker = state.staffMexBroker || 0; staffMexDealer = state.staffMexDealer || 0;
@@ -718,7 +780,10 @@
             
             domIllPhysCap = state.domIllPhysCap || 0; ovsIllPhysCap = state.ovsIllPhysCap || 0; mexIllPhysCap = state.mexIllPhysCap || 0;
 
-            domTransportLeft = staffDomTransporter * 5; ovsTransportLeft = staffOvsTransporter * 5; mexTransportLeft = staffMexTransporter * 5;
+            let transCap = hasCSO ? 8 : 5;
+            domTransportLeft = staffDomTransporter * transCap; 
+            ovsTransportLeft = staffOvsTransporter * transCap; 
+            mexTransportLeft = staffMexTransporter * transCap;
 
             let eScr = document.getElementById("start-screen"); if(eScr) eScr.style.display = "none";
             let gScr = document.getElementById("game-screen"); if(gScr) gScr.style.display = "block";
@@ -804,15 +869,22 @@
                 mexLaunderer:2000000, mexWork:200000, mexKeeper:400000, mexTransporter:600000, mexAgent:2000000, mexBroker:1000000, mexDealer:3000000
             };
             let cost = costs[type];
+            // CHROの採用費半額バフ
+            if (hasCHRO) {
+                cost = Math.floor(cost / 2);
+            }
+
             let isClean = (type === 'domWork' || type === 'ovsWork' || type === 'mexWork');
 
             if (isClean) { if (!payClean(cost)) return alert(`【表金】が足りません。採用費は ${formatMoney(cost)} です。`); }
             else { if (!payDirtyPreferred(cost)) return alert(`資金が足りません。採用費(裏金優先)は ${formatMoney(cost)} です。`); }
 
+            let transCap = hasCSO ? 8 : 5;
+
             if (type === 'domLaunderer') { staffDomLaunderer++; addLog(`【契約】国内の洗屋を1名雇いました。`, "sys"); }
             else if (type === 'domWork') { staffDomWork++; addLog(`【採用】国内の一般作業員を1名採用。`, "sys"); }
             else if (type === 'domKeeper') { staffDomKeeper++; addLog(`【採用】国内の物品管理人を1名採用。`, "red"); }
-            else if (type === 'domTransporter') { staffDomTransporter++; domTransportLeft += 5; addLog(`【採用】国内の運び屋を1名採用。運搬回数+5。`, "gold"); }
+            else if (type === 'domTransporter') { staffDomTransporter++; domTransportLeft += transCap; addLog(`【採用】国内の運び屋を1名採用。運搬回数+${transCap}。`, "gold"); }
             else if (type === 'domAgent') { staffDomAgent++; addLog(`【契約】国内エージェントを1名迎え入れました。`, "purple"); }
             else if (type === 'domBroker') { staffDomBroker++; addLog(`【契約】国内ブローカーを1名雇いました。`, "gold"); }
             else if (type === 'domDealer') { staffDomDealer++; addLog(`【契約】国内ディーラー(自動化)を1名雇いました！`, "blue"); }
@@ -820,7 +892,7 @@
             else if (type === 'ovsLaunderer') { staffOvsLaunderer++; addLog(`【契約】スイスのプライベートバンカーを1名雇いました。`, "sys"); }
             else if (type === 'ovsWork') { staffOvsWork++; addLog(`【採用】海外の一般作業員を1名採用。`, "sys"); }
             else if (type === 'ovsKeeper') { staffOvsKeeper++; addLog(`【採用】海外の物品管理人を1名採用。`, "red"); }
-            else if (type === 'ovsTransporter') { staffOvsTransporter++; ovsTransportLeft += 5; addLog(`【採用】海外の運び屋を1名採用。運搬回数+5。`, "gold"); }
+            else if (type === 'ovsTransporter') { staffOvsTransporter++; ovsTransportLeft += transCap; addLog(`【採用】海外の運び屋を1名採用。運搬回数+${transCap}。`, "gold"); }
             else if (type === 'ovsAgent') { staffOvsAgent++; addLog(`【契約】海外エージェントを1名迎え入れました。`, "purple"); }
             else if (type === 'ovsBroker') { staffOvsBroker++; addLog(`【契約】海外ブローカーを1名雇いました。`, "gold"); }
             else if (type === 'ovsDealer') { staffOvsDealer++; addLog(`【契約】海外ディーラー(自動化)を1名雇いました！`, "blue"); }
@@ -828,7 +900,7 @@
             else if (type === 'mexLaunderer') { staffMexLaunderer++; addLog(`【契約】メキシコのマネーミュールを1名雇いました。`, "sys"); }
             else if (type === 'mexWork') { staffMexWork++; addLog(`【採用】メキシコの一般作業員を1名採用。`, "sys"); }
             else if (type === 'mexKeeper') { staffMexKeeper++; addLog(`【採用】メキシコの物品管理人を1名採用。`, "red"); }
-            else if (type === 'mexTransporter') { staffMexTransporter++; mexTransportLeft += 5; addLog(`【採用】メキシコの運び屋を1名採用。運搬回数+5。`, "gold"); }
+            else if (type === 'mexTransporter') { staffMexTransporter++; mexTransportLeft += transCap; addLog(`【採用】メキシコの運び屋を1名採用。運搬回数+${transCap}。`, "gold"); }
             else if (type === 'mexAgent') { staffMexAgent++; addLog(`【契約】メキシコエージェントを1名迎え入れました。`, "purple"); }
             else if (type === 'mexBroker') { staffMexBroker++; addLog(`【契約】メキシコブローカーを1名雇いました。`, "gold"); }
             else if (type === 'mexDealer') { staffMexDealer++; addLog(`【契約】メキシコディーラー(自動化)を1名雇いました！`, "blue"); }
@@ -843,10 +915,12 @@
                 mexLaunderer: "墨マネーミュール", mexWork: "海外(墨)作業員", mexKeeper: "海外(墨)物品管理人", mexTransporter:"海外(墨)運び屋", mexAgent: "海外(墨)エージェント", mexBroker: "海外(墨)ブローカー", mexDealer:"海外(墨)ディーラー"
             };
             
+            let transCap = hasCSO ? 8 : 5;
+
             if (type === 'domLaunderer' && staffDomLaunderer > 0) { staffDomLaunderer--; }
             else if (type === 'domWork' && staffDomWork > 0) { staffDomWork--; }
             else if (type === 'domKeeper' && staffDomKeeper > 0) { staffDomKeeper--; }
-            else if (type === 'domTransporter' && staffDomTransporter > 0) { staffDomTransporter--; domTransportLeft = Math.max(0, domTransportLeft - 5); }
+            else if (type === 'domTransporter' && staffDomTransporter > 0) { staffDomTransporter--; domTransportLeft = Math.max(0, domTransportLeft - transCap); }
             else if (type === 'domAgent' && staffDomAgent > 0) { staffDomAgent--; }
             else if (type === 'domBroker' && staffDomBroker > 0) { staffDomBroker--; }
             else if (type === 'domDealer' && staffDomDealer > 0) { staffDomDealer--; }
@@ -854,7 +928,7 @@
             else if (type === 'ovsLaunderer' && staffOvsLaunderer > 0) { staffOvsLaunderer--; }
             else if (type === 'ovsWork' && staffOvsWork > 0) { staffOvsWork--; }
             else if (type === 'ovsKeeper' && staffOvsKeeper > 0) { staffOvsKeeper--; }
-            else if (type === 'ovsTransporter' && staffOvsTransporter > 0) { staffOvsTransporter--; ovsTransportLeft = Math.max(0, ovsTransportLeft - 5); }
+            else if (type === 'ovsTransporter' && staffOvsTransporter > 0) { staffOvsTransporter--; ovsTransportLeft = Math.max(0, ovsTransportLeft - transCap); }
             else if (type === 'ovsAgent' && staffOvsAgent > 0) { staffOvsAgent--; }
             else if (type === 'ovsBroker' && staffOvsBroker > 0) { staffOvsBroker--; }
             else if (type === 'ovsDealer' && staffOvsDealer > 0) { staffOvsDealer--; }
@@ -862,7 +936,7 @@
             else if (type === 'mexLaunderer' && staffMexLaunderer > 0) { staffMexLaunderer--; }
             else if (type === 'mexWork' && staffMexWork > 0) { staffMexWork--; }
             else if (type === 'mexKeeper' && staffMexKeeper > 0) { staffMexKeeper--; }
-            else if (type === 'mexTransporter' && staffMexTransporter > 0) { staffMexTransporter--; mexTransportLeft = Math.max(0, mexTransportLeft - 5); }
+            else if (type === 'mexTransporter' && staffMexTransporter > 0) { staffMexTransporter--; mexTransportLeft = Math.max(0, mexTransportLeft - transCap); }
             else if (type === 'mexAgent' && staffMexAgent > 0) { staffMexAgent--; }
             else if (type === 'mexBroker' && staffMexBroker > 0) { staffMexBroker--; }
             else if (type === 'mexDealer' && staffMexDealer > 0) { staffMexDealer--; }
@@ -1015,6 +1089,9 @@
         function genIllegalRequest(region) {
             let agentCount = (region === 'ovs') ? staffOvsAgent : ((region === 'mex') ? staffMexAgent : staffDomAgent);
             let jackpotChance = (1 / 15) + (agentCount * 0.02);
+            // CTOバフ: ジャックポット率大幅UP (+15%)
+            if (hasCTO) jackpotChance += 0.15;
+
             let isJackpot = (Math.random() < jackpotChance);
             let baseV = isJackpot ? Math.floor(Math.random() * 400) * 1000000 + 100000000 : Math.floor(Math.random() * 250) * 100000 + 5000000; 
             baseV = Math.floor(baseV * 1.25); 
@@ -1128,11 +1205,18 @@
                       + (staffDomKeeper * 500000) + (staffDomTransporter * 800000) + (staffDomAgent * 2000000) + (staffDomBroker * 1500000) + (staffDomDealer * 2500000)
                       + (staffOvsKeeper * 1500000) + (staffOvsTransporter * 1200000) + (staffOvsAgent * 3000000) + (staffOvsBroker * 2500000) + (staffOvsDealer * 4000000)
                       + (staffMexKeeper * 200000) + (staffMexTransporter * 300000) + (staffMexAgent * 800000) + (staffMexBroker * 500000) + (staffMexDealer * 1000000);
+            
+            // CHROバフ: 現場スタッフの人件費を20%カット
+            if (hasCHRO) {
+                cCost = Math.floor(cCost * 0.8);
+                dCost = Math.floor(dCost * 0.8);
+            }
             return { clean: cCost, dirty: dCost };
         }
 
         function getExecSalaryCost() {
             return (hasCFO ? cfoSalary : 0) + (hasCOO ? cooSalary : 0) + (hasCLO ? cloSalary : 0)
+                 + (hasCHRO ? chroSalary : 0) + (hasCTO ? ctoSalary : 0) + (hasCSO ? csoSalary : 0)
                  + (hasDomManager ? domManagerSalary : 0) + (hasOvsManager ? ovsManagerSalary : 0) + (hasMexManager ? mexManagerSalary : 0);
         }
 
@@ -1150,9 +1234,10 @@
         function executeNextMonthLogic() {
             lastMonthCleanCash = cleanMoney; lastMonthDirtyCash = dirtyMoney;
             
-            domTransportLeft = staffDomTransporter * 5;
-            ovsTransportLeft = staffOvsTransporter * 5;
-            mexTransportLeft = staffMexTransporter * 5;
+            let transCap = hasCSO ? 8 : 5;
+            domTransportLeft = staffDomTransporter * transCap;
+            ovsTransportLeft = staffOvsTransporter * transCap;
+            mexTransportLeft = staffMexTransporter * transCap;
 
             let domNormInc = 0; let domIllInc = 0; 
             let ovsNormInc = 0; let ovsIllInc = 0;
@@ -1510,7 +1595,41 @@
                 document.getElementById("input-clo-salary").value = cloSalary / 10000; 
                 let elName = document.getElementById("active-name-clo"); if(elName) elName.innerText = execNames.clo ? `(${execNames.clo})` : "";
             }
+            if(hasCHRO) { 
+                document.getElementById("ui-exec-chro-hire").style.display = "none"; 
+                document.getElementById("ui-exec-chro-active").style.display = "block"; 
+                document.getElementById("input-chro-salary").value = chroSalary / 10000; 
+                let elName = document.getElementById("active-name-chro"); if(elName) elName.innerText = execNames.chro ? `(${execNames.chro})` : "";
+            }
+            if(hasCTO) { 
+                document.getElementById("ui-exec-cto-hire").style.display = "none"; 
+                document.getElementById("ui-exec-cto-active").style.display = "block"; 
+                document.getElementById("input-cto-salary").value = ctoSalary / 10000; 
+                let elName = document.getElementById("active-name-cto"); if(elName) elName.innerText = execNames.cto ? `(${execNames.cto})` : "";
+            }
+            if(hasCSO) { 
+                document.getElementById("ui-exec-cso-hire").style.display = "none"; 
+                document.getElementById("ui-exec-cso-active").style.display = "block"; 
+                document.getElementById("input-cso-salary").value = csoSalary / 10000; 
+                let elName = document.getElementById("active-name-cso"); if(elName) elName.innerText = execNames.cso ? `(${execNames.cso})` : "";
+            }
             
+            // 採用費用の割引表示更新 (CHROバフ)
+            let baseCosts = { cfo: 10000000, coo: 10000000, clo: 10000000, cto: 10000000, cso: 10000000, domManager: 5000000, ovsManager: 10000000, mexManager: 5000000, domLaunderer: 5000000, domWork: 600000, domKeeper: 1000000, domAgent: 4000000, domBroker: 3000000, domTransporter: 1500000, domDealer: 10000000, ovsLaunderer: 15000000, ovsWork: 3000000, ovsKeeper: 5000000, ovsAgent: 8000000, ovsBroker: 6000000, ovsTransporter: 3000000, ovsDealer: 15000000, mexLaunderer: 2000000, mexWork: 200000, mexKeeper: 400000, mexAgent: 2000000, mexBroker: 1000000, mexTransporter: 600000, mexDealer: 3000000 };
+            for(let key in baseCosts) {
+                let costSpan = document.querySelector(`.cost-${key}`);
+                if (costSpan) {
+                    let cost = baseCosts[key];
+                    if (hasCHRO) cost = Math.floor(cost / 2);
+                    let formatted = formatMoney(cost);
+                    costSpan.innerText = `(初${formatted.replace(" 円","")})`;
+                }
+            }
+
+            // 運び屋の運搬回数UI更新 (CSOバフ)
+            let transCapUI = document.querySelectorAll('.text-cap-trans');
+            transCapUI.forEach(el => el.innerText = hasCSO ? "8" : "5");
+
             if(hasDomManager) { 
                 document.getElementById("ui-dom-manager-hire").style.display = "none"; 
                 document.getElementById("ui-dom-manager-active").style.display = "block"; 
