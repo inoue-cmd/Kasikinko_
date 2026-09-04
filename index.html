@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SILENT PAWN - モバイル特化・裏社会経営 vMobileUX</title>
+    <title>SILENT PAWN - 役員・各拠点洗屋 実装パッチ v5</title>
     <style>
         :root {
             --bg-color: #050505; --panel-bg: #111; --border-color: #2a2a2a;
@@ -13,32 +13,25 @@
         }
         
         * { box-sizing: border-box; }
-        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0 0 80px 0; font-size: 15px; -webkit-tap-highlight-color: transparent;}
-        h1 { color: #fff; border-bottom: 1px solid #222; padding: 15px 10px 10px; font-size: 1.1rem; margin: 0 0 10px 0; text-align: center; background: #000; position: sticky; top: 0; z-index: 100;}
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0 0 90px 0; font-size: 15px; -webkit-tap-highlight-color: transparent;}
+        h1 { color: #fff; border-bottom: 1px solid #222; padding: 15px 10px 10px; font-size: 1.1rem; margin: 0 0 10px 0; text-align: center; background: #000; position: sticky; top: 0; z-index: 100; font-weight:bold; letter-spacing:1px;}
         
-        input[type="number"], button { font-size: 16px !important; touch-action: manipulation; }
+        input[type="number"], input[type="text"], button { font-size: 16px !important; touch-action: manipulation; }
         
-        #start-screen { text-align: center; margin-top: 10vh; padding: 0 20px; }
-        #start-screen input { padding: 12px; background: #1a1a1a; color: #fff; border: 1px solid var(--green); text-align: right; width: 100%; border-radius: 6px; margin-bottom: 10px;}
+        #start-screen { text-align: center; margin-top: 5vh; padding: 0 20px 50px 20px; }
+        #start-screen input { padding: 12px; background: #1a1a1a; color: #fff; border: 1px solid var(--green); width: 100%; border-radius: 6px; margin-bottom: 10px;}
+        #start-screen input[type="number"] { text-align: right; }
         
-        /* ボトムナビゲーション (アプリ風タブ) */
-        .tab-menu { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(10,10,10,0.95); backdrop-filter: blur(5px); border-top: 1px solid #333; display: flex; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
-        .tab-btn { flex: 1; padding: 15px 0; background: transparent; color: #666; border: none; cursor: pointer; font-weight: bold; font-size: 0.9rem; border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .tab-menu { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(10,10,10,0.98); border-top: 1px solid #333; display: flex; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+        .tab-btn { flex: 1; padding: 12px 0; background: transparent; color: #777; border: none; cursor: pointer; font-weight: bold; font-size: 0.75rem; border-bottom: 3px solid transparent; user-select: none; }
         .tab-btn.active { color: var(--gold); border-bottom: 3px solid var(--gold); background: #1a1a1a; }
-        .tab-content { display: none; padding: 0 10px; animation: fadeIn 0.2s ease-in-out; }
+        .tab-content { display: none; padding: 0 10px; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* フローティングアクションボタン (次へ進む) */
-        .fab-next { position: fixed; bottom: 85px; right: 15px; background: #1a3a1a; border: 2px solid var(--green); color: var(--green); border-radius: 30px; padding: 12px 20px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.8); z-index: 999; cursor: pointer; transition: all 0.2s; }
-        .fab-next:disabled { background: #2a1111; border-color: var(--red); color: var(--red); opacity: 0.9; box-shadow: none; cursor: not-allowed; }
-
-        /* 汎用ボックス・カード */
-        .box { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 12px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
+        .box { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 12px; margin-bottom: 12px; border-radius: 8px;}
         .box h2 { margin-top: 0; font-size: 1.05rem; color: #eee; border-bottom: 1px solid #222; padding-bottom: 8px; margin-bottom: 12px;}
         .box h3 { margin-top: 0; font-size: 0.95rem; color: var(--text-muted);}
 
-        /* ダッシュボード整理 */
         .stat-block { background: #151515; border: 1px solid #222; border-radius: 6px; padding: 10px; text-align: center; margin-bottom: 10px; }
         .stat-label { font-size: 0.75rem; color: #888; margin-bottom: 3px; display: block; }
         .stat-val { font-size: 1.4rem; font-weight: bold; }
@@ -46,43 +39,46 @@
         .flex-row .stat-block { flex: 1; margin-bottom: 0; }
         .text-green { color: var(--green); } .text-red { color: var(--red); } .text-yellow { color: var(--yellow); } .text-blue { color: var(--blue); } .text-gold { color: var(--gold); } .text-purple { color: var(--purple); } .text-main { color: var(--text-main); }
 
-        /* スタッフカード (縦積みを解消) */
         .staff-card { background: #181818; border: 1px solid #333; border-radius: 6px; padding: 12px; margin-bottom: 10px; }
         .staff-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 1.05rem; font-weight: bold; }
         .staff-card-desc { font-size: 0.8rem; color: #888; line-height: 1.4; margin-bottom: 12px; }
         .staff-card-actions { display: flex; gap: 8px; }
         
-        /* 共通ボタン */
-        .btn { background-color: #252525; color: #ddd; border: 1px solid #444; padding: 12px; cursor: pointer; border-radius: 6px; width: 100%; font-weight: bold; }
+        .name-input { width: 100%; padding: 10px; background: #111; color: #fff; border: 1px solid #555; border-radius: 4px; margin-bottom: 10px; font-size: 0.9rem !important;}
+        .exec-name-display { font-size: 0.85rem; color: #ccc; margin-left: 8px; font-weight: normal; border-left: 1px solid #555; padding-left: 8px;}
+
+        .btn { background-color: #252525; color: #ddd; border: 1px solid #444; padding: 12px; cursor: pointer; border-radius: 6px; width: 100%; font-weight: bold; user-select: none; transition: transform 0.08s ease, background-color 0.08s ease; }
         .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .btn-main { background-color: #1a3a1a; border-color: var(--green); color: var(--green); }
+        .btn-main { background-color: #1a3a1a; border-color: var(--green); color: var(--green); font-size: 1.1rem;}
         
-        /* アコーディオン・リスト系 */
+        .btn:active:not(:disabled), .tab-btn:active, summary:active, .touch-active {
+            transform: scale(0.95) !important;
+            filter: brightness(0.7) !important;
+        }
+
         details.accordion { margin-bottom: 12px; border-radius: 8px; border: 1px solid #333; background: var(--panel-bg); overflow: hidden; }
-        details.accordion > summary { padding: 15px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; background: #151515; font-weight: bold; }
+        details.accordion > summary { padding: 14px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; background: #151515; font-weight: bold; user-select: none; }
         details.accordion > summary::-webkit-details-marker { display: none; }
         details.accordion[open] > summary { border-bottom: 1px solid #333; }
         .accordion-content { padding: 10px; }
         
-        /* ネスト(入れ子)アコーディオンの装飾解除 */
         details.sub-accordion { border: none; border-bottom: 1px solid #222; border-radius: 0; margin-bottom: 0; background: transparent; }
         details.sub-accordion:last-child { border-bottom: none; }
         details.sub-accordion > summary { background: transparent; padding: 12px 5px; font-weight: normal; }
         details.sub-accordion[open] > summary { border-bottom: 1px dashed #333; }
+        .accordion-icon { display: inline-block; margin-left: 5px; font-size: 0.7rem; transition: transform 0.2s; }
+        details[open] > summary .accordion-icon { transform: rotate(180deg); }
 
-        /* アイテムカード */
         .item-card { background: #151515; border: 1px solid #2a2a2a; padding: 12px; margin-bottom: 8px; border-radius: 6px; }
-        .item-head { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: flex-start; }
+        .item-title-row { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: flex-start; }
         .item-name { font-size: 0.95rem; line-height: 1.3; }
         .item-val { font-size: 1.1rem; font-weight: bold; text-align: right; }
-        .item-foot { display: flex; justify-content: space-between; font-size: 0.8rem; color: #777; }
+        .item-details { display: flex; justify-content: space-between; font-size: 0.8rem; color: #777; }
 
         .log-area { height: 200px; overflow-y: auto; background: #000; padding: 10px; border-radius: 6px; font-size: 0.85rem; color: #aaa; border: 1px solid #222;}
         .log-entry { margin-bottom: 8px; border-bottom: 1px dashed #1a1a1a; padding-bottom: 6px; line-height: 1.4; }
 
-        #request-area { display: none; background: #2a1111; border: 1px solid var(--red); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); } 70% { box-shadow: 0 0 10px 5px rgba(244, 67, 54, 0); } 100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); } }
-
+        #request-area { display: none; background: #2a1111; border: 1px solid var(--red); margin-top: 10px;}
         .save-slot { background: #151515; padding: 12px; margin-bottom: 10px; border: 1px solid #333; border-radius: 6px;}
         .slot-actions { display: flex; gap: 8px; margin-top: 8px; }
 
@@ -98,6 +94,12 @@
         
         <div class="box">
             <p style="font-size: 1.1rem; margin-top: 0; font-weight:bold;">新規ゲーム開始</p>
+            
+            <div style="margin-bottom: 15px;">
+                <span class="stat-label">フロント企業名 (組織名)</span>
+                <input type="text" id="init-company" value="SILENT PAWN" style="text-align:center;">
+            </div>
+
             <div style="display:flex; gap:10px; margin-bottom: 15px;">
                 <div style="flex:1;"><span class="stat-label">開始年</span><input type="number" id="init-year" value="2026"></div>
                 <div style="flex:1;"><span class="stat-label">開始月</span><input type="number" id="init-month" value="4" min="1" max="12"></div>
@@ -119,10 +121,7 @@
 
     <!-- メイン画面 -->
     <div id="game-screen" style="display: none;">
-        <h1>SILENT PAWN <span style="font-size:0.8rem; color:#888; float:right; margin-top:4px;" id="display-date"></span></h1>
-
-        <!-- フローティングアクションボタン (次へ) -->
-        <button class="fab-next" id="btn-next-month" onclick="nextMonth()">⏭️ 次の月へ</button>
+        <h1><span id="header-company-name">SILENT PAWN</span> <span style="font-size:0.8rem; color:#888; float:right; margin-top:4px;" id="display-date"></span></h1>
 
         <!-- 違法依頼ポップアップ -->
         <div class="box" id="request-area">
@@ -134,257 +133,9 @@
             </div>
         </div>
 
-        <!-- ================= タブ1: ダッシュボード＆ストレージ ================= -->
-        <div id="tab-storage" class="tab-content active">
-            
-            <!-- 資産ダッシュボード (カード型整理) -->
-            <div class="stat-block" style="border-color:var(--gold);">
-                <span class="stat-label" style="color:var(--gold);">👑 個人資産 (クリアスコア)</span>
-                <span class="stat-val text-gold" id="display-personal-money" style="font-size:1.6rem;">0 円</span>
-                <div style="font-size:0.8rem; color:#777; margin-top:5px;">事業総資産(表+裏+物品): <span id="display-total-assets" style="color:#aaa;">0 円</span></div>
-            </div>
-
-            <div class="flex-row">
-                <div class="stat-block" style="border-color:var(--green); background:#0a150a;">
-                    <span class="stat-label">表金 (クリーン資金)</span>
-                    <span class="stat-val text-green" id="display-clean-money">0 円</span>
-                </div>
-                <div class="stat-block" style="border-color:var(--red); background:#150a0a;">
-                    <span class="stat-label">裏金 (ヤバい資金)</span>
-                    <span class="stat-val text-red" id="display-dirty-money">0 円</span>
-                </div>
-            </div>
-
-            <div class="box" style="padding:10px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.85rem;">
-                    <span style="color:#aaa;">月次総収入 (保管料)</span>
-                    <span class="text-green" id="display-income" style="font-weight:bold;">0 円</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:0.85rem; border-top:1px dashed #333; padding-top:5px;">
-                    <span style="color:#aaa;">月次固定費 (家賃/人件費)</span>
-                    <span class="text-red" id="display-fixed-cost" style="font-weight:bold;">0 円</span>
-                </div>
-            </div>
-
-            <!-- 稼働状況サマリー (クリーン化) -->
-            <div class="box" id="dash-regions-container">
-                <h3 style="margin-bottom:8px;">📦 預かり稼働状況</h3>
-                <div id="dash-dom-ui" style="display:flex; justify-content:space-between; font-size:0.85rem; padding:6px 0; border-top:1px dashed #333;"></div>
-                <div id="dash-ovs-ui" style="display:flex; justify-content:space-between; font-size:0.85rem; padding:6px 0; border-top:1px dashed #333;"></div>
-                <div id="dash-mex-ui" style="display:flex; justify-content:space-between; font-size:0.85rem; padding:6px 0; border-top:1px dashed #333;"></div>
-            </div>
-
-            <h2 style="margin:20px 0 10px; font-size:1.1rem; color:#fff;">📦 物理ストレージ管理</h2>
-            
-            <div id="req-start-warning" style="display:block; color:var(--gold); font-weight:bold; margin-bottom:10px; padding:10px; background:#332200; border:1px solid var(--gold); border-radius:6px; font-size:0.9rem;">
-                ⚠️ 「人事・設備」タブから『国内事務所』と『一般倉庫』を購入して開始してください。
-            </div>
-
-            <div id="storage-container" style="display:none;">
-                <!-- 運び屋枠 -->
-                <div class="box" style="border-color:var(--gold); background:#151000;">
-                    <h3 style="color:var(--gold); margin-bottom:5px;">🚛 今月の運び屋 (強制売却枠)</h3>
-                    <div style="display:flex; justify-content:space-around; font-size:0.9rem;">
-                        <div>🇯🇵 残 <span id="ui-dom-trans-left" style="font-weight:bold; font-size:1.1rem;">0</span></div>
-                        <div id="ui-ovs-trans-wrapper" style="display:none;">🇨🇭 残 <span id="ui-ovs-trans-left" style="font-weight:bold; font-size:1.1rem;">0</span></div>
-                        <div id="ui-mex-trans-wrapper" style="display:none;">🇲🇽 残 <span id="ui-mex-trans-left" style="font-weight:bold; font-size:1.1rem;">0</span></div>
-                    </div>
-                </div>
-
-                <!-- 国内ストレージ -->
-                <details class="accordion" open id="domestic-accordion">
-                    <summary><span class="title-text">🇯🇵 日本拠点リスト</span><span class="accordion-icon">▼</span></summary>
-                    <div class="accordion-content">
-                        <details class="sub-accordion"><summary><span style="color:#bbb;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="dom-norm-list"></div></details>
-                        <details class="sub-accordion"><summary><span style="color:var(--red);">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="dom-ill-list"></div></details>
-                        <details class="sub-accordion" open><summary><span style="color:var(--gold); font-weight:bold;">💰 売却可能 (所有権獲得)</span><span class="accordion-icon">▼</span></summary><div id="dom-aban-list"></div></details>
-                    </div>
-                </details>
-                
-                <!-- スイスストレージ -->
-                <details class="accordion" id="overseas-accordion" style="display:none; border-color:var(--blue);">
-                    <summary><span class="title-text" style="color:var(--blue);">🇨🇭 スイス VIPリスト</span><span class="accordion-icon">▼</span></summary>
-                    <div class="accordion-content">
-                        <details class="sub-accordion"><summary><span style="color:#bbb;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="ovs-norm-list"></div></details>
-                        <details class="sub-accordion"><summary><span style="color:var(--red);">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="ovs-ill-list"></div></details>
-                        <details class="sub-accordion" open><summary><span style="color:var(--gold); font-weight:bold;">💰 売却可能 (所有権獲得)</span><span class="accordion-icon">▼</span></summary><div id="ovs-aban-list"></div></details>
-                    </div>
-                </details>
-
-                <!-- メキシコストレージ -->
-                <details class="accordion" id="mexico-accordion" style="display:none; border-color:var(--mexico);">
-                    <summary><span class="title-text" style="color:var(--mexico);">🇲🇽 メキシコ 密輸リスト</span><span class="accordion-icon">▼</span></summary>
-                    <div class="accordion-content">
-                        <details class="sub-accordion"><summary><span style="color:#bbb;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="mex-norm-list"></div></details>
-                        <details class="sub-accordion"><summary><span style="color:var(--red);">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="mex-ill-list"></div></details>
-                        <details class="sub-accordion" open><summary><span style="color:var(--gold); font-weight:bold;">💰 売却可能 (所有権獲得)</span><span class="accordion-icon">▼</span></summary><div id="mex-aban-list"></div></details>
-                    </div>
-                </details>
-            </div>
-        </div>
-
-        <!-- ================= タブ2: 人事・設備コマンド ================= -->
-        <div id="tab-hr" class="tab-content">
-            
-            <!-- 設備投資 (カード型レイアウト) -->
-            <h2 style="font-size:1.1rem; color:#fff; border-bottom:1px solid #444; padding-bottom:5px; margin-bottom:15px;">🏗️ 施設・拡張コマンド</h2>
-            
-            <div id="fac-dom-box" class="box" style="border-color:var(--green);">
-                <h3 style="color:var(--green);">🇯🇵 日本拠点</h3>
-                <div id="cmd-dom-office"><button class="btn btn-buy" onclick="buyDomOffice()">[設立] 国内事務所 (表2000万)</button></div>
-                <div id="cmd-buy-first" style="display:none;"><button class="btn btn-main" onclick="buyFirstWarehouse()">[取得] 初期の一般倉庫 (表3000万)</button></div>
-                
-                <div id="cmd-dom" style="display: none;">
-                    <div class="flex-row">
-                        <button class="btn" onclick="runDomAd()">広告宣伝<br><span style="font-size:0.75rem;font-weight:normal;">表300万</span></button>
-                        <button class="btn" onclick="expandDomWarehouse()">一般拡張<br><span style="font-size:0.75rem;font-weight:normal;">表3000万</span></button>
-                    </div>
-                    <button class="btn" onclick="expandDomIllVault()" style="border-color:var(--red); color:var(--red); margin-bottom:10px;">[違法] 隠し金庫の増設 (裏5000万)</button>
-                    
-                    <div class="flex-row" id="cmd-overseas-unlock">
-                        <button id="btn-buy-ovs-office" class="btn" onclick="buyOvsOffice()" style="border-color:var(--blue); color:var(--blue);">🇨🇭 支社設立<br><span style="font-size:0.7rem;font-weight:normal;">表1億円</span></button>
-                        <button id="btn-buy-mex-office" class="btn" onclick="buyMexOffice()" style="border-color:var(--mexico); color:var(--mexico);">🇲🇽 拠点設立<br><span style="font-size:0.7rem;font-weight:normal;">表2000万</span></button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="fac-ovs-box" class="box" style="display:none; border-color:var(--blue);">
-                <h3 style="color:var(--blue);">🇨🇭 スイス拠点</h3>
-                <div id="cmd-buy-ovs-wh"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="buyOvsWarehouse()">[取得] VIP一般倉庫 (表2億円)</button></div>
-                <div id="cmd-ovs" style="display: none;">
-                    <div class="flex-row">
-                        <button class="btn" onclick="runOvsAd()">VIP広告<br><span style="font-size:0.75rem;font-weight:normal;">表1000万</span></button>
-                        <button class="btn" onclick="expandOvsWarehouse()">一般拡張<br><span style="font-size:0.75rem;font-weight:normal;">表1億円</span></button>
-                    </div>
-                    <button class="btn" onclick="expandOvsIllVault()" style="border-color:var(--red); color:var(--red);">[違法] 隠し金庫の増設 (裏2億円)</button>
-                </div>
-            </div>
-
-            <div id="fac-mex-box" class="box" style="display:none; border-color:var(--mexico);">
-                <h3 style="color:var(--mexico);">🇲🇽 メキシコ拠点</h3>
-                <div id="cmd-buy-mex-wh"><button class="btn" style="border-color:var(--mexico); color:var(--mexico);" onclick="buyMexWarehouse()">[取得] 密輸一般倉庫 (表3000万円)</button></div>
-                <div id="cmd-mex" style="display: none;">
-                    <div class="flex-row">
-                        <button class="btn" onclick="runMexAd()">現地広告<br><span style="font-size:0.75rem;font-weight:normal;">表100万</span></button>
-                        <button class="btn" onclick="expandMexWarehouse()">一般拡張<br><span style="font-size:0.75rem;font-weight:normal;">表1000万</span></button>
-                    </div>
-                    <button class="btn" onclick="expandMexIllVault()" style="border-color:var(--red); color:var(--red);">[違法] 隠し金庫の増設 (裏1500万)</button>
-                </div>
-            </div>
-
-            <div id="hr-panel" style="display:none;">
-                <h2 style="font-size:1.1rem; color:#fff; border-bottom:1px solid #444; padding-bottom:5px; margin:25px 0 15px;">👥 人材・採用管理</h2>
-                
-                <!-- 役員・洗屋カード -->
-                <div class="staff-card" style="border-color:var(--gold);">
-                    <div class="staff-card-head text-gold">👑 CEO (あなた)</div>
-                    <div class="staff-card-desc">毎月「表金」から個人口座(スコア)へ自動引出。</div>
-                    <div class="staff-card-actions" style="align-items:center;">
-                        <input type="number" id="input-ceo-salary" value="0" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid #555; text-align:right;"> <span style="color:#aaa;">万円</span>
-                        <button class="btn" style="flex:1; border-color:var(--gold); color:var(--gold); padding:8px;" onclick="setCeoSalary()">設定</button>
-                    </div>
-                </div>
-
-                <div class="staff-card" style="border-color:var(--yellow);">
-                    <div class="staff-card-head text-yellow">🧽 洗屋 <span style="font-size:0.85rem; font-weight:normal;">(現在: <span id="ui-staff-launderer">0</span>人)</span></div>
-                    <div class="staff-card-desc">月給200万(裏)。毎月最大1億円の裏金を、手数料5%で表金へ資金洗浄する（事業拡大に必須）。</div>
-                    <div class="staff-card-actions">
-                        <button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('launderer')">採用 (初500万)</button>
-                        <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('launderer')">解雇</button>
-                    </div>
-                </div>
-
-                <!-- 国内人事アコーディオン -->
-                <details class="accordion" open id="hr-dom-section">
-                    <summary><span class="title-text">🇯🇵 国内スタッフ</span><span class="accordion-icon">▼</span></summary>
-                    <div class="accordion-content">
-                        <!-- 一般作業員 -->
-                        <div class="staff-card">
-                            <div class="staff-card-head">👷 一般作業員 <span class="accent-text">(現在:<span id="ui-dom-work">0</span>人)</span></div>
-                            <div class="staff-card-desc">月給30万(表) / 国内の一般枠 50箱を管理。</div>
-                            <div class="staff-card-actions">
-                                <button class="btn" onclick="hireStaff('domWork')">採用 (初60万)</button>
-                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domWork')">解雇</button>
-                            </div>
-                        </div>
-                        <!-- 物品管理人 -->
-                        <div class="staff-card">
-                            <div class="staff-card-head text-red">🚛 物品管理人 <span class="accent-text">(現在:<span id="ui-dom-keeper">0</span>人)</span></div>
-                            <div class="staff-card-desc">月給50万(裏) / 国内の違法枠 20箱を管理。</div>
-                            <div class="staff-card-actions">
-                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('domKeeper')">採用 (初100万)</button>
-                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domKeeper')">解雇</button>
-                            </div>
-                        </div>
-                        <!-- エージェント -->
-                        <div class="staff-card">
-                            <div class="staff-card-head text-purple">🕴️ エージェント <span class="accent-text">(現在:<span id="ui-dom-agent">0</span>人)</span></div>
-                            <div class="staff-card-desc">月給200万(裏) / 毎月確実に違法依頼を1件獲得。</div>
-                            <div class="staff-card-actions">
-                                <button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('domAgent')">採用 (初400万)</button>
-                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domAgent')">解雇</button>
-                            </div>
-                        </div>
-                        <!-- ブローカー -->
-                        <div class="staff-card">
-                            <div class="staff-card-head" style="color:var(--gold);">💼 ブローカー <span class="accent-text">(現在:<span id="ui-dom-broker">0</span>人)</span></div>
-                            <div class="staff-card-desc">月給150万(裏) / 売却権限を持つ。売却処理に必須。</div>
-                            <div class="staff-card-actions">
-                                <button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('domBroker')">採用 (初300万)</button>
-                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domBroker')">解雇</button>
-                            </div>
-                        </div>
-                        <!-- 運び屋 -->
-                        <div class="staff-card">
-                            <div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-dom-transporter">0</span>人)</span></div>
-                            <div class="staff-card-desc">月給80万(裏) / 毎月5回まで売却品の運搬が可能。</div>
-                            <div class="staff-card-actions">
-                                <button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('domTransporter')">採用 (初150万)</button>
-                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domTransporter')">解雇</button>
-                            </div>
-                        </div>
-                        <!-- ディーラー -->
-                        <div class="staff-card">
-                            <div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-dom-dealer">0</span>人)</span></div>
-                            <div class="staff-card-desc">月給250万(裏) / 依頼の受理と売却を全自動化する。</div>
-                            <div class="staff-card-actions">
-                                <button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('domDealer')">採用 (初1千万)</button>
-                                <button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domDealer')">解雇</button>
-                            </div>
-                        </div>
-                    </div>
-                </details>
-
-                <!-- スイス人事アコーディオン -->
-                <details class="accordion" id="hr-ovs-section" style="display:none; border-color:var(--blue);">
-                    <summary><span class="title-text" style="color:var(--blue);">🇨🇭 スイススタッフ</span><span class="accordion-icon">▼</span></summary>
-                    <div class="accordion-content">
-                        <div class="staff-card"><div class="staff-card-head">👨‍💻 作業員 <span class="accent-text">(現在:<span id="ui-ovs-work">0</span>人)</span></div><div class="staff-card-desc">月給100万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsWork')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsWork')">解雇</button></div></div>
-                        <div class="staff-card"><div class="staff-card-head text-red">✈️ 物品管理人 <span class="accent-text">(現在:<span id="ui-ovs-keeper">0</span>人)</span></div><div class="staff-card-desc">月給150万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('ovsKeeper')">採用(初500万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsKeeper')">解雇</button></div></div>
-                        <div class="staff-card"><div class="staff-card-head text-purple">🕵️ エージェント <span class="accent-text">(現在:<span id="ui-ovs-agent">0</span>人)</span></div><div class="staff-card-desc">月給300万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('ovsAgent')">採用(初800万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsAgent')">解雇</button></div></div>
-                        <div class="staff-card"><div class="staff-card-head text-gold">🤝 ブローカー <span class="accent-text">(現在:<span id="ui-ovs-broker">0</span>人)</span></div><div class="staff-card-desc">月給250万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('ovsBroker')">採用(初600万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsBroker')">解雇</button></div></div>
-                        <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-ovs-transporter">0</span>人)</span></div><div class="staff-card-desc">月給120万(裏) / 月5回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('ovsTransporter')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsTransporter')">解雇</button></div></div>
-                        <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-ovs-dealer">0</span>人)</span></div><div class="staff-card-desc">月給400万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsDealer')">採用(初1.5千万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsDealer')">解雇</button></div></div>
-                    </div>
-                </details>
-
-                <!-- メキシコ人事アコーディオン -->
-                <details class="accordion" id="hr-mex-section" style="display:none; border-color:var(--mexico);">
-                    <summary><span class="title-text" style="color:var(--mexico);">🇲🇽 メキシコスタッフ</span><span class="accordion-icon">▼</span></summary>
-                    <div class="accordion-content">
-                        <div class="staff-card"><div class="staff-card-head">👷 作業員 <span class="accent-text">(現在:<span id="ui-mex-work">0</span>人)</span></div><div class="staff-card-desc">月給10万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireStaff('mexWork')">採用(初20万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexWork')">解雇</button></div></div>
-                        <div class="staff-card"><div class="staff-card-head text-red">🚛 物品管理人 <span class="accent-text">(現在:<span id="ui-mex-keeper">0</span>人)</span></div><div class="staff-card-desc">月給20万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('mexKeeper')">採用(初40万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexKeeper')">解雇</button></div></div>
-                        <div class="staff-card"><div class="staff-card-head text-purple">🕴️ エージェント <span class="accent-text">(現在:<span id="ui-mex-agent">0</span>人)</span></div><div class="staff-card-desc">月給80万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('mexAgent')">採用(初200万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexAgent')">解雇</button></div></div>
-                        <div class="staff-card"><div class="staff-card-head text-gold">💼 ブローカー <span class="accent-text">(現在:<span id="ui-mex-broker">0</span>人)</span></div><div class="staff-card-desc">月給50万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('mexBroker')">採用(初100万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexBroker')">解雇</button></div></div>
-                        <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-mex-transporter">0</span>人)</span></div><div class="staff-card-desc">月給30万(裏) / 月5回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('mexTransporter')">採用(初60万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexTransporter')">解雇</button></div></div>
-                        <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-mex-dealer">0</span>人)</span></div><div class="staff-card-desc">月給100万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('mexDealer')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexDealer')">解雇</button></div></div>
-                    </div>
-                </details>
-            </div>
-        </div>
-
-        <!-- ================= タブ3: 資金・システム ================= -->
+        <!-- ================= タブ1: システム＆ログ ================= -->
         <div id="tab-sys" class="tab-content">
+            <h2 style="margin-top:0; font-size:1.1rem; color:#fff;">💻 システム・口座管理</h2>
             
             <div class="box" style="border-color:var(--green);">
                 <h3 style="margin-top:0; color:var(--green);">💸 事業口座・入出金</h3>
@@ -420,17 +171,369 @@
             </div>
         </div>
 
+        <!-- ================= タブ2: 経営・ストレージ ================= -->
+        <div id="tab-storage" class="tab-content active">
+            
+            <div class="stat-block" style="border-color:var(--gold);">
+                <span class="stat-label" style="color:var(--gold);">👑 個人資産 (クリアスコア)</span>
+                <span class="stat-val text-gold" id="display-personal-money" style="font-size:1.6rem;">0 円</span>
+                <div style="font-size:0.8rem; color:#777; margin-top:5px;">事業総資産(表+裏+物品): <span id="display-total-assets" style="color:#aaa;">0 円</span></div>
+            </div>
+
+            <div class="flex-row">
+                <div class="stat-block" style="border-color:var(--green); background:#0a150a;">
+                    <span class="stat-label">表金 (クリーン資金)</span>
+                    <span class="stat-val text-green" id="display-clean-money">0 円</span>
+                </div>
+                <div class="stat-block" style="border-color:var(--red); background:#150a0a;">
+                    <span class="stat-label">裏金 (ヤバい資金)</span>
+                    <span class="stat-val text-red" id="display-dirty-money">0 円</span>
+                </div>
+            </div>
+
+            <!-- 月次収支＆固定費内訳アコーディオン -->
+            <div class="box" style="padding:10px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.85rem;">
+                    <span style="color:#aaa;">月次総収入 (保管料)</span>
+                    <span class="text-green" id="display-income" style="font-weight:bold;">0 円</span>
+                </div>
+                
+                <details class="accordion" style="margin-top:10px; border:1px solid #333; border-radius:6px; padding:0;">
+                    <summary style="padding:10px; background:#1a1a1a;">
+                        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                            <span style="font-size:0.85rem; color:#aaa;">月次固定費 (タップで内訳) <span class="accordion-icon">▼</span></span>
+                            <span class="text-red" id="display-fixed-cost" style="font-weight:bold; font-size:1.05rem;">0 円</span>
+                        </div>
+                    </summary>
+                    <div style="padding:10px; font-size:0.85rem; color:#ddd; background:#111; border-top:1px dashed #333; line-height:1.6;">
+                        <div style="display:flex; justify-content:space-between;"><span>役員・支部長報酬:</span> <span id="display-fixed-exec" class="text-gold">0 円</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span>施設家賃・維持費:</span> <span id="display-fixed-fac">0 円</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span>現場スタッフ人件費:</span> <span id="display-fixed-per">0 円</span></div>
+                        <div style="margin-top:8px; padding-top:8px; border-top:1px dashed #444; font-size:0.8rem; color:#888;">
+                            <div style="display:flex; justify-content:space-between;"><span>表金からの支出:</span> <span id="display-fixed-clean">0 円</span></div>
+                            <div style="display:flex; justify-content:space-between;"><span>裏金からの支出:</span> <span id="display-fixed-dirty">0 円</span></div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- 稼働状況サマリー -->
+            <div class="box" id="dash-regions-container">
+                <h3 style="margin-bottom:8px;">📦 各拠点の稼働状況</h3>
+                <div id="dash-dom-ui" style="display:flex; justify-content:space-between; font-size:0.85rem; padding:6px 0; border-top:1px dashed #333;"></div>
+                <div id="dash-ovs-ui" style="display:flex; justify-content:space-between; font-size:0.85rem; padding:6px 0; border-top:1px dashed #333;"></div>
+                <div id="dash-mex-ui" style="display:flex; justify-content:space-between; font-size:0.85rem; padding:6px 0; border-top:1px dashed #333;"></div>
+            </div>
+
+            <button class="btn btn-main" id="btn-next-month" onclick="nextMonth()" style="margin: 15px 0; padding: 15px;">⏭️ 次の月へ進む</button>
+
+            <!-- 物理ストレージ管理 -->
+            <h2 style="margin-top:25px; border-bottom:1px solid #444; padding-bottom:5px; color:#fff;">📦 物理ストレージ管理</h2>
+            
+            <div id="req-start-warning" style="display:block; color:var(--gold); font-weight:bold; margin-bottom:10px; padding:10px; background:#332200; border:1px solid var(--gold); border-radius:6px; font-size:0.9rem;">
+                ⚠️ ビジネスを始めるには、「設備」タブから『国内事務所』を購入してください。
+            </div>
+
+            <div id="storage-container" style="display:none;">
+                <div class="box" style="border-color:var(--gold); background:#151000;">
+                    <h3 style="color:var(--gold); margin-bottom:5px;">🚛 今月の運び屋 (強制売却枠)</h3>
+                    <div style="display:flex; justify-content:space-around; font-size:0.9rem;">
+                        <div>🇯🇵 残 <span id="ui-dom-trans-left" style="font-weight:bold; font-size:1.1rem;">0</span></div>
+                        <div id="ui-ovs-trans-wrapper" style="display:none;">🇨🇭 残 <span id="ui-ovs-trans-left" style="font-weight:bold; font-size:1.1rem;">0</span></div>
+                        <div id="ui-mex-trans-wrapper" style="display:none;">🇲🇽 残 <span id="ui-mex-trans-left" style="font-weight:bold; font-size:1.1rem;">0</span></div>
+                    </div>
+                </div>
+
+                <!-- 国内 -->
+                <details class="accordion" open id="domestic-accordion">
+                    <summary><span class="title-text">🇯🇵 日本拠点リスト</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <details class="sub-accordion"><summary><span style="color:#bbb;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="dom-norm-list"></div></details>
+                        <details class="sub-accordion"><summary><span style="color:var(--red);">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="dom-ill-list"></div></details>
+                        <details class="sub-accordion" open><summary><span style="color:var(--gold); font-weight:bold;">💰 売却可能 (所有権獲得)</span><span class="accordion-icon">▼</span></summary><div id="dom-aban-list"></div></details>
+                    </div>
+                </details>
+                
+                <!-- スイス -->
+                <details class="accordion" id="overseas-accordion" style="display:none; border-color:var(--blue);">
+                    <summary><span class="title-text" style="color:var(--blue);">🇨🇭 スイス VIPリスト</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <details class="sub-accordion"><summary><span style="color:#bbb;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="ovs-norm-list"></div></details>
+                        <details class="sub-accordion"><summary><span style="color:var(--red);">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="ovs-ill-list"></div></details>
+                        <details class="sub-accordion" open><summary><span style="color:var(--gold); font-weight:bold;">💰 売却可能 (所有権獲得)</span><span class="accordion-icon">▼</span></summary><div id="ovs-aban-list"></div></details>
+                    </div>
+                </details>
+
+                <!-- メキシコ -->
+                <details class="accordion" id="mexico-accordion" style="display:none; border-color:var(--mexico);">
+                    <summary><span class="title-text" style="color:var(--mexico);">🇲🇽 メキシコ 密輸リスト</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <details class="sub-accordion"><summary><span style="color:#bbb;">📦 一般動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="mex-norm-list"></div></details>
+                        <details class="sub-accordion"><summary><span style="color:var(--red);">📦 違法動産 (預かり中)</span><span class="accordion-icon">▼</span></summary><div id="mex-ill-list"></div></details>
+                        <details class="sub-accordion" open><summary><span style="color:var(--gold); font-weight:bold;">💰 売却可能 (所有権獲得)</span><span class="accordion-icon">▼</span></summary><div id="mex-aban-list"></div></details>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- ================= タブ3: 役員 (NEW) ================= -->
+        <div id="tab-exec" class="tab-content">
+            <h2 style="font-size:1.1rem; color:#fff; border-bottom:1px solid #444; padding-bottom:5px; margin-bottom:15px;">👔 役員・ボードメンバー</h2>
+            
+            <div id="exec-locked-warning" style="display:block; color:var(--gold); font-weight:bold; margin-bottom:10px; padding:10px; background:#332200; border:1px solid var(--gold); border-radius:6px; font-size:0.9rem;">
+                ⚠️ 役員を迎え入れるには「設備」タブから『国内事務所』を設立してください。
+            </div>
+
+            <div id="exec-panel" style="display:none;">
+                <div class="staff-card" style="border-color:var(--gold);">
+                    <div class="staff-card-head text-gold">👑 CEO (あなた)</div>
+                    <div class="staff-card-desc">毎月「表金」から個人口座(スコア)へ自動引出。</div>
+                    <div class="staff-card-actions" style="align-items:center;">
+                        <input type="number" id="input-ceo-salary" value="0" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid #555; text-align:right;"> <span style="color:#aaa;">万円</span>
+                        <button class="btn" style="flex:1; border-color:var(--gold); color:var(--gold); padding:8px;" onclick="setExecSalary('ceo')">設定</button>
+                    </div>
+                </div>
+
+                <!-- CFO -->
+                <div class="staff-card" id="ui-exec-cfo-hire">
+                    <div class="staff-card-head">🏦 CFO (財務責任者)</div>
+                    <div class="staff-card-desc">【表金 1億円で契約】全拠点の資金洗浄手数料を半減〜最大1%まで圧縮。さらにみかじめ料・上納金も常に半額に抑え込む。</div>
+                    <input type="text" id="hire-name-cfo" class="name-input" placeholder="人物名を入力 (任意)">
+                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('cfo')">就任契約を結ぶ (表1億円)</button>
+                </div>
+                <div class="staff-card" id="ui-exec-cfo-active" style="display:none; border-color:var(--green);">
+                    <div class="staff-card-head text-green">🏦 CFO <span class="exec-name-display" id="active-name-cfo"></span></div>
+                    <div class="staff-card-desc">洗浄手数料優遇・みかじめ料半額化を発動中。</div>
+                    <div class="staff-card-actions" style="align-items:center;">
+                        <input type="number" id="input-cfo-salary" value="200" min="200" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid var(--green); text-align:right;"> <span style="color:#aaa;">万円</span>
+                        <button class="btn" style="flex:1; border-color:var(--green); color:var(--green); padding:8px;" onclick="setExecSalary('cfo')">昇給</button>
+                    </div>
+                </div>
+
+                <!-- COO -->
+                <div class="staff-card" id="ui-exec-coo-hire">
+                    <div class="staff-card-head">⚙️ COO (執行責任者)</div>
+                    <div class="staff-card-desc">【表金 1億円で契約】現場を統括し、全拠点の作業員・物品管理人の管理上限を1人あたり+10箱底上げする。</div>
+                    <input type="text" id="hire-name-coo" class="name-input" placeholder="人物名を入力 (任意)">
+                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('coo')">就任契約を結ぶ (表1億円)</button>
+                </div>
+                <div class="staff-card" id="ui-exec-coo-active" style="display:none; border-color:var(--green);">
+                    <div class="staff-card-head text-green">⚙️ COO <span class="exec-name-display" id="active-name-coo"></span></div>
+                    <div class="staff-card-desc">管理上限+10箱拡張を発動中。</div>
+                    <div class="staff-card-actions" style="align-items:center;">
+                        <input type="number" id="input-coo-salary" value="200" min="200" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid var(--green); text-align:right;"> <span style="color:#aaa;">万円</span>
+                        <button class="btn" style="flex:1; border-color:var(--green); color:var(--green); padding:8px;" onclick="setExecSalary('coo')">昇給</button>
+                    </div>
+                </div>
+
+                <!-- CLO -->
+                <div class="staff-card" id="ui-exec-clo-hire">
+                    <div class="staff-card-head">⚖️ CLO (法務責任者)</div>
+                    <div class="staff-card-desc">【表金 1億円で契約】合法的な没収確率を倍増させ、客の持ち逃げリスクを低減する。</div>
+                    <input type="text" id="hire-name-clo" class="name-input" placeholder="人物名を入力 (任意)">
+                    <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('clo')">就任契約を結ぶ (表1億円)</button>
+                </div>
+                <div class="staff-card" id="ui-exec-clo-active" style="display:none; border-color:var(--green);">
+                    <div class="staff-card-head text-green">⚖️ CLO <span class="exec-name-display" id="active-name-clo"></span></div>
+                    <div class="staff-card-desc">没収強化・持ち逃げ低減を発動中。</div>
+                    <div class="staff-card-actions" style="align-items:center;">
+                        <input type="number" id="input-clo-salary" value="200" min="200" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid var(--green); text-align:right;"> <span style="color:#aaa;">万円</span>
+                        <button class="btn" style="flex:1; border-color:var(--green); color:var(--green); padding:8px;" onclick="setExecSalary('clo')">昇給</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= タブ4: 現場人事 ================= -->
+        <div id="tab-hr" class="tab-content">
+            <h2 style="font-size:1.1rem; color:#fff; border-bottom:1px solid #444; padding-bottom:5px; margin-bottom:15px;">👥 現場人事・採用管理</h2>
+            
+            <div id="hr-locked-warning" style="display:block; color:var(--gold); font-weight:bold; margin-bottom:10px; padding:10px; background:#332200; border:1px solid var(--gold); border-radius:6px; font-size:0.9rem;">
+                ⚠️ 人材を採用するには「設備」タブから『国内事務所』を設立してください。
+            </div>
+
+            <div id="hr-panel" style="display:none;">
+
+                <!-- 国内人事 -->
+                <details class="accordion" open id="hr-dom-section">
+                    <summary><span class="title-text">🇯🇵 国内スタッフ</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <!-- 国内支部長 -->
+                        <div class="staff-card" id="ui-dom-manager-hire">
+                            <div class="staff-card-head">🏢 国内支部長</div>
+                            <div class="staff-card-desc">【表金 500万円で契約】日本の拠点を統括する。彼がいないと国内での倉庫購入やスタッフ採用ができない。</div>
+                            <input type="text" id="hire-name-domManager" class="name-input" placeholder="人物名を入力 (任意)">
+                            <button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireExec('domManager')">採用する (表500万)</button>
+                        </div>
+                        <div class="staff-card" id="ui-dom-manager-active" style="display:none; border-color:var(--green);">
+                            <div class="staff-card-head text-green">🏢 国内支部長 <span class="exec-name-display" id="active-name-domManager"></span></div>
+                            <div class="staff-card-desc">国内拠点を管理中。現場スタッフの指揮を執る。</div>
+                            <div class="staff-card-actions" style="align-items:center;">
+                                <input type="number" id="input-domManager-salary" value="100" min="100" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid var(--green); text-align:right;"> <span style="color:#aaa;">万円</span>
+                                <button class="btn" style="flex:1; border-color:var(--green); color:var(--green); padding:8px;" onclick="setExecSalary('domManager')">昇給</button>
+                            </div>
+                        </div>
+
+                        <!-- 現場スタッフ -->
+                        <div id="ui-dom-staff-wrapper" style="display:none; margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🧽 洗屋 <span class="accent-text">(現在:<span id="ui-dom-launderer">0</span>人)</span></div><div class="staff-card-desc">月給200万(裏)。最大1億円の裏金を基本手数料5%で洗浄する。</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('domLaunderer')">採用 (初500万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domLaunderer')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head">👷 一般作業員 <span class="accent-text">(現在:<span id="ui-dom-work">0</span>人)</span></div><div class="staff-card-desc">月給30万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" onclick="hireStaff('domWork')">採用 (初60万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domWork')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-red">🚛 物品管理人 <span class="accent-text">(現在:<span id="ui-dom-keeper">0</span>人)</span></div><div class="staff-card-desc">月給50万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('domKeeper')">採用 (初100万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domKeeper')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-purple">🕴️ エージェント <span class="accent-text">(現在:<span id="ui-dom-agent">0</span>人)</span></div><div class="staff-card-desc">月給200万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('domAgent')">採用 (初400万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domAgent')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head" style="color:var(--gold);">💼 ブローカー <span class="accent-text">(現在:<span id="ui-dom-broker">0</span>人)</span></div><div class="staff-card-desc">月給150万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('domBroker')">採用 (初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domBroker')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-dom-transporter">0</span>人)</span></div><div class="staff-card-desc">月給80万(裏) / 月5回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('domTransporter')">採用 (初150万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domTransporter')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-dom-dealer">0</span>人)</span></div><div class="staff-card-desc">月給250万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('domDealer')">採用 (初1千万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('domDealer')">解雇</button></div></div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- スイス人事 -->
+                <details class="accordion" id="hr-ovs-section" style="display:none; border-color:var(--blue);">
+                    <summary><span class="title-text" style="color:var(--blue);">🇨🇭 スイススタッフ</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <!-- スイス支部長 -->
+                        <div class="staff-card" id="ui-ovs-manager-hire">
+                            <div class="staff-card-head">🏢 スイス支部長</div>
+                            <div class="staff-card-desc">【表金 1000万円で契約】スイス拠点を統括する。彼がいないとスイスでの倉庫購入やスタッフ採用ができない。</div>
+                            <input type="text" id="hire-name-ovsManager" class="name-input" placeholder="人物名を入力 (任意)">
+                            <button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireExec('ovsManager')">採用する (表1千万)</button>
+                        </div>
+                        <div class="staff-card" id="ui-ovs-manager-active" style="display:none; border-color:var(--blue);">
+                            <div class="staff-card-head text-blue">🏢 スイス支部長 <span class="exec-name-display" id="active-name-ovsManager"></span></div>
+                            <div class="staff-card-desc">スイス拠点を管理中。現場スタッフの指揮を執る。</div>
+                            <div class="staff-card-actions" style="align-items:center;">
+                                <input type="number" id="input-ovsManager-salary" value="200" min="200" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid var(--blue); text-align:right;"> <span style="color:#aaa;">万円</span>
+                                <button class="btn" style="flex:1; border-color:var(--blue); color:var(--blue); padding:8px;" onclick="setExecSalary('ovsManager')">昇給</button>
+                            </div>
+                        </div>
+
+                        <!-- 現場スタッフ -->
+                        <div id="ui-ovs-staff-wrapper" style="display:none; margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🧽 プライベートバンカー <span class="accent-text">(現在:<span id="ui-ovs-launderer">0</span>人)</span></div><div class="staff-card-desc">月給500万(裏)。スイスの金融網を用い、最大5億円の裏金を基本手数料3%で洗浄する。</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('ovsLaunderer')">採用 (初1500万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsLaunderer')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head">👨‍💻 作業員 <span class="accent-text">(現在:<span id="ui-ovs-work">0</span>人)</span></div><div class="staff-card-desc">月給100万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsWork')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsWork')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-red">✈️ 物品管理人 <span class="accent-text">(現在:<span id="ui-ovs-keeper">0</span>人)</span></div><div class="staff-card-desc">月給150万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('ovsKeeper')">採用(初500万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsKeeper')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-purple">🕵️ エージェント <span class="accent-text">(現在:<span id="ui-ovs-agent">0</span>人)</span></div><div class="staff-card-desc">月給300万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('ovsAgent')">採用(初800万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsAgent')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-gold">🤝 ブローカー <span class="accent-text">(現在:<span id="ui-ovs-broker">0</span>人)</span></div><div class="staff-card-desc">月給250万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('ovsBroker')">採用(初600万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsBroker')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-ovs-transporter">0</span>人)</span></div><div class="staff-card-desc">月給120万(裏) / 月5回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('ovsTransporter')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsTransporter')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-ovs-dealer">0</span>人)</span></div><div class="staff-card-desc">月給400万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('ovsDealer')">採用(初1.5千万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('ovsDealer')">解雇</button></div></div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- メキシコ人事 -->
+                <details class="accordion" id="hr-mex-section" style="display:none; border-color:var(--mexico);">
+                    <summary><span class="title-text" style="color:var(--mexico);">🇲🇽 メキシコスタッフ</span><span class="accordion-icon">▼</span></summary>
+                    <div class="accordion-content">
+                        <!-- メキシコ支部長 -->
+                        <div class="staff-card" id="ui-mex-manager-hire">
+                            <div class="staff-card-head">🏢 メキシコ支部長</div>
+                            <div class="staff-card-desc">【表金 500万円で契約】メキシコ拠点を統括する。彼がいないとメキシコでの倉庫購入やスタッフ採用ができない。</div>
+                            <input type="text" id="hire-name-mexManager" class="name-input" placeholder="人物名を入力 (任意)">
+                            <button class="btn" style="border-color:var(--mexico); color:var(--mexico);" onclick="hireExec('mexManager')">採用する (表500万)</button>
+                        </div>
+                        <div class="staff-card" id="ui-mex-manager-active" style="display:none; border-color:var(--mexico);">
+                            <div class="staff-card-head text-mexico" style="color:var(--mexico);">🏢 メキシコ支部長 <span class="exec-name-display" id="active-name-mexManager"></span></div>
+                            <div class="staff-card-desc">メキシコ拠点を管理中。現場スタッフの指揮を執る。</div>
+                            <div class="staff-card-actions" style="align-items:center;">
+                                <input type="number" id="input-mexManager-salary" value="100" min="100" step="10" style="flex:2; padding:8px; background:#111; color:#fff; border:1px solid var(--mexico); text-align:right;"> <span style="color:#aaa;">万円</span>
+                                <button class="btn" style="flex:1; border-color:var(--mexico); color:var(--mexico); padding:8px;" onclick="setExecSalary('mexManager')">昇給</button>
+                            </div>
+                        </div>
+
+                        <!-- 現場スタッフ -->
+                        <div id="ui-mex-staff-wrapper" style="display:none; margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🧽 マネーミュール <span class="accent-text">(現在:<span id="ui-mex-launderer">0</span>人)</span></div><div class="staff-card-desc">月給100万(裏)。カルテルのルートを使い、最大5000万の裏金を基本手数料8%で洗浄する。</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('mexLaunderer')">採用 (初200万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexLaunderer')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head">👷 作業員 <span class="accent-text">(現在:<span id="ui-mex-work">0</span>人)</span></div><div class="staff-card-desc">月給10万(表) / 一般枠 50箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--green); color:var(--green);" onclick="hireStaff('mexWork')">採用(初20万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexWork')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-red">🚛 物品管理人 <span class="accent-text">(現在:<span id="ui-mex-keeper">0</span>人)</span></div><div class="staff-card-desc">月給20万(裏) / 違法枠 20箱</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="hireStaff('mexKeeper')">採用(初40万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexKeeper')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-purple">🕴️ エージェント <span class="accent-text">(現在:<span id="ui-mex-agent">0</span>人)</span></div><div class="staff-card-desc">月給80万(裏) / 違法依頼 毎月1件</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--purple); color:var(--purple);" onclick="hireStaff('mexAgent')">採用(初200万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexAgent')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-gold">💼 ブローカー <span class="accent-text">(現在:<span id="ui-mex-broker">0</span>人)</span></div><div class="staff-card-desc">月給50万(裏) / 売却権限</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--gold); color:var(--gold);" onclick="hireStaff('mexBroker')">採用(初100万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexBroker')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-yellow">🏃 運び屋 <span class="accent-text">(現在:<span id="ui-mex-transporter">0</span>人)</span></div><div class="staff-card-desc">月給30万(裏) / 月5回運搬</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--yellow); color:var(--yellow);" onclick="hireStaff('mexTransporter')">採用(初60万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexTransporter')">解雇</button></div></div>
+                            <div class="staff-card"><div class="staff-card-head text-blue">🤖 ディーラー <span class="accent-text">(現在:<span id="ui-mex-dealer">0</span>人)</span></div><div class="staff-card-desc">月給100万(裏) / 自動受理＆売却</div><div class="staff-card-actions"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="hireStaff('mexDealer')">採用(初300万)</button><button class="btn" style="border-color:var(--red); color:var(--red);" onclick="fireStaff('mexDealer')">解雇</button></div></div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- ================= タブ5: 設備 ================= -->
+        <div id="tab-fac" class="tab-content">
+            <h2 style="font-size:1.1rem; color:#fff; border-bottom:1px solid #444; padding-bottom:5px; margin-bottom:15px;">🏗️ 施設・拡張コマンド</h2>
+            
+            <div id="fac-dom-box" class="box" style="border-color:var(--green);">
+                <h3 style="color:var(--green);">🇯🇵 日本拠点</h3>
+                <div id="cmd-dom-office"><button class="btn btn-buy" onclick="buyDomOffice()">[設立] 国内事務所 (表2000万)</button></div>
+                <div id="msg-dom-need-mgr" style="display:none; color:var(--gold); font-size:0.85rem; margin-bottom:10px;">⚠️ 「現場人事」タブから国内支部長を採用すると、倉庫が購入可能になります。</div>
+                <div id="cmd-buy-first" style="display:none;"><button class="btn btn-main" onclick="buyFirstWarehouse()">[取得] 初期の一般倉庫 (表3000万)</button></div>
+                
+                <div id="cmd-dom" style="display: none;">
+                    <div class="flex-row">
+                        <button class="btn" onclick="runDomAd()">広告宣伝<br><span style="font-size:0.75rem;font-weight:normal;">表300万</span></button>
+                        <button class="btn" onclick="expandDomWarehouse()">一般拡張<br><span style="font-size:0.75rem;font-weight:normal;">表3000万</span></button>
+                    </div>
+                    <button class="btn" onclick="expandDomIllVault()" style="border-color:var(--red); color:var(--red); margin-bottom:10px;">[違法] 隠し金庫の増設 (裏5000万)</button>
+                    
+                    <div class="flex-row" id="cmd-overseas-unlock">
+                        <button id="btn-buy-ovs-office" class="btn" onclick="buyOvsOffice()" style="border-color:var(--blue); color:var(--blue);">🇨🇭 支社設立<br><span style="font-size:0.7rem;font-weight:normal;">表1億円</span></button>
+                        <button id="btn-buy-mex-office" class="btn" onclick="buyMexOffice()" style="border-color:var(--mexico); color:var(--mexico);">🇲🇽 拠点設立<br><span style="font-size:0.7rem;font-weight:normal;">表2000万</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="fac-ovs-box" class="box" style="display:none; border-color:var(--blue);">
+                <h3 style="color:var(--blue);">🇨🇭 スイス拠点</h3>
+                <div id="msg-ovs-need-mgr" style="display:none; color:var(--gold); font-size:0.85rem; margin-bottom:10px;">⚠️ 「現場人事」タブからスイス支部長を採用すると、倉庫が購入可能になります。</div>
+                <div id="cmd-buy-ovs-wh"><button class="btn" style="border-color:var(--blue); color:var(--blue);" onclick="buyOvsWarehouse()">[取得] VIP一般倉庫 (表2億円)</button></div>
+                <div id="cmd-ovs" style="display: none;">
+                    <div class="flex-row">
+                        <button class="btn" onclick="runOvsAd()">VIP広告<br><span style="font-size:0.75rem;font-weight:normal;">表1000万</span></button>
+                        <button class="btn" onclick="expandOvsWarehouse()">一般拡張<br><span style="font-size:0.75rem;font-weight:normal;">表1億円</span></button>
+                    </div>
+                    <button class="btn" onclick="expandOvsIllVault()" style="border-color:var(--red); color:var(--red);">[違法] 隠し金庫の増設 (裏2億円)</button>
+                </div>
+            </div>
+
+            <div id="fac-mex-box" class="box" style="display:none; border-color:var(--mexico);">
+                <h3 style="color:var(--mexico);">🇲🇽 メキシコ拠点</h3>
+                <div id="msg-mex-need-mgr" style="display:none; color:var(--gold); font-size:0.85rem; margin-bottom:10px;">⚠️ 「現場人事」タブからメキシコ支部長を採用すると、倉庫が購入可能になります。</div>
+                <div id="cmd-buy-mex-wh"><button class="btn" style="border-color:var(--mexico); color:var(--mexico);" onclick="buyMexWarehouse()">[取得] 密輸一般倉庫 (表3000万円)</button></div>
+                <div id="cmd-mex" style="display: none;">
+                    <div class="flex-row">
+                        <button class="btn" onclick="runMexAd()">現地広告<br><span style="font-size:0.75rem;font-weight:normal;">表100万</span></button>
+                        <button class="btn" onclick="expandMexWarehouse()">一般拡張<br><span style="font-size:0.75rem;font-weight:normal;">表1000万</span></button>
+                    </div>
+                    <button class="btn" onclick="expandMexIllVault()" style="border-color:var(--red); color:var(--red);">[違法] 隠し金庫の増設 (裏1500万)</button>
+                </div>
+            </div>
+        </div>
+
         <!-- ボトムタブナビゲーション -->
         <div class="tab-menu">
-            <button class="tab-btn active" id="btn-tab-storage" onclick="switchTab('tab-storage')">📦<br>倉庫</button>
-            <button class="tab-btn" id="btn-tab-hr" onclick="switchTab('tab-hr')">🏢<br>人事・設備</button>
             <button class="tab-btn" id="btn-tab-sys" onclick="switchTab('tab-sys')">💻<br>システム</button>
+            <button class="tab-btn active" id="btn-tab-storage" onclick="switchTab('tab-storage')">📦<br>経営・倉庫</button>
+            <button class="tab-btn" id="btn-tab-exec" onclick="switchTab('tab-exec')">👔<br>役員</button>
+            <button class="tab-btn" id="btn-tab-hr" onclick="switchTab('tab-hr')">👥<br>現場人事</button>
+            <button class="tab-btn" id="btn-tab-fac" onclick="switchTab('tab-fac')">🏗️<br>設備</button>
         </div>
     </div>
 
     <script>
-        let nextItemId = 1;
+        // タップフィードバック
+        document.addEventListener('touchstart', function(e) {
+            let el = e.target.closest('button, summary, .tab-btn');
+            if (el) el.classList.add('touch-active');
+        }, {passive: true});
+        document.addEventListener('touchend', function(e) {
+            let el = e.target.closest('button, summary, .tab-btn');
+            if (el) el.classList.remove('touch-active');
+        }, {passive: true});
+        document.addEventListener('touchcancel', function(e) {
+            let el = e.target.closest('button, summary, .tab-btn');
+            if (el) el.classList.remove('touch-active');
+        }, {passive: true});
 
+        let companyName = "SILENT PAWN";
+
+        let nextItemId = 1;
         let cleanMoney = 0; let dirtyMoney = 0;
         let personalMoney = 0; let ceoSalary = 0;     
         let lastMonthCleanCash = 0; let lastMonthDirtyCash = 0; 
@@ -442,12 +545,20 @@
         let hasOvsOffice = false; let hasOverseas = false;
         let hasMexOffice = false; let hasMexico = false;
         
+        // 役員・支部長ステータス
+        let execNames = { cfo: "", coo: "", clo: "", domManager: "", ovsManager: "", mexManager: "" };
+        let hasCFO = false; let cfoSalary = 2000000;
+        let hasCOO = false; let cooSalary = 2000000;
+        let hasCLO = false; let cloSalary = 2000000;
+        let hasDomManager = false; let domManagerSalary = 1000000;
+        let hasOvsManager = false; let ovsManagerSalary = 2000000;
+        let hasMexManager = false; let mexManagerSalary = 1000000;
+
         let currentRequests = []; 
         
-        let staffLaunderer = 0;
-        let staffDomWork = 0, staffDomKeeper = 0, staffDomTransporter = 0, staffDomAgent = 0, staffDomBroker = 0, staffDomDealer = 0; 
-        let staffOvsWork = 0, staffOvsKeeper = 0, staffOvsTransporter = 0, staffOvsAgent = 0, staffOvsBroker = 0, staffOvsDealer = 0;
-        let staffMexWork = 0, staffMexKeeper = 0, staffMexTransporter = 0, staffMexAgent = 0, staffMexBroker = 0, staffMexDealer = 0;
+        let staffDomLaunderer = 0, staffDomWork = 0, staffDomKeeper = 0, staffDomTransporter = 0, staffDomAgent = 0, staffDomBroker = 0, staffDomDealer = 0; 
+        let staffOvsLaunderer = 0, staffOvsWork = 0, staffOvsKeeper = 0, staffOvsTransporter = 0, staffOvsAgent = 0, staffOvsBroker = 0, staffOvsDealer = 0;
+        let staffMexLaunderer = 0, staffMexWork = 0, staffMexKeeper = 0, staffMexTransporter = 0, staffMexAgent = 0, staffMexBroker = 0, staffMexDealer = 0;
 
         let domTransportLeft = 0; let ovsTransportLeft = 0; let mexTransportLeft = 0;
 
@@ -469,16 +580,58 @@
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.getElementById('btn-' + tabId).classList.add('active');
+            let targetTab = document.getElementById(tabId);
+            if(targetTab) targetTab.classList.add('active');
+            let targetBtn = document.getElementById('btn-' + tabId);
+            if(targetBtn) targetBtn.classList.add('active');
             window.scrollTo({top:0, behavior:'smooth'});
         }
 
-        function setCeoSalary() {
-            let val = parseInt(document.getElementById("input-ceo-salary").value);
+        function setExecSalary(type) {
+            let el = document.getElementById(`input-${type}-salary`);
+            if(!el) return;
+            let val = parseInt(el.value);
             if (isNaN(val) || val < 0) return alert("正しい金額を入力してください");
-            ceoSalary = val * 10000;
-            addLog(`【役員報酬】CEO(あなた)の月給を ${formatMoney(ceoSalary)} に設定しました。毎月「表金」から引き落とされます。`, "gold");
+            
+            let valYen = val * 10000;
+            let mins = { cfo: 2000000, coo: 2000000, clo: 2000000, domManager: 1000000, ovsManager: 2000000, mexManager: 1000000 };
+            let names = { ceo: "CEO(あなた)", cfo: "CFO", coo: "COO", clo: "CLO", domManager: "国内支部長", ovsManager: "スイス支部長", mexManager: "メキシコ支部長" };
+            
+            if (type !== 'ceo' && valYen < mins[type]) return alert(`${names[type]}の最低月収は ${formatMoney(mins[type])} です。`);
+
+            if (type === 'ceo') ceoSalary = valYen;
+            else if (type === 'cfo') cfoSalary = valYen;
+            else if (type === 'coo') cooSalary = valYen;
+            else if (type === 'clo') cloSalary = valYen;
+            else if (type === 'domManager') domManagerSalary = valYen;
+            else if (type === 'ovsManager') ovsManagerSalary = valYen;
+            else if (type === 'mexManager') mexManagerSalary = valYen;
+
+            addLog(`【役員報酬】${names[type]}の月給を ${formatMoney(valYen)} に設定しました。`, "gold");
+            updateUI();
+        }
+
+        function hireExec(type) {
+            let costs = { cfo: 10000000, coo: 10000000, clo: 10000000, domManager: 5000000, ovsManager: 10000000, mexManager: 5000000 };
+            let names = { cfo: "CFO", coo: "COO", clo: "CLO", domManager: "国内支部長", ovsManager: "スイス支部長", mexManager: "メキシコ支部長" };
+            
+            if (!payClean(costs[type])) return alert(`【表金】が足りません。契約金は ${formatMoney(costs[type])} です。`);
+
+            let nameInput = document.getElementById(`hire-name-${type}`);
+            let personName = nameInput ? nameInput.value.trim() : "";
+            if(!personName) personName = "名無し";
+            
+            if (type === 'cfo') hasCFO = true;
+            else if (type === 'coo') hasCOO = true;
+            else if (type === 'clo') hasCLO = true;
+            else if (type === 'domManager') hasDomManager = true;
+            else if (type === 'ovsManager') hasOvsManager = true;
+            else if (type === 'mexManager') hasMexManager = true;
+
+            execNames[type] = personName;
+
+            addLog(`【幹部就任】${names[type]}として ${personName} と就任契約を結びました！`, "green");
+            updateUI();
         }
 
         function payClean(amount) {
@@ -496,17 +649,18 @@
             }
         }
 
-        const NEW_SAVE_KEY = 'silentPawn_save_v17_mob_';
-        const OLD_SAVE_KEYS = ['silentPawn_save_v16_', 'silentPawn_save_v15_', 'silentPawn_save_v14_', 'silentPawn_save_v13_', 'silentPawn_save_v12_', 'silentPawn_save_v11_', 'silentPawn_save_v10_', 'silentPawn_save_slot_'];
+        const NEW_SAVE_KEY = 'silentPawn_save_v23_';
+        const OLD_SAVE_KEYS = ['silentPawn_save_v22_', 'silentPawn_save_v21_', 'silentPawn_save_v20_', 'silentPawn_save_v19_', 'silentPawn_save_v18_mob_'];
 
         function saveGame(slot) {
             let state = {
-                nextItemId, cleanMoney, dirtyMoney, personalMoney, ceoSalary, lastMonthCleanCash, lastMonthDirtyCash, startYear, startMonth, currentYear, currentMonth, elapsedMonths,
+                companyName, nextItemId, cleanMoney, dirtyMoney, personalMoney, ceoSalary, lastMonthCleanCash, lastMonthDirtyCash, startYear, startMonth, currentYear, currentMonth, elapsedMonths,
                 hasDomOffice, hasWarehouse, hasOvsOffice, hasOverseas, hasMexOffice, hasMexico, currentRequests,
-                staffLaunderer, 
-                staffDomWork, staffDomKeeper, staffDomTransporter, staffDomAgent, staffDomBroker, staffDomDealer,
-                staffOvsWork, staffOvsKeeper, staffOvsTransporter, staffOvsAgent, staffOvsBroker, staffOvsDealer,
-                staffMexWork, staffMexKeeper, staffMexTransporter, staffMexAgent, staffMexBroker, staffMexDealer,
+                execNames, hasCFO, cfoSalary, hasCOO, cooSalary, hasCLO, cloSalary,
+                hasDomManager, domManagerSalary, hasOvsManager, ovsManagerSalary, hasMexManager, mexManagerSalary,
+                staffDomLaunderer, staffDomWork, staffDomKeeper, staffDomTransporter, staffDomAgent, staffDomBroker, staffDomDealer,
+                staffOvsLaunderer, staffOvsWork, staffOvsKeeper, staffOvsTransporter, staffOvsAgent, staffOvsBroker, staffOvsDealer,
+                staffMexLaunderer, staffMexWork, staffMexKeeper, staffMexTransporter, staffMexAgent, staffMexBroker, staffMexDealer,
                 domNormalInv, domIllegalInv, domCap, domIllPhysCap, domAdMonths,
                 ovsNormalInv, ovsIllegalInv, ovsCap, ovsIllPhysCap, ovsAdMonths,
                 mexNormalInv, mexIllegalInv, mexCap, mexIllPhysCap, mexAdMonths
@@ -528,6 +682,7 @@
             if(!dataStr) return;
             let state = JSON.parse(dataStr);
             
+            companyName = state.companyName || "SILENT PAWN";
             nextItemId = state.nextItemId || 1; 
             cleanMoney = state.cleanMoney !== undefined ? state.cleanMoney : state.money; 
             dirtyMoney = state.dirtyMoney || 0; personalMoney = state.personalMoney || 0; ceoSalary = state.ceoSalary || 0;
@@ -540,12 +695,22 @@
             hasOvsOffice = state.hasOvsOffice !== undefined ? state.hasOvsOffice : hasOverseas;
             hasMexOffice = state.hasMexOffice !== undefined ? state.hasMexOffice : hasMexico;
             
+            execNames = state.execNames || { cfo: "", coo: "", clo: "", domManager: "", ovsManager: "", mexManager: "" };
+            hasCFO = state.hasCFO || false; cfoSalary = state.cfoSalary || 2000000;
+            hasCOO = state.hasCOO || false; cooSalary = state.cooSalary || 2000000;
+            hasCLO = state.hasCLO || false; cloSalary = state.cloSalary || 2000000;
+            hasDomManager = state.hasDomManager || false; domManagerSalary = state.domManagerSalary || 1000000;
+            hasOvsManager = state.hasOvsManager || false; ovsManagerSalary = state.ovsManagerSalary || 2000000;
+            hasMexManager = state.hasMexManager || false; mexManagerSalary = state.mexManagerSalary || 1000000;
+
             currentRequests = state.currentRequests || [];
             
-            staffLaunderer = state.staffLaunderer || 0;
+            // 旧バージョンの洗屋互換処理
+            staffDomLaunderer = state.staffDomLaunderer || state.staffLaunderer || 0;
+            
             staffDomWork = state.staffDomWork || 0; staffDomKeeper = state.staffDomKeeper || 0; staffDomTransporter = state.staffDomTransporter || 0; staffDomAgent = state.staffDomAgent || 0; staffDomBroker = state.staffDomBroker || 0; staffDomDealer = state.staffDomDealer || 0;
-            staffOvsWork = state.staffOvsWork || 0; staffOvsKeeper = state.staffOvsKeeper || 0; staffOvsTransporter = state.staffOvsTransporter || 0; staffOvsAgent = state.staffOvsAgent || 0; staffOvsBroker = state.staffOvsBroker || 0; staffOvsDealer = state.staffOvsDealer || 0;
-            staffMexWork = state.staffMexWork || 0; staffMexKeeper = state.staffMexKeeper || 0; staffMexTransporter = state.staffMexTransporter || 0; staffMexAgent = state.staffMexAgent || 0; staffMexBroker = state.staffMexBroker || 0; staffMexDealer = state.staffMexDealer || 0;
+            staffOvsLaunderer = state.staffOvsLaunderer || 0; staffOvsWork = state.staffOvsWork || 0; staffOvsKeeper = state.staffOvsKeeper || 0; staffOvsTransporter = state.staffOvsTransporter || 0; staffOvsAgent = state.staffOvsAgent || 0; staffOvsBroker = state.staffOvsBroker || 0; staffOvsDealer = state.staffOvsDealer || 0;
+            staffMexLaunderer = state.staffMexLaunderer || 0; staffMexWork = state.staffMexWork || 0; staffMexKeeper = state.staffMexKeeper || 0; staffMexTransporter = state.staffMexTransporter || 0; staffMexAgent = state.staffMexAgent || 0; staffMexBroker = state.staffMexBroker || 0; staffMexDealer = state.staffMexDealer || 0;
 
             domNormalInv = state.domNormalInv || []; domIllegalInv = state.domIllegalInv || []; domCap = state.domCap || 0; domAdMonths = state.domAdMonths || 0;
             ovsNormalInv = state.ovsNormalInv || []; ovsIllegalInv = state.ovsIllegalInv || []; ovsCap = state.ovsCap || 0; ovsAdMonths = state.ovsAdMonths || 0;
@@ -557,8 +722,7 @@
 
             let eScr = document.getElementById("start-screen"); if(eScr) eScr.style.display = "none";
             let gScr = document.getElementById("game-screen"); if(gScr) gScr.style.display = "block";
-            let eCeo = document.getElementById("input-ceo-salary"); if(eCeo) eCeo.value = ceoSalary / 10000;
-
+            
             addLog(`[SYSTEM] スロット${slot} のデータをロードしました。`);
             if (currentRequests && currentRequests.length > 0) showNextRequest();
             else { 
@@ -593,6 +757,9 @@
         }
 
         function startGame() {
+            let inputComp = document.getElementById("init-company").value.trim();
+            companyName = inputComp || "SILENT PAWN";
+
             let inputMoneyMan = parseInt(document.getElementById("init-money").value);
             let inputYear = parseInt(document.getElementById("init-year").value);
             let inputMonth = parseInt(document.getElementById("init-month").value);
@@ -604,11 +771,11 @@
             lastMonthCleanCash = cleanMoney; lastMonthDirtyCash = dirtyMoney;
             currentYear = inputYear; currentMonth = inputMonth; elapsedMonths = 0;
             
-            let eCeo = document.getElementById("input-ceo-salary"); if(eCeo) eCeo.value = "0";
             let sScr = document.getElementById("start-screen"); if(sScr) sScr.style.display = "none"; 
             let gScr = document.getElementById("game-screen"); if(gScr) gScr.style.display = "block";
             
-            addLog(`システム起動。初期資金 ${formatMoney(cleanMoney)} (表金) を確認。まずは「人事・設備」タブから「国内事務所」を設立してください。`);
+            addLog(`【組織設立】表の顔として「${companyName}」を立ち上げ、システムを起動しました。`);
+            addLog(`初期資金 ${formatMoney(cleanMoney)} (表金) を確認。まずは「設備」タブから「国内事務所」を設立してください。`);
             updateUI();
         }
 
@@ -630,13 +797,11 @@
             document.getElementById("fund-amount").value = ""; updateUI();
         }
 
-        // --- 人事採用・解雇 ---
         function hireStaff(type) {
             const costs = {
-                launderer:5000000, 
-                domWork:600000, domKeeper:1000000, domTransporter:1500000, domAgent:4000000, domBroker:3000000, domDealer:10000000,
-                ovsWork:3000000, ovsKeeper:5000000, ovsTransporter:3000000, ovsAgent:8000000, ovsBroker:6000000, ovsDealer:15000000,
-                mexWork:200000, mexKeeper:400000, mexTransporter:600000, mexAgent:2000000, mexBroker:1000000, mexDealer:3000000
+                domLaunderer:5000000, domWork:600000, domKeeper:1000000, domTransporter:1500000, domAgent:4000000, domBroker:3000000, domDealer:10000000,
+                ovsLaunderer:15000000, ovsWork:3000000, ovsKeeper:5000000, ovsTransporter:3000000, ovsAgent:8000000, ovsBroker:6000000, ovsDealer:15000000,
+                mexLaunderer:2000000, mexWork:200000, mexKeeper:400000, mexTransporter:600000, mexAgent:2000000, mexBroker:1000000, mexDealer:3000000
             };
             let cost = costs[type];
             let isClean = (type === 'domWork' || type === 'ovsWork' || type === 'mexWork');
@@ -644,23 +809,25 @@
             if (isClean) { if (!payClean(cost)) return alert(`【表金】が足りません。採用費は ${formatMoney(cost)} です。`); }
             else { if (!payDirtyPreferred(cost)) return alert(`資金が足りません。採用費(裏金優先)は ${formatMoney(cost)} です。`); }
 
-            if (type === 'launderer') { staffLaunderer++; addLog(`【契約】洗屋を1名雇いました。`, "sys"); }
+            if (type === 'domLaunderer') { staffDomLaunderer++; addLog(`【契約】国内の洗屋を1名雇いました。`, "sys"); }
             else if (type === 'domWork') { staffDomWork++; addLog(`【採用】国内の一般作業員を1名採用。`, "sys"); }
-            else if (type === 'domKeeper') { staffDomKeeper++; addLog(`【採用】国内の物品管理人を1名採用。違法枠+20。`, "red"); }
+            else if (type === 'domKeeper') { staffDomKeeper++; addLog(`【採用】国内の物品管理人を1名採用。`, "red"); }
             else if (type === 'domTransporter') { staffDomTransporter++; domTransportLeft += 5; addLog(`【採用】国内の運び屋を1名採用。運搬回数+5。`, "gold"); }
             else if (type === 'domAgent') { staffDomAgent++; addLog(`【契約】国内エージェントを1名迎え入れました。`, "purple"); }
             else if (type === 'domBroker') { staffDomBroker++; addLog(`【契約】国内ブローカーを1名雇いました。`, "gold"); }
             else if (type === 'domDealer') { staffDomDealer++; addLog(`【契約】国内ディーラー(自動化)を1名雇いました！`, "blue"); }
             
+            else if (type === 'ovsLaunderer') { staffOvsLaunderer++; addLog(`【契約】スイスのプライベートバンカーを1名雇いました。`, "sys"); }
             else if (type === 'ovsWork') { staffOvsWork++; addLog(`【採用】海外の一般作業員を1名採用。`, "sys"); }
-            else if (type === 'ovsKeeper') { staffOvsKeeper++; addLog(`【採用】海外の物品管理人を1名採用。違法枠+20。`, "red"); }
+            else if (type === 'ovsKeeper') { staffOvsKeeper++; addLog(`【採用】海外の物品管理人を1名採用。`, "red"); }
             else if (type === 'ovsTransporter') { staffOvsTransporter++; ovsTransportLeft += 5; addLog(`【採用】海外の運び屋を1名採用。運搬回数+5。`, "gold"); }
             else if (type === 'ovsAgent') { staffOvsAgent++; addLog(`【契約】海外エージェントを1名迎え入れました。`, "purple"); }
             else if (type === 'ovsBroker') { staffOvsBroker++; addLog(`【契約】海外ブローカーを1名雇いました。`, "gold"); }
             else if (type === 'ovsDealer') { staffOvsDealer++; addLog(`【契約】海外ディーラー(自動化)を1名雇いました！`, "blue"); }
 
+            else if (type === 'mexLaunderer') { staffMexLaunderer++; addLog(`【契約】メキシコのマネーミュールを1名雇いました。`, "sys"); }
             else if (type === 'mexWork') { staffMexWork++; addLog(`【採用】メキシコの一般作業員を1名採用。`, "sys"); }
-            else if (type === 'mexKeeper') { staffMexKeeper++; addLog(`【採用】メキシコの物品管理人を1名採用。違法枠+20。`, "red"); }
+            else if (type === 'mexKeeper') { staffMexKeeper++; addLog(`【採用】メキシコの物品管理人を1名採用。`, "red"); }
             else if (type === 'mexTransporter') { staffMexTransporter++; mexTransportLeft += 5; addLog(`【採用】メキシコの運び屋を1名採用。運搬回数+5。`, "gold"); }
             else if (type === 'mexAgent') { staffMexAgent++; addLog(`【契約】メキシコエージェントを1名迎え入れました。`, "purple"); }
             else if (type === 'mexBroker') { staffMexBroker++; addLog(`【契約】メキシコブローカーを1名雇いました。`, "gold"); }
@@ -671,12 +838,12 @@
 
         function fireStaff(type) {
             let names = { 
-                launderer: "洗屋", domWork: "国内作業員", domKeeper: "国内物品管理人", domTransporter: "国内運び屋", domAgent: "国内エージェント", domBroker: "国内ブローカー", domDealer: "国内ディーラー", 
-                ovsWork: "海外(瑞)作業員", ovsKeeper: "海外(瑞)物品管理人", ovsTransporter:"海外(瑞)運び屋", ovsAgent: "海外(瑞)エージェント", ovsBroker: "海外(瑞)ブローカー", ovsDealer:"海外(瑞)ディーラー",
-                mexWork: "海外(墨)作業員", mexKeeper: "海外(墨)物品管理人", mexTransporter:"海外(墨)運び屋", mexAgent: "海外(墨)エージェント", mexBroker: "海外(墨)ブローカー", mexDealer:"海外(墨)ディーラー"
+                domLaunderer: "国内洗屋", domWork: "国内作業員", domKeeper: "国内物品管理人", domTransporter: "国内運び屋", domAgent: "国内エージェント", domBroker: "国内ブローカー", domDealer: "国内ディーラー", 
+                ovsLaunderer: "瑞プライベートバンカー", ovsWork: "海外(瑞)作業員", ovsKeeper: "海外(瑞)物品管理人", ovsTransporter:"海外(瑞)運び屋", ovsAgent: "海外(瑞)エージェント", ovsBroker: "海外(瑞)ブローカー", ovsDealer:"海外(瑞)ディーラー",
+                mexLaunderer: "墨マネーミュール", mexWork: "海外(墨)作業員", mexKeeper: "海外(墨)物品管理人", mexTransporter:"海外(墨)運び屋", mexAgent: "海外(墨)エージェント", mexBroker: "海外(墨)ブローカー", mexDealer:"海外(墨)ディーラー"
             };
             
-            if (type === 'launderer' && staffLaunderer > 0) { staffLaunderer--; }
+            if (type === 'domLaunderer' && staffDomLaunderer > 0) { staffDomLaunderer--; }
             else if (type === 'domWork' && staffDomWork > 0) { staffDomWork--; }
             else if (type === 'domKeeper' && staffDomKeeper > 0) { staffDomKeeper--; }
             else if (type === 'domTransporter' && staffDomTransporter > 0) { staffDomTransporter--; domTransportLeft = Math.max(0, domTransportLeft - 5); }
@@ -684,6 +851,7 @@
             else if (type === 'domBroker' && staffDomBroker > 0) { staffDomBroker--; }
             else if (type === 'domDealer' && staffDomDealer > 0) { staffDomDealer--; }
             
+            else if (type === 'ovsLaunderer' && staffOvsLaunderer > 0) { staffOvsLaunderer--; }
             else if (type === 'ovsWork' && staffOvsWork > 0) { staffOvsWork--; }
             else if (type === 'ovsKeeper' && staffOvsKeeper > 0) { staffOvsKeeper--; }
             else if (type === 'ovsTransporter' && staffOvsTransporter > 0) { staffOvsTransporter--; ovsTransportLeft = Math.max(0, ovsTransportLeft - 5); }
@@ -691,6 +859,7 @@
             else if (type === 'ovsBroker' && staffOvsBroker > 0) { staffOvsBroker--; }
             else if (type === 'ovsDealer' && staffOvsDealer > 0) { staffOvsDealer--; }
 
+            else if (type === 'mexLaunderer' && staffMexLaunderer > 0) { staffMexLaunderer--; }
             else if (type === 'mexWork' && staffMexWork > 0) { staffMexWork--; }
             else if (type === 'mexKeeper' && staffMexKeeper > 0) { staffMexKeeper--; }
             else if (type === 'mexTransporter' && staffMexTransporter > 0) { staffMexTransporter--; mexTransportLeft = Math.max(0, mexTransportLeft - 5); }
@@ -704,19 +873,15 @@
             updateUI();
         }
 
-        // --- コマンド（設立・購入） ---
         function buyDomOffice() {
             if (cleanMoney < 20000000) return alert("【表金】が足りません。");
-            if (payClean(20000000)) { 
-                hasDomOffice = true; 
-                addLog(`【法人設立】表金から2000万円を支払い、国内に事務所を構えました！人材の採用が可能になります。`, "purple"); updateUI();
-            }
+            if (payClean(20000000)) { hasDomOffice = true; addLog(`【法人設立】国内に事務所を構えました！「現場人事」タブから「国内支部長」を採用してください。`, "purple"); updateUI(); }
         }
         function buyFirstWarehouse() {
             if (cleanMoney < 30000000) return alert("【表金】が足りません。");
             if (payClean(30000000)) { 
-                hasWarehouse = true; domCap = 100; 
-                addLog(`【国内拠点取得】表金から3000万円を投資し、一般倉庫を購入しました！預かりビジネスを開始できます。`, "purple");
+                hasWarehouse = true; domCap = 100; staffDomWork = 1; 
+                addLog(`【国内拠点取得】一般倉庫を購入し、預かりビジネスを開始しました！`, "purple");
                 switchTab('tab-storage'); updateUI();
             }
         }
@@ -732,20 +897,13 @@
             if (payClean(30000000)) { domCap += 50; addLog(`[国内] 一般倉庫増床。物理上限が ${domCap}箱 になりました。`, "sys"); updateUI(); } else alert("【表金】が足りません。");
         }
 
-        // スイス
         function buyOvsOffice() {
             if (cleanMoney < 100000000) return alert("【表金】が足りません。");
-            if (payClean(100000000)) { 
-                hasOvsOffice = true; 
-                addLog(`【法人設立】表金から1億円を支払い、スイスに支社を設立しました！現地スタッフの採用が可能になります。`, "blue"); updateUI();
-            }
+            if (payClean(100000000)) { hasOvsOffice = true; addLog(`【法人設立】スイス支社を設立しました！「現場人事」タブから「スイス支部長」を採用してください。`, "blue"); updateUI(); }
         }
         function buyOvsWarehouse() {
             if (cleanMoney < 200000000) return alert("【表金】が足りません。");
-            if (payClean(200000000)) { 
-                hasOverseas = true; ovsCap = 100; 
-                addLog(`【海外拠点取得】表金から2億円を投資し、スイスVIP倉庫を買収しました！`, "blue"); updateUI();
-            }
+            if (payClean(200000000)) { hasOverseas = true; ovsCap = 100; addLog(`【海外拠点取得】スイスVIP倉庫を買収し、海外運用を開始しました！`, "blue"); updateUI(); }
         }
         function runOvsAd() {
             if (ovsNormalInv.length >= getUsableOvsNormCap()) return alert("有効稼働枠が満杯です。");
@@ -759,20 +917,13 @@
             ovsIllPhysCap += 50; addLog(`[海外違法] スイス隠し金庫を購入・増設しました。上限 ${ovsIllPhysCap}箱。`, "sys"); updateUI();
         }
 
-        // メキシコ
         function buyMexOffice() {
             if (cleanMoney < 20000000) return alert("【表金】が足りません。");
-            if (payClean(20000000)) { 
-                hasMexOffice = true; 
-                addLog(`【拠点設立】表金から2000万円を支払い、メキシコに現地拠点を設立しました！現地スタッフの採用が可能になります。`, "green"); updateUI();
-            }
+            if (payClean(20000000)) { hasMexOffice = true; addLog(`【拠点設立】メキシコ現地拠点を設立しました！「現場人事」タブから「メキシコ支部長」を採用してください。`, "green"); updateUI(); }
         }
         function buyMexWarehouse() {
             if (cleanMoney < 30000000) return alert("【表金】が足りません。");
-            if (payClean(30000000)) { 
-                hasMexico = true; mexCap = 100; 
-                addLog(`【海外拠点取得】表金から3000万円を投資し、メキシコ密輸拠点を買収しました！`, "green"); updateUI();
-            }
+            if (payClean(30000000)) { hasMexico = true; mexCap = 100; addLog(`【海外拠点取得】メキシコ密輸拠点を買収し、運用を開始しました！`, "green"); updateUI(); }
         }
         function runMexAd() {
             if (mexNormalInv.length >= getUsableMexNormCap()) return alert("有効稼働枠が満杯です。");
@@ -786,7 +937,6 @@
             mexIllPhysCap += 50; addLog(`[海外違法] メキシコ隠し金庫を購入・増設しました。上限 ${mexIllPhysCap}箱。`, "sys"); updateUI();
         }
 
-        // --- 手動売却 ---
         function manualSellItem(id, region) {
             let targetListIllegal = (region === 'dom') ? domIllegalInv : (region === 'ovs' ? ovsIllegalInv : mexIllegalInv);
             
@@ -838,12 +988,13 @@
             for (let i = entries.length - 1; i >= 0; i--) { if (elapsedMonths - parseInt(entries[i].dataset.elapsed) >= 6) entries[i].remove(); }
         }
 
-        function getUsableDomNormCap() { return Math.min(domCap, staffDomWork * 50); }
-        function getUsableDomIllCap() { return Math.min(domIllPhysCap, staffDomKeeper * 20); }
-        function getUsableOvsNormCap() { return Math.min(ovsCap, staffOvsWork * 50); }
-        function getUsableOvsIllCap() { return Math.min(ovsIllPhysCap, staffOvsKeeper * 20); }
-        function getUsableMexNormCap() { return Math.min(mexCap, staffMexWork * 50); }
-        function getUsableMexIllCap() { return Math.min(mexIllPhysCap, staffMexKeeper * 20); }
+        // COOによるキャパシティバフ
+        function getUsableDomNormCap() { return Math.min(domCap, staffDomWork * (hasCOO ? 60 : 50)); }
+        function getUsableDomIllCap() { return Math.min(domIllPhysCap, staffDomKeeper * (hasCOO ? 30 : 20)); }
+        function getUsableOvsNormCap() { return Math.min(ovsCap, staffOvsWork * (hasCOO ? 60 : 50)); }
+        function getUsableOvsIllCap() { return Math.min(ovsIllPhysCap, staffOvsKeeper * (hasCOO ? 30 : 20)); }
+        function getUsableMexNormCap() { return Math.min(mexCap, staffMexWork * (hasCOO ? 60 : 50)); }
+        function getUsableMexIllCap() { return Math.min(mexIllPhysCap, staffMexKeeper * (hasCOO ? 30 : 20)); }
 
         function genDomNormal() {
             let baseV = Math.floor((Math.floor(Math.random() * 101) * 10000 + 1000000) * 1.25); 
@@ -895,7 +1046,7 @@
                 btn.style.backgroundColor = "#331111"; btn.style.color = "var(--red)"; btn.style.borderColor = "var(--red)";
             } else {
                 btn.disabled = false; 
-                btn.innerHTML = `⏭️ 次の月へ`; 
+                btn.innerHTML = `⏭️ 次の月へ進む`; 
                 btn.style.backgroundColor = "#1a3a1a"; btn.style.color = "var(--green)"; btn.style.borderColor = "var(--green)";
             }
         }
@@ -912,11 +1063,12 @@
             normalInv.forEach(item => {
                 item.currentValue = Math.floor(item.currentValue * (1 + ((Math.random() * 0.15) - 0.05))); 
                 let rand = Math.random();
-                if (rand < 0.03) { 
+                // CLOバフ: 合法没収の確率UP(0.06)、持ち逃げリスク減(0.09)
+                if (rand < (hasCLO ? 0.06 : 0.03)) { 
                     cleanMoney += item.currentValue; 
                     addLog(`【${pfx} 一般客の失踪】「${item.name}」を売却し、売上 ${formatMoney(item.currentValue)} を【表金】として没収。`, "gain");
                     normRem.push(item.id);
-                } else if (rand < 0.11) { 
+                } else if (rand < (hasCLO ? 0.09 : 0.11)) { 
                     cleanMoney += item.loanAmount; normRem.push(item.id); 
                 } 
             });
@@ -926,10 +1078,11 @@
             illegalInv.forEach(item => {
                 item.currentValue = Math.floor(item.currentValue * (1 + ((Math.random() * 0.50) - 0.10))); 
                 if (!item.abandoned) {
-                    if (Math.random() < 0.12) { 
+                    // CLOバフ: 所有権獲得の確率UP(0.18)、相手の売却行使率ダウン(0.6)
+                    if (Math.random() < (hasCLO ? 0.18 : 0.12)) { 
                         item.abandoned = true; item.fee = 0;
                         addLog(`【${pfx} 客の失踪】「${item.name}」の所有権がこちらに移りました。`, (regionNameCode === 'ovs') ? "blue" : ((regionNameCode === 'mex') ? "green" : "purple"));
-                    } else if (item.currentValue > item.baseValue && Math.random() < ((item.currentValue / item.baseValue) - 0.5)) { 
+                    } else if (item.currentValue > item.baseValue && Math.random() < ((item.currentValue / item.baseValue) - (hasCLO ? 0.6 : 0.5))) { 
                         dirtyMoney += item.loanAmount; 
                         addLog(`【${pfx} 売却行使】客が「${item.name}」を売却。貸付原資 ${formatMoney(item.loanAmount)} を【裏金】で回収。`, "alert");
                         illRem.push(item.id);
@@ -958,7 +1111,6 @@
             return { newNorm: normalInv, newIll: illegalInv, normIncome, illIncome, adRemaining: Math.max(0, adMonths - 1) };
         }
 
-        // --- 固定費計算用ヘルパー ---
         function calculateFacilitiesCost() {
             let cCost = 0; let dCost = 0;
             if (hasDomOffice) cCost += 1000000;
@@ -972,11 +1124,16 @@
 
         function calculatePersonnelCost() {
             let cCost = (staffDomWork * 300000) + (staffOvsWork * 1000000) + (staffMexWork * 100000);
-            let dCost = (staffLaunderer * 2000000) 
+            let dCost = (staffDomLaunderer * 2000000) + (staffOvsLaunderer * 5000000) + (staffMexLaunderer * 1000000)
                       + (staffDomKeeper * 500000) + (staffDomTransporter * 800000) + (staffDomAgent * 2000000) + (staffDomBroker * 1500000) + (staffDomDealer * 2500000)
                       + (staffOvsKeeper * 1500000) + (staffOvsTransporter * 1200000) + (staffOvsAgent * 3000000) + (staffOvsBroker * 2500000) + (staffOvsDealer * 4000000)
                       + (staffMexKeeper * 200000) + (staffMexTransporter * 300000) + (staffMexAgent * 800000) + (staffMexBroker * 500000) + (staffMexDealer * 1000000);
             return { clean: cCost, dirty: dCost };
+        }
+
+        function getExecSalaryCost() {
+            return (hasCFO ? cfoSalary : 0) + (hasCOO ? cooSalary : 0) + (hasCLO ? cloSalary : 0)
+                 + (hasDomManager ? domManagerSalary : 0) + (hasOvsManager ? ovsManagerSalary : 0) + (hasMexManager ? mexManagerSalary : 0);
         }
 
         function nextMonth() {
@@ -987,7 +1144,7 @@
             setTimeout(() => {
                 if(gameScreen) gameScreen.classList.remove("processing-blur"); 
                 executeNextMonthLogic(); 
-            }, 400); 
+            }, 300); 
         }
 
         function executeNextMonthLogic() {
@@ -1022,45 +1179,68 @@
                 addLog(`月次総収入 合計 ${formatMoney(totalInc)} (表:${formatMoney(totalCleanInc)} / 裏:${formatMoney(totalDirtyInc)}) を徴収しました。`, "gain");
             }
             
-            if (staffLaunderer > 0 && dirtyMoney > 0) {
-                let maxWash = staffLaunderer * 100000000; 
-                let washAmount = Math.min(dirtyMoney, maxWash);
-                dirtyMoney -= washAmount;
-                let washedClean = Math.floor(washAmount * 0.95);
-                cleanMoney += washedClean;
-                addLog(`【資金洗浄】洗屋が ${formatMoney(washAmount)} の裏金を洗浄し、${formatMoney(washedClean)} の【表金】に変換しました。`, "gold");
-            }
+            // 資金洗浄処理 (スイス優先 -> 国内 -> メキシコ)
+            if (dirtyMoney > 0) {
+                let totalWashed = 0;
+                let totalCleanResult = 0;
 
-            // 賄賂
-            let domBribe = Math.floor((domNormInc + domIllInc) * 0.05); 
-            if (domBribe > 0) {
-                payDirtyPreferred(domBribe);
-                addLog(`【みかじめ料】国内収入の5%（${formatMoney(domBribe)}）を警察へ支払いました。`, "loss");
-            }
-            let ovsBribe = Math.floor((ovsNormInc + ovsIllInc) * 0.04); 
-            if (ovsBribe > 0) {
-                payDirtyPreferred(ovsBribe);
-                addLog(`【みかじめ料】スイス収入の4%（${formatMoney(ovsBribe)}）を当局へ支払いました。`, "loss");
-            }
-            let mexBribe = Math.floor((mexNormInc + mexIllInc) * 0.10); 
-            if (mexBribe > 0) {
-                payDirtyPreferred(mexBribe);
-                addLog(`【上納金】メキシコ収入の10%（${formatMoney(mexBribe)}）をカルテルへ支払いました。`, "loss");
-            }
+                // スイス (5億/人, 手数料3% or 1%)
+                if (staffOvsLaunderer > 0 && dirtyMoney > 0) {
+                    let cap = staffOvsLaunderer * 500000000;
+                    let washAmt = Math.min(dirtyMoney, cap);
+                    let feeRate = hasCFO ? 0.01 : 0.03;
+                    dirtyMoney -= washAmt;
+                    let cleanRes = Math.floor(washAmt * (1 - feeRate));
+                    cleanMoney += cleanRes;
+                    totalWashed += washAmt; totalCleanResult += cleanRes;
+                }
+                // 国内 (1億/人, 手数料5% or 2%)
+                if (staffDomLaunderer > 0 && dirtyMoney > 0) {
+                    let cap = staffDomLaunderer * 100000000;
+                    let washAmt = Math.min(dirtyMoney, cap);
+                    let feeRate = hasCFO ? 0.02 : 0.05;
+                    dirtyMoney -= washAmt;
+                    let cleanRes = Math.floor(washAmt * (1 - feeRate));
+                    cleanMoney += cleanRes;
+                    totalWashed += washAmt; totalCleanResult += cleanRes;
+                }
+                // メキシコ (5000万/人, 手数料8% or 4%)
+                if (staffMexLaunderer > 0 && dirtyMoney > 0) {
+                    let cap = staffMexLaunderer * 50000000;
+                    let washAmt = Math.min(dirtyMoney, cap);
+                    let feeRate = hasCFO ? 0.04 : 0.08;
+                    dirtyMoney -= washAmt;
+                    let cleanRes = Math.floor(washAmt * (1 - feeRate));
+                    cleanMoney += cleanRes;
+                    totalWashed += washAmt; totalCleanResult += cleanRes;
+                }
 
-            if (ceoSalary > 0) {
-                if (payClean(ceoSalary)) {
-                    personalMoney += ceoSalary;
-                    addLog(`【役員報酬】CEO(あなた)の個人口座へ ${formatMoney(ceoSalary)} を振り込みました。`, "gold");
-                } else {
-                    addLog(`[WARNING] 表金不足！ 今月のCEO役員報酬は支払えませんでした。`, "red");
+                if (totalWashed > 0) {
+                    addLog(`【資金洗浄】各拠点の洗屋が計 ${formatMoney(totalWashed)} の裏金を洗浄し、${formatMoney(totalCleanResult)} の【表金】に変換しました。`, "gold");
                 }
             }
 
-            // ★ 固定費（施設維持費 ＋ 人件費）の支払い
+            // CFOバフ: みかじめ料・上納金が半額
+            let domBribe = Math.floor((domNormInc + domIllInc) * (hasCFO ? 0.025 : 0.05)); 
+            if (domBribe > 0) {
+                payDirtyPreferred(domBribe);
+                addLog(`【みかじめ料】国内収入の${hasCFO?"2.5%":"5%"}（${formatMoney(domBribe)}）を警察へ支払いました。`, "loss");
+            }
+            let ovsBribe = Math.floor((ovsNormInc + ovsIllInc) * (hasCFO ? 0.02 : 0.04)); 
+            if (ovsBribe > 0) {
+                payDirtyPreferred(ovsBribe);
+                addLog(`【みかじめ料】スイス収入の${hasCFO?"2%":"4%"}（${formatMoney(ovsBribe)}）を当局へ支払いました。`, "loss");
+            }
+            let mexBribe = Math.floor((mexNormInc + mexIllInc) * (hasCFO ? 0.05 : 0.10)); 
+            if (mexBribe > 0) {
+                payDirtyPreferred(mexBribe);
+                addLog(`【上納金】メキシコ収入の${hasCFO?"5%":"10%"}（${formatMoney(mexBribe)}）をカルテルへ支払いました。`, "loss");
+            }
+
             let facCost = calculateFacilitiesCost();
             let perCost = calculatePersonnelCost();
-            let totalCleanFixed = facCost.clean + perCost.clean;
+            let execCost = getExecSalaryCost();
+            let totalCleanFixed = facCost.clean + perCost.clean + ceoSalary + execCost;
             let totalDirtyFixed = facCost.dirty + perCost.dirty;
 
             if (totalCleanFixed > 0) {
@@ -1068,13 +1248,16 @@
                     addLog(`[WARNING] 表金ショート！ 家賃・給与未払いにより一般スタッフが離脱しました。`, "red");
                     staffDomWork = Math.floor(staffDomWork / 2); staffOvsWork = Math.floor(staffOvsWork / 2); staffMexWork = Math.floor(staffMexWork / 2);
                     cleanMoney = 0;
-                } else addLog(`【表金・固定費】事務所家賃と一般従業員の給与 ${formatMoney(totalCleanFixed)} を支払いました。`, "loss");
+                } else {
+                    addLog(`【表金・固定費】事務所家賃、一般従業員と役員の報酬など ${formatMoney(totalCleanFixed)} を支払いました。`, "loss");
+                    if (ceoSalary > 0) personalMoney += ceoSalary;
+                }
             }
             
             if (totalDirtyFixed > 0) {
                 if (!payDirtyPreferred(totalDirtyFixed)) {
                     addLog(`[WARNING] 裏金ショート！ 維持費・報酬未払いにより裏スタッフが離脱しました。`, "red");
-                    staffLaunderer = Math.floor(staffLaunderer/2);
+                    staffDomLaunderer = Math.floor(staffDomLaunderer/2); staffOvsLaunderer = Math.floor(staffOvsLaunderer/2); staffMexLaunderer = Math.floor(staffMexLaunderer/2);
                     staffDomKeeper = Math.floor(staffDomKeeper / 2); staffDomTransporter = Math.floor(staffDomTransporter / 2); staffDomAgent = Math.floor(staffDomAgent / 2); staffDomBroker = Math.floor(staffDomBroker / 2); staffDomDealer = Math.floor(staffDomDealer / 2);
                     staffOvsKeeper = Math.floor(staffOvsKeeper / 2); staffOvsTransporter = Math.floor(staffOvsTransporter / 2); staffOvsAgent = Math.floor(staffOvsAgent / 2); staffOvsBroker = Math.floor(staffOvsBroker / 2); staffOvsDealer = Math.floor(staffOvsDealer / 2);
                     staffMexKeeper = Math.floor(staffMexKeeper / 2); staffMexTransporter = Math.floor(staffMexTransporter / 2); staffMexAgent = Math.floor(staffMexAgent / 2); staffMexBroker = Math.floor(staffMexBroker / 2); staffMexDealer = Math.floor(staffMexDealer / 2);
@@ -1119,7 +1302,6 @@
                 });
                 currentRequests = remainingRequests;
 
-                // --- 自動売却処理 ---
                 if (staffDomDealer > 0 && staffDomBroker > 0 && staffDomKeeper > 0 && staffDomTransporter > 0) {
                     let abans = domIllegalInv.filter(i => i.abandoned);
                     abans.forEach(item => {
@@ -1191,31 +1373,48 @@
         }
 
         function acceptRequest() {
+            if (!currentRequests || currentRequests.length === 0) return;
             let req = currentRequests[0];
             
             if ((cleanMoney + dirtyMoney) < req.loanAmount) {
-                return alert("事業内の資金（裏・表合計）が不足しています。");
+                return alert("事業内の資金（裏金＋表金の合計）が不足しています。");
             }
             
+            let illInv, usableIllCap, physIllCap, label;
             if (req.region === "ovs") {
-                if (ovsIllegalInv.length >= getUsableOvsIllCap()) return alert("海外の違法枠（物品管理人）が不足しています。受理できません。");
-                if (ovsIllegalInv.length >= ovsIllPhysCap) return alert("海外の違法物理ストレージ（隠し金庫）が不足しています。受理できません。");
-                payDirtyPreferred(req.loanAmount);
-                ovsIllegalInv.push(req);
+                illInv = ovsIllegalInv;
+                usableIllCap = getUsableOvsIllCap();
+                physIllCap = ovsIllPhysCap || 0;
+                label = "スイス";
             } else if (req.region === "mex") {
-                if (mexIllegalInv.length >= getUsableMexIllCap()) return alert("メキシコの違法枠（物品管理人）が不足しています。受理できません。");
-                if (mexIllegalInv.length >= mexIllPhysCap) return alert("メキシコの違法物理ストレージ（隠し金庫）が不足しています。受理できません。");
-                payDirtyPreferred(req.loanAmount);
-                mexIllegalInv.push(req);
+                illInv = mexIllegalInv;
+                usableIllCap = getUsableMexIllCap();
+                physIllCap = mexIllPhysCap || 0;
+                label = "メキシコ";
             } else {
-                if (domIllegalInv.length >= getUsableDomIllCap()) return alert("国内の違法枠（物品管理人）が不足しています。受理できません。");
-                if (domIllegalInv.length >= domIllPhysCap) return alert("国内の違法物理ストレージ（隠し金庫）が不足しています。受理できません。");
-                payDirtyPreferred(req.loanAmount);
-                domIllegalInv.push(req);
+                illInv = domIllegalInv;
+                usableIllCap = getUsableDomIllCap();
+                physIllCap = domIllPhysCap || 0;
+                label = "国内";
             }
+
+            if (physIllCap <= 0) {
+                return alert(`${label}の「隠し金庫」が未購入です！設備タブから隠し金庫を購入してください。`);
+            }
+            if (illInv.length >= physIllCap) {
+                return alert(`${label}の隠し金庫（物理上限: ${physIllCap}箱）が満杯です！設備タブから増設してください。`);
+            }
+            if (illInv.length >= usableIllCap) {
+                return alert(`${label}の物品管理人が不足しています！現場人事タブから物品管理人を採用してください。`);
+            }
+            
+            payDirtyPreferred(req.loanAmount);
+            illInv.push(req);
             
             addLog(`「${req.name}」を受理。即金貸付 ${formatMoney(req.loanAmount)} を完了。`);
-            currentRequests.shift(); showNextRequest(); updateUI();
+            currentRequests.shift();
+            showNextRequest();
+            updateUI();
         }
 
         function rejectRequest() { 
@@ -1269,6 +1468,8 @@
         }
 
         function updateUI() {
+            let elComp = document.getElementById("header-company-name"); if(elComp) elComp.innerText = companyName;
+            
             let elDate = document.getElementById("display-date"); if(elDate) elDate.innerText = `${currentYear}年${currentMonth}月`;
             let elElapsed = document.getElementById("display-elapsed"); if(elElapsed) elElapsed.innerText = elapsedMonths;
 
@@ -1288,7 +1489,56 @@
             let dirtyInc = domIllegalInv.reduce((s,i)=>s+i.fee,0) + ovsIllegalInv.reduce((s,i)=>s+i.fee,0) + mexIllegalInv.reduce((s,i)=>s+i.fee,0);
             let elInc = document.getElementById("display-income"); if(elInc) elInc.innerText = formatMoney(cleanInc + dirtyInc);
 
-            let elStL = document.getElementById("ui-staff-launderer"); if(elStL) elStL.innerText = staffLaunderer;
+            // 役員UI更新
+            document.getElementById("input-ceo-salary").value = ceoSalary / 10000;
+            
+            if(hasCFO) { 
+                document.getElementById("ui-exec-cfo-hire").style.display = "none"; 
+                document.getElementById("ui-exec-cfo-active").style.display = "block"; 
+                document.getElementById("input-cfo-salary").value = cfoSalary / 10000; 
+                let elName = document.getElementById("active-name-cfo"); if(elName) elName.innerText = execNames.cfo ? `(${execNames.cfo})` : "";
+            }
+            if(hasCOO) { 
+                document.getElementById("ui-exec-coo-hire").style.display = "none"; 
+                document.getElementById("ui-exec-coo-active").style.display = "block"; 
+                document.getElementById("input-coo-salary").value = cooSalary / 10000; 
+                let elName = document.getElementById("active-name-coo"); if(elName) elName.innerText = execNames.coo ? `(${execNames.coo})` : "";
+            }
+            if(hasCLO) { 
+                document.getElementById("ui-exec-clo-hire").style.display = "none"; 
+                document.getElementById("ui-exec-clo-active").style.display = "block"; 
+                document.getElementById("input-clo-salary").value = cloSalary / 10000; 
+                let elName = document.getElementById("active-name-clo"); if(elName) elName.innerText = execNames.clo ? `(${execNames.clo})` : "";
+            }
+            
+            if(hasDomManager) { 
+                document.getElementById("ui-dom-manager-hire").style.display = "none"; 
+                document.getElementById("ui-dom-manager-active").style.display = "block"; 
+                document.getElementById("input-domManager-salary").value = domManagerSalary / 10000; 
+                let elName = document.getElementById("active-name-domManager"); if(elName) elName.innerText = execNames.domManager ? `(${execNames.domManager})` : "";
+            }
+            if(hasOvsManager) { 
+                document.getElementById("ui-ovs-manager-hire").style.display = "none"; 
+                document.getElementById("ui-ovs-manager-active").style.display = "block"; 
+                document.getElementById("input-ovsManager-salary").value = ovsManagerSalary / 10000; 
+                let elName = document.getElementById("active-name-ovsManager"); if(elName) elName.innerText = execNames.ovsManager ? `(${execNames.ovsManager})` : "";
+            }
+            if(hasMexManager) { 
+                document.getElementById("ui-mex-manager-hire").style.display = "none"; 
+                document.getElementById("ui-mex-manager-active").style.display = "block"; 
+                document.getElementById("input-mexManager-salary").value = mexManagerSalary / 10000; 
+                let elName = document.getElementById("active-name-mexManager"); if(elName) elName.innerText = execNames.mexManager ? `(${execNames.mexManager})` : "";
+            }
+
+            // 現場スタッフのアンロック制御
+            document.getElementById("ui-dom-staff-wrapper").style.display = hasDomManager ? "block" : "none";
+            document.getElementById("ui-ovs-staff-wrapper").style.display = hasOvsManager ? "block" : "none";
+            document.getElementById("ui-mex-staff-wrapper").style.display = hasMexManager ? "block" : "none";
+
+            let elStDL = document.getElementById("ui-dom-launderer"); if(elStDL) elStDL.innerText = staffDomLaunderer;
+            let elStOL = document.getElementById("ui-ovs-launderer"); if(elStOL) elStOL.innerText = staffOvsLaunderer;
+            let elStML = document.getElementById("ui-mex-launderer"); if(elStML) elStML.innerText = staffMexLaunderer;
+
             let elDW = document.getElementById("ui-dom-work"); if(elDW) elDW.innerText = staffDomWork;
             let elDK = document.getElementById("ui-dom-keeper"); if(elDK) elDK.innerText = staffDomKeeper;
             let elDT = document.getElementById("ui-dom-transporter"); if(elDT) elDT.innerText = staffDomTransporter;
@@ -1312,10 +1562,17 @@
             
             let facCost = calculateFacilitiesCost();
             let perCost = calculatePersonnelCost();
-            let totalFixedClean = facCost.clean + perCost.clean;
-            let totalFixedDirty = facCost.dirty + perCost.dirty;
+            let execCost = getExecSalaryCost();
+            let totalCleanFixed = facCost.clean + perCost.clean + ceoSalary + execCost;
+            let totalDirtyFixed = facCost.dirty + perCost.dirty;
+            let totalFixed = totalCleanFixed + totalDirtyFixed;
             
-            let elFixCost = document.getElementById("display-fixed-cost"); if(elFixCost) elFixCost.innerText = formatMoney(totalFixedClean + totalFixedDirty);
+            let elFixCost = document.getElementById("display-fixed-cost"); if(elFixCost) elFixCost.innerText = formatMoney(totalFixed);
+            let elFixExec = document.getElementById("display-fixed-exec"); if(elFixExec) elFixExec.innerText = formatMoney(ceoSalary + execCost);
+            let elFixFac = document.getElementById("display-fixed-fac"); if(elFixFac) elFixFac.innerText = formatMoney(facCost.clean + facCost.dirty);
+            let elFixPer = document.getElementById("display-fixed-per"); if(elFixPer) elFixPer.innerText = formatMoney(perCost.clean + perCost.dirty);
+            let elFixC = document.getElementById("display-fixed-clean"); if(elFixC) elFixC.innerText = formatMoney(totalCleanFixed);
+            let elFixD = document.getElementById("display-fixed-dirty"); if(elFixD) elFixD.innerText = formatMoney(totalDirtyFixed);
 
             let usableDomN = getUsableDomNormCap(); let usableDomI = getUsableDomIllCap(); 
             let usableOvsN = getUsableOvsNormCap(); let usableOvsI = getUsableOvsIllCap();
@@ -1325,16 +1582,13 @@
             let elOTransL = document.getElementById("ui-ovs-trans-left"); if(elOTransL) elOTransL.innerText = ovsTransportLeft;
             let elMTransL = document.getElementById("ui-mex-trans-left"); if(elMTransL) elMTransL.innerText = mexTransportLeft;
 
-            // --- ダッシュボードの稼働状況UI更新 ---
             let dashRegions = document.getElementById("dash-regions-container");
             if (dashRegions) {
                 let domAdHTML = domAdMonths > 0 ? `<span class="text-green" style="font-size:0.75rem;">[広告:${domAdMonths}月]</span>` : "";
                 let ovsAdHTML = ovsAdMonths > 0 ? `<span class="text-blue" style="font-size:0.75rem;">[広告:${ovsAdMonths}月]</span>` : "";
                 let mexAdHTML = mexAdMonths > 0 ? `<span class="text-green" style="font-size:0.75rem;">[広告:${mexAdMonths}月]</span>` : "";
 
-                let html = `<h3 style="margin:0 0 10px 0; color:#ddd;">📦 預かり稼働状況</h3>`;
-                
-                // 日本
+                let html = `<h3 style="margin:0 0 10px 0; color:#ddd;">📦 各拠点の稼働状況</h3>`;
                 html += `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px dashed #333;">
                     <div style="font-weight:bold;">🇯🇵 日本 ${domAdHTML}</div>
@@ -1344,7 +1598,6 @@
                     </div>
                 </div>`;
                 
-                // スイス
                 if (hasOverseas) {
                     html += `
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px dashed #333;">
@@ -1356,7 +1609,6 @@
                     </div>`;
                 }
                 
-                // メキシコ
                 if (hasMexico) {
                     html += `
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px dashed #333;">
@@ -1371,65 +1623,85 @@
             }
 
             let domIllActive = domIllegalInv.filter(i => !i.abandoned); let domIllAban = domIllegalInv.filter(i => i.abandoned);
-            let elLNID = document.getElementById("list-dom-norm-info"); if(elLNID) elLNID.innerText = `${domNormalInv.length}/${usableDomN}`;
-            let elLIID = document.getElementById("list-dom-ill-info"); if(elLIID) elLIID.innerText = `${domIllegalInv.length}/${usableDomI}`;
             let elDNL = document.getElementById("dom-norm-list"); if(elDNL) elDNL.innerHTML = generateItemListHTML(domNormalInv, 'dom', 'normal');
             let elDIL = document.getElementById("dom-ill-list"); if(elDIL) elDIL.innerHTML = generateItemListHTML(domIllActive, 'dom', 'illegal');
             let elDAL = document.getElementById("dom-aban-list"); if(elDAL) elDAL.innerHTML = generateItemListHTML(domIllAban, 'dom', 'abandoned');
 
             if(hasOverseas){
                 let ovsIllActive = ovsIllegalInv.filter(i => !i.abandoned); let ovsIllAban = ovsIllegalInv.filter(i => i.abandoned);
-                let elLNIO = document.getElementById("list-ovs-norm-info"); if(elLNIO) elLNIO.innerText = `${ovsNormalInv.length}/${usableOvsN}`;
-                let elLIIO = document.getElementById("list-ovs-ill-info"); if(elLIIO) elLIIO.innerText = `${ovsIllegalInv.length}/${usableOvsI}`;
                 let elONL = document.getElementById("ovs-norm-list"); if(elONL) elONL.innerHTML = generateItemListHTML(ovsNormalInv, 'ovs', 'normal');
                 let elOIL = document.getElementById("ovs-ill-list"); if(elOIL) elOIL.innerHTML = generateItemListHTML(ovsIllActive, 'ovs', 'illegal');
                 let elOAL = document.getElementById("ovs-aban-list"); if(elOAL) elOAL.innerHTML = generateItemListHTML(ovsIllAban, 'ovs', 'abandoned');
             }
             if(hasMexico){
                 let mexIllActive = mexIllegalInv.filter(i => !i.abandoned); let mexIllAban = mexIllegalInv.filter(i => i.abandoned);
-                let elLNIM = document.getElementById("list-mex-norm-info"); if(elLNIM) elLNIM.innerText = `${mexNormalInv.length}/${usableMexN}`;
-                let elLIIM = document.getElementById("list-mex-ill-info"); if(elLIIM) elLIIM.innerText = `${mexIllegalInv.length}/${usableMexI}`;
                 let elMNL = document.getElementById("mex-norm-list"); if(elMNL) elMNL.innerHTML = generateItemListHTML(mexNormalInv, 'mex', 'normal');
                 let elMIL = document.getElementById("mex-ill-list"); if(elMIL) elMIL.innerHTML = generateItemListHTML(mexIllActive, 'mex', 'illegal');
                 let elMAL = document.getElementById("mex-aban-list"); if(elMAL) elMAL.innerHTML = generateItemListHTML(mexIllAban, 'mex', 'abandoned');
             }
 
-            // ビジネス開始判定・UI表示制御
             let cmdDomOffice = document.getElementById("cmd-dom-office");
             let cmdBuyFirst = document.getElementById("cmd-buy-first");
             let cmdDom = document.getElementById("cmd-dom");
             let hrPanel = document.getElementById("hr-panel");
             let hrDomSec = document.getElementById("hr-dom-section");
+            
+            let execLockedWarn = document.getElementById("exec-locked-warning");
+            let execPanel = document.getElementById("exec-panel");
+            let hrLockedWarn = document.getElementById("hr-locked-warning");
+            
             let strCont = document.getElementById("storage-container");
             let stWarn = document.getElementById("req-start-warning");
 
+            // 役員・人事タブの表示制御
+            if (hasDomOffice) {
+                if (execLockedWarn) execLockedWarn.style.display = "none";
+                if (execPanel) execPanel.style.display = "block";
+                
+                if (hrLockedWarn) hrLockedWarn.style.display = "none";
+                if (hrPanel) hrPanel.style.display = "block";
+                if (hrDomSec) hrDomSec.style.display = "block";
+            } else {
+                if (execLockedWarn) execLockedWarn.style.display = "block";
+                if (execPanel) execPanel.style.display = "none";
+                
+                if (hrLockedWarn) hrLockedWarn.style.display = "block";
+                if (hrPanel) hrPanel.style.display = "none";
+                if (hrDomSec) hrDomSec.style.display = "none";
+            }
+
+            // 設備・倉庫タブの表示制御
+            let msgDomNeedMgr = document.getElementById("msg-dom-need-mgr");
+            let msgOvsNeedMgr = document.getElementById("msg-ovs-need-mgr");
+            let msgMexNeedMgr = document.getElementById("msg-mex-need-mgr");
+
             if (hasDomOffice && !hasWarehouse) {
-                if(stWarn) { stWarn.innerText = "⚠️ 国内事務所の設立が完了しました。「人事・設備」から『最初の一般倉庫（3,000万円）』を購入してください。"; stWarn.style.display = "block"; }
+                if(stWarn) { 
+                    if (!hasDomManager) stWarn.innerText = "⚠️ 国内事務所を設立しました。次に「現場人事」タブから『国内支部長』を採用してください。";
+                    else stWarn.innerText = "⚠️ 支部長が着任しました。「設備」タブから『最初の一般倉庫（3,000万円）』を購入してください。";
+                    stWarn.style.display = "block"; 
+                }
                 if(strCont) strCont.style.display = "none";
                 if(cmdDomOffice) cmdDomOffice.style.display = "none";
-                if(cmdBuyFirst) cmdBuyFirst.style.display = "block";
+                if(msgDomNeedMgr) msgDomNeedMgr.style.display = hasDomManager ? "none" : "block";
+                if(cmdBuyFirst) cmdBuyFirst.style.display = hasDomManager ? "block" : "none";
                 if(cmdDom) cmdDom.style.display = "none";
-                if(hrPanel) hrPanel.style.display = "block";
-                if(hrDomSec) hrDomSec.style.display = "block";
             } else if (hasWarehouse) {
                 if(stWarn) stWarn.style.display = "none";
                 if(strCont) strCont.style.display = "block";
                 if(cmdDomOffice) cmdDomOffice.style.display = "none";
+                if(msgDomNeedMgr) msgDomNeedMgr.style.display = "none";
                 if(cmdBuyFirst) cmdBuyFirst.style.display = "none";
                 if(cmdDom) cmdDom.style.display = "block";
-                if(hrPanel) hrPanel.style.display = "block";
-                if(hrDomSec) hrDomSec.style.display = "block";
             } else {
-                if(stWarn) { stWarn.innerText = "⚠️ ビジネスを始めるには、「人事・設備」タブから『国内事務所』と『一般倉庫』を購入してください。"; stWarn.style.display = "block"; }
+                if(stWarn) { stWarn.innerText = "⚠️ ビジネスを始めるには、「設備」タブから『国内事務所』を購入してください。"; stWarn.style.display = "block"; }
                 if(strCont) strCont.style.display = "none";
                 if(cmdDomOffice) cmdDomOffice.style.display = "block";
+                if(msgDomNeedMgr) msgDomNeedMgr.style.display = "none";
                 if(cmdBuyFirst) cmdBuyFirst.style.display = "none";
                 if(cmdDom) cmdDom.style.display = "none";
-                if(hrPanel) hrPanel.style.display = "none";
-                if(hrDomSec) hrDomSec.style.display = "none";
             }
 
-            // 安全なボタン無効化
             if (hasWarehouse) {
                 let cmdOvsUnlock = document.getElementById("cmd-overseas-unlock");
                 if (cmdOvsUnlock) cmdOvsUnlock.style.display = (staffDomAgent >= 1) ? "flex" : "none";
@@ -1451,10 +1723,15 @@
                     let hrOvsSec = document.getElementById("hr-ovs-section"); if(hrOvsSec) hrOvsSec.style.display = "block";
                     
                     if (!hasOverseas) {
-                        let cmdBuyOvsWh = document.getElementById("cmd-buy-ovs-wh"); if(cmdBuyOvsWh) cmdBuyOvsWh.style.display = "block";
+                        let cmdBuyOvsWh = document.getElementById("cmd-buy-ovs-wh"); 
+                        if(cmdBuyOvsWh) {
+                            cmdBuyOvsWh.style.display = hasOvsManager ? "block" : "none";
+                        }
+                        if(msgOvsNeedMgr) msgOvsNeedMgr.style.display = hasOvsManager ? "none" : "block";
                         let cmdOvs = document.getElementById("cmd-ovs"); if(cmdOvs) cmdOvs.style.display = "none";
                     } else {
                         let cmdBuyOvsWh = document.getElementById("cmd-buy-ovs-wh"); if(cmdBuyOvsWh) cmdBuyOvsWh.style.display = "none";
+                        if(msgOvsNeedMgr) msgOvsNeedMgr.style.display = "none";
                         let cmdOvs = document.getElementById("cmd-ovs"); if(cmdOvs) cmdOvs.style.display = "block";
                         let ovsAcc = document.getElementById("overseas-accordion"); if(ovsAcc) ovsAcc.style.display = "block";
                         let uiOvsTransWrp = document.getElementById("ui-ovs-trans-wrapper"); if(uiOvsTransWrp) uiOvsTransWrp.style.display = "block";
@@ -1466,10 +1743,15 @@
                     let hrMexSec = document.getElementById("hr-mex-section"); if(hrMexSec) hrMexSec.style.display = "block";
                     
                     if (!hasMexico) {
-                        let cmdBuyMexWh = document.getElementById("cmd-buy-mex-wh"); if(cmdBuyMexWh) cmdBuyMexWh.style.display = "block";
+                        let cmdBuyMexWh = document.getElementById("cmd-buy-mex-wh"); 
+                        if(cmdBuyMexWh) {
+                            cmdBuyMexWh.style.display = hasMexManager ? "block" : "none";
+                        }
+                        if(msgMexNeedMgr) msgMexNeedMgr.style.display = hasMexManager ? "none" : "block";
                         let cmdMex = document.getElementById("cmd-mex"); if(cmdMex) cmdMex.style.display = "none";
                     } else {
                         let cmdBuyMexWh = document.getElementById("cmd-buy-mex-wh"); if(cmdBuyMexWh) cmdBuyMexWh.style.display = "none";
+                        if(msgMexNeedMgr) msgMexNeedMgr.style.display = "none";
                         let cmdMex = document.getElementById("cmd-mex"); if(cmdMex) cmdMex.style.display = "block";
                         let mexAcc = document.getElementById("mexico-accordion"); if(mexAcc) mexAcc.style.display = "block";
                         let uiMexTransWrp = document.getElementById("ui-mex-trans-wrapper"); if(uiMexTransWrp) uiMexTransWrp.style.display = "block";
@@ -1479,7 +1761,6 @@
         }
         
         updateSaveSlots();
-
     </script>
 </body>
 </html>
